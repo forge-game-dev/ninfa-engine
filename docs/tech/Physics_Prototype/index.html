@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dungeon Runner — Physics Prototype</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0d0d1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Courier New', monospace;
+    }
+    #gameCanvas {
+      border: 2px solid #16213e;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+    #controls {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      color: #4fc3f7;
+      font-size: 12px;
+      background: rgba(22, 33, 62, 0.9);
+      padding: 10px;
+      border-radius: 4px;
+    }
+    #debug {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      color: #00d4ff;
+      font-size: 11px;
+      background: rgba(22, 33, 62, 0.9);
+      padding: 10px;
+      border-radius: 4px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="512" height="288"></canvas>
+  <div id="controls">
+    <strong>Controls:</strong><br>
+    ← / A — Move Left<br>
+    → / D — Move Right<br>
+    Space / ↑ / W — Jump<br>
+    R — Reset Level
+  </div>
+  <div id="debug">
+    FPS: <span id="fps">60</span><br>
+    Pos: (<span id="px">0</span>, <span id="py">0</span>)<br>
+    Vel: (<span id="vx">0</span>, <span id="vy">0</span>)<br>
+    Grounded: <span id="gr">false</span><br>
+    Coyote: <span id="ct">0.00</span>s<br>
+    Buffer: <span id="jb">0.00</span>s<br>
+    Crystals: <span id="cr">0</span>/1
+  </div>
+  <script src="prototype.js"></script>
+</body>
+</html>
