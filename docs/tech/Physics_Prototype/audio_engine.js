@@ -589,7 +589,7 @@ function _makeDistortionCurve(amount) {
       const d = Math.sqrt(dx * dx + dy * dy);
       if (d < minDist) minDist = d;
     });
-    const maxRange = 3;
+    const maxRange = 2;
     const minRange = 0.5;
     const vol = Math.max(0, Math.min(0.35, 0.35 * (1 - (minDist - minRange) / (maxRange - minRange))));
     proximityGainNode.gain.setTargetAtTime(vol, ctx.currentTime, 0.1);
