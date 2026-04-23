@@ -1,5 +1,5 @@
 /**
- * DUNGEON RUNNER — Audio Engine v0.3
+ * DUNGEON RUNNER — Audio Engine v0.3b
  * Cadenza, Audio Designer & Zephyr, Game Developer
  * For prototype.js integration
  * 
@@ -9,9 +9,8 @@
  *   3. Trigger sounds via window.audioEngine.trigger(id)
  *   4. Proximity: setProximityTarget(player, crystals) once, updateProximity() every frame
  *
- * Trigger IDs:
- *   JUMP, COYOTE_JUMP, LAND, CRYSTAL_COLLECT, DEATH,
- *   CHECKPOINT, LEVEL_COMPLETE, PORTAL, DROWN
+ * Trigger IDs: JUMP, COYOTE_JUMP, LAND, CRYSTAL_COLLECT, DEATH,
+ *              CHECKPOINT, LEVEL_COMPLETE, PORTAL, DROWN
  */
 (function() {
   'use strict';
@@ -33,6 +32,10 @@
 
   // ── Master gain ────────────────────────────────────────────
   var masterGain = null;
+
+  function getMasterVolume() {
+    return masterGain ? masterGain.gain.value : CONFIG.masterVolume;
+  }
 
   // ── Trigger IDs ───────────────────────────────────────────
   var TRIGGERS = {
@@ -176,28 +179,68 @@
     osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.6);
   };
 
-  // ── SFX: DROWN (placeholder — production version pending) ─
+  // ── SFX: DROWN (production — Cadenza) ─────────────────────
+  // Character: white noise → lowpass sweep (1kHz→200Hz) + 55Hz rumble sine.
+  // Fade in fast (0.15s), slow out (1.8s). Distinct from DEATH (sharp/high).
   AudioEngine.trigger_DROWN = function() {
-    var sr   = ctx.sampleRate;
-    var buf  = ctx.createBuffer(1, sr * 0.8, sr);
-    var d    = buf.getChannelData(0);
-    for (var i = 0; i < d.length; i++)
-      d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (d.length * 0.5));
-    var src  = ctx.createBufferSource(); src.buffer = buf;
-    var filt = ctx.createBiquadFilter(); filt.type = 'lowpass'; filt.frequency.value = 600;
-    var g    = ctx.createGain(); g.gain.value = 0.5;
-    src.connect(filt); filt.connect(g); g.connect(masterGain);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
-    src.start();
+    if (!ctx) return;
+    var now = ctx.currentTime;
+    var dur = 2.0;
+
+    // White noise: muffled underwater texture
+    var bufSamples = Math.floor(ctx.sampleRate * 0.5);
+    var buf = ctx.createBuffer(1, bufSamples, ctx.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < bufSamples; i++) d[i] = Math.random() * 2 - 1;
+
+    var noise = ctx.createBufferSource();
+    noise.buffer = buf;
+    noise.loop = true;
+
+    var lpf = ctx.createBiquadFilter();
+    lpf.type = 'lowpass';
+    lpf.frequency.setValueAtTime(1000, now);
+    lpf.frequency.exponentialRampToValueAtTime(200, now + dur);
+    lpf.Q.value = 1.2;
+
+    var gNoise = ctx.createGain();
+    gNoise.gain.setValueAtTime(0, now);
+    gNoise.gain.linearRampToValueAtTime(0.45, now + 0.15);
+    gNoise.gain.setValueAtTime(0.45, now + 0.4);
+    gNoise.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+    // Low rumble: 55Hz sine (underwater pressure)
+    var rumble = ctx.createOscillator();
+    rumble.type = 'sine';
+    rumble.frequency.value = 55;
+
+    var gRumble = ctx.createGain();
+    gRumble.gain.setValueAtTime(0, now);
+    gRumble.gain.linearRampToValueAtTime(0.22, now + 0.2);
+    gRumble.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+    var master = ctx.createGain();
+    master.gain.value = getMasterVolume();
+
+    noise.connect(lpf);
+    lpf.connect(gNoise);
+    gNoise.connect(master);
+    rumble.connect(gRumble);
+    gRumble.connect(master);
+    master.connect(ctx.destination);
+
+    noise.start(now);
+    rumble.start(now);
+    noise.stop(now + dur);
+    rumble.stop(now + dur);
   };
 
   // ══════════════════════════════════════════════════════════════
   // CRYSTAL PROXIMITY — v0.3 dual-oscillator system
-  // Per Cadenza's exact spec:
-  //   660Hz + 663.3Hz oscillators
-  //   Bandpass filter, Q=5, freq = max(400, 660 - dist*20)
+  // Per Cadenza's spec:
+  //   660Hz + 663.3Hz oscillators, bandpass filter Q=5
   //   Step-curve volume: 0.35→0.25→0.18→0.06→0
-  //   Oscillators restart when volume > 0
+  //   Filter frequency: max(400, 660 - dist*20)
   // ══════════════════════════════════════════════════════════════
 
   var _proxPlayer   = null;
@@ -278,16 +321,14 @@
 
     _proxGain.gain.value = vol;
 
-    // Filter: brighter when closer, min 400Hz
     var filtFreq = Math.max(400, 660 - minDist * 20);
     _proxFilter.frequency.value = filtFreq;
 
-    // Oscillator restart: if volume drops to 0, stop; if volume returns, restart
     if (vol === 0 && _proxActive)  { _proxStop(); }
-    if (vol >  0 && !_proxActive)  { _proxStart(); }
+    if (vol >  0 && !_proxActive) { _proxStart(); }
   };
 
-  // Stop proximity on level exit / death
+  // Call on level exit / death
   AudioEngine.stopProximity = function() {
     _proxStop();
     _proxPlayer = null; _proxCrystals = [];
@@ -331,7 +372,6 @@
     }
   };
 
-  // Expose TRIGGERS for external access
   AudioEngine.TRIGGERS = TRIGGERS;
 
 })();
