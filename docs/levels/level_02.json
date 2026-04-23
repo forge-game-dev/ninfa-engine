@@ -4,7 +4,8 @@
   "description": "Torch-lit descent — precision jumping through vertical and horizontal shaft sections. Water channels test your timing.",
   "theme": "Torch-lit Descent",
   "challengeFocus": "Precision jumping",
-  "totalCrystals": 8,
+  "totalCrystals": 12,
+  "crystalGate": 9,
   "tileSize": 32,
   "background": "#1a1a2e",
   "palette": {
@@ -14,10 +15,12 @@
     "crystal": "#ffd700",
     "exit": "#2a9d8f",
     "torch": "#ff9f43",
-    "water": "#2980b9"
+    "water": "#2980b9",
+    "water_deep": "#1a2d3e",
+    "water_surface": "#2d4a5e"
   },
   "spawn": { "x": 32, "y": 64 },
-  "exit": { "x": 480, "y": 480, "w": 48, "h": 64 },
+  "exit": { "x": 480, "y": 544, "w": 48, "h": 64 },
   "platforms": [
     { "x": 0, "y": 96, "w": 128, "h": 32, "type": "solid" },
     { "x": 192, "y": 128, "w": 64, "h": 32, "type": "solid" },
@@ -31,26 +34,33 @@
     { "x": 32, "y": 384, "w": 96, "h": 32, "type": "solid" },
     { "x": 192, "y": 416, "w": 64, "h": 32, "type": "solid" },
     { "x": 320, "y": 384, "w": 128, "h": 32, "type": "solid" },
-    { "x": 480, "y": 544, "w": 32, "h": 32, "type": "solid" },
-    { "x": 256, "y": 512, "w": 160, "h": 32, "type": "solid" }
+    { "x": 480, "y": 608, "w": 32, "h": 32, "type": "solid" },
+    { "x": 256, "y": 576, "w": 160, "h": 32, "type": "solid" },
+    { "x": 128, "y": 480, "w": 96, "h": 32, "type": "passthrough" },
+    { "x": 416, "y": 480, "w": 64, "h": 32, "type": "solid" }
   ],
   "movingPlatforms": [
-    { "x": 128, "y": 160, "w": 64, "h": 16, "type": "movingH", "velocityX": 1.5, "minX": 128, "maxX": 220 },
-    { "x": 320, "y": 256, "w": 64, "h": 16, "type": "movingH", "velocityX": -1.5, "minX": 288, "maxX": 384 }
+    { "x": 128, "y": 160, "w": 64, "h": 16, "type": "movingH", "velocityX": 3, "minX": 128, "maxX": 220, "name": "MP-H1" },
+    { "x": 320, "y": 256, "w": 64, "h": 16, "type": "movingV", "velocityY": 2, "minY": 192, "maxY": 352, "name": "MP-V1" }
   ],
   "checkpoints": [
-    { "x": 352, "y": 192, "triggerX": 352, "triggerY": 192, "index": 1 },
-    { "x": 32, "y": 384, "triggerX": 32, "triggerY": 384, "index": 2 }
+    { "x": 352, "y": 192, "triggerX": 352, "triggerY": 192, "index": 1, "zone": "A" },
+    { "x": 192, "y": 416, "triggerX": 192, "triggerY": 416, "index": 2, "zone": "B" },
+    { "x": 128, "y": 480, "triggerX": 128, "triggerY": 480, "index": 3, "zone": "C" }
   ],
   "crystals": [
-    { "x": 96, "y": 160, "collected": false },
-    { "x": 224, "y": 192, "collected": false },
-    { "x": 384, "y": 160, "collected": false },
-    { "x": 160, "y": 256, "collected": false },
-    { "x": 448, "y": 256, "collected": false },
-    { "x": 160, "y": 352, "collected": false },
-    { "x": 352, "y": 352, "collected": false },
-    { "x": 320, "y": 448, "collected": false }
+    { "id": "C-01", "x": 96, "y": 160, "collected": false },
+    { "id": "C-02", "x": 224, "y": 192, "collected": false },
+    { "id": "C-03", "x": 384, "y": 160, "collected": false },
+    { "id": "C-04", "x": 160, "y": 256, "collected": false },
+    { "id": "C-05", "x": 448, "y": 256, "collected": false },
+    { "id": "C-06", "x": 160, "y": 352, "collected": false },
+    { "id": "C-07", "x": 352, "y": 352, "collected": false },
+    { "id": "C-08", "x": 96, "y": 448, "collected": false },
+    { "id": "C-09", "x": 320, "y": 448, "collected": false },
+    { "id": "C-10", "x": 448, "y": 448, "collected": false },
+    { "id": "C-11", "x": 64, "y": 544, "collected": false },
+    { "id": "C-12", "x": 416, "y": 544, "collected": false }
   ],
   "torches": [
     { "x": 64, "y": 160, "radius": 2.0 },
@@ -59,15 +69,24 @@
     { "x": 96, "y": 256, "radius": 2.0 },
     { "x": 448, "y": 288, "radius": 2.0 },
     { "x": 32, "y": 352, "radius": 2.0 },
-    { "x": 256, "y": 480, "radius": 2.0 },
+    { "x": 256, "y": 544, "radius": 2.0 },
     { "x": 480, "y": 352, "radius": 2.0 }
   ],
   "hazards": [
     { "x": 288, "y": 96, "w": 32, "h": 32, "type": "spike" },
     { "x": 320, "y": 320, "w": 64, "h": 16, "type": "water" },
     { "x": 160, "y": 416, "w": 32, "h": 16, "type": "spike" },
-    { "x": 192, "y": 544, "w": 64, "h": 16, "type": "water" }
+    { "x": 192, "y": 576, "w": 64, "h": 16, "type": "water" }
   ],
+  "waterZones": [
+    { "x": 288, "y": 336, "w": 128, "h": 64, "depth": 1, "damagePerSec": 0.33, "label": "Zone A water channel" },
+    { "x": 160, "y": 592, "w": 96, "h": 32, "depth": 1, "damagePerSec": 0.33, "label": "Zone B drowning pit" }
+  ],
+  "zones": {
+    "A": { "name": "Start", "crystals": 4, "checkpoints": 0 },
+    "B": { "name": "Mid", "crystals": 4, "checkpoints": 2 },
+    "C": { "name": "Challenge", "crystals": 4, "checkpoints": 1 }
+  },
   "levelComplete": false,
-  "notes": "Vesper brief v1 — water channels, 2 moving platforms, 2 checkpoints, 8 crystals (per GDD table). Precision jumping sections require exact timing. Moving platforms (MP-H1:128-220, MP-H2:288-384) carry player when grounded."
+  "notes": "Updated v2: 12 crystals (9 for 70% gate), 3 checkpoints (CP-01 post-crossing, CP-02 post-V-climb, CP-03 challenge entry), MP-H1 3 u/s, MP-V1 2 u/s, water drowning zones per Vesper brief."
 }
