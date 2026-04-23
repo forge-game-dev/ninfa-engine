@@ -7,7 +7,7 @@
 ## 1. GAME OVERVIEW
 
 ### 1.1 Concept & Vision
-Dungeon Runner is a family-friendly platformer set in a minimalist dungeon filled with mysterious light sources. Players guide a glowing geometric creature through five distinct levels, collecting crystals, activating checkpoints, and mastering movement mechanics. The game combines tight controls with puzzle elements — every crystal collected brings players closer to unlocking the exit portal.
+Dungeon Runner is a family-friendly platformer set in a minimalist dungeon filled with mysterious light sources. Players guide a glowing geometric creature through five distinct levels (see Appendices A-E), collecting crystals, activating checkpoints, and mastering movement mechanics. The game combines tight controls with puzzle elements — every crystal collected brings players closer to unlocking the exit portal.
 
 The core experience: precision platforming in a beautifully sparse dungeon where light is both your companion and your guide.
 
@@ -434,3 +434,102 @@ The core experience: precision platforming in a beautifully sparse dungeon where
 ---
 
 *GDD v1.0 — Complete. Subject to revision based on Vertical Slice feedback and team review.*
+
+---
+
+## Appendix E: Level 5 — "The Sanctum"
+
+**Status:** DRAFT v0.1 — Awaiting Nicolas approval
+**Author:** Vesper (Game Designer)
+**Date:** 2026-04-23
+
+### Concept
+
+The final level. Not the hardest — The Gauntlet (Level 4) holds that title. The Sanctum is the *reward*: a level that asks players to demonstrate mastery of everything they've learned, but rewards that mastery with visual spectacle, emotional payoff, and a satisfying conclusion.
+
+After the precision brutality of The Gauntlet, The Sanctum offers something different: narrative weight. This is the heart of the dungeon — ancient, powerful, earned. The player isn't just clearing a level; they're claiming something.
+
+**Design intent:** Climactic finale that synthesizes all 4 previous levels into one final run. No new mechanics introduced. Mastery is tested, not taught.
+
+---
+
+### Zone Structure
+
+#### Zone A — The Approach
+| Attribute | Value |
+|-----------|-------|
+| Crystals | 4 |
+| Checkpoints | 1 (entry) |
+| Mechanics | Basic platforming (L1), water channel (L2) |
+| Gate contribution | 4/14 (28.6%) |
+
+Calm re-orientation. Player catches breath after The Gauntlet's intensity. Single-path water crossing reintroduces L2 mechanics gently.
+
+#### Zone B — The Convergence
+| Attribute | Value |
+|-----------|-------|
+| Crystals | 6 |
+| Checkpoints | 1 (Zone B midpoint) |
+| Mechanics | Moving platforms, key locks (L3), spike corridors (L4) |
+| Gate contribution | 6/14 (42.9%) |
+
+"Greatest hits" zone. Tests whether the player can chain skills — platform timing while tracking keys while avoiding spikes. Three keys (gold/red/blue) scattered across challenging platform sequences; collecting all 3 requires detours from the main path.
+
+#### Zone C — The Sanctum Chamber
+| Attribute | Value |
+|-----------|-------|
+| Crystals | 4 |
+| Checkpoints | 0 |
+| Mechanics | Timed platform (L4), all 3 keys required |
+| Gate contribution | 4/14 (28.6%) |
+
+Final run. Single-path precision sequence to vault door. All 3 keys must be in inventory. No checkpoint — this is the final test.
+
+---
+
+### Level 5 Summary
+
+| Attribute | Value |
+|-----------|-------|
+| Total crystals | 14 |
+| Gate | 10/14 (70%) |
+| Checkpoints | 2 |
+| Hardest level | No — Level 4 holds that title |
+| New mechanics | None |
+| New hazards | None |
+
+**Gate rationale:** 70% matches Level 3. Keys add natural progression gating (must collect 3 specific keys regardless of crystal count), making the effective difficulty higher than the percentage suggests.
+
+**Difficulty rationale:** Level 5 is easier than Level 4 by design. Players who reach Level 5 have already proven mastery. A harder-than-L4 finale would feel punishing, not rewarding. The Sanctum tests *breadth* of skill, not raw difficulty.
+
+---
+
+### Audio Triggers
+
+| Trigger | Type | Source |
+|---------|------|--------|
+| VAULT_ACTIVATE | Event | Reused from Level 3 (VAULT_ACTIVATE, 1.2s deep chord) |
+| ZONE_C_AMBIENT_START / STOP | Continuous | Warm golden pad (220Hz sine + 330Hz triangle), fades in on Zone C entry, fades out on exit |
+| VICTORY_STING | Event | C major arpeggio (523, 659, 784 Hz) + shimmer sweep, ~1.2s |
+
+---
+
+### Art Direction Notes
+
+**Level 5 visual theme:** Ancient, powerful, sacred.
+
+- Lighting: warmer gold undertones (#ff9f43 range) — shift from cool blue dungeon palette
+- Background: richer stone textures, ancient carvings implied through shape language
+- Zone C: golden ambient light bleeding into the scene as player approaches vault
+- Vault door: 3-key mechanism, ornate frame — largest/most detailed prop in the game
+
+**Palette shift:** Level 5 introduces warm accent colors (#ff9f43, #ffd700) as visual reward. No new base colors — warm shift applied through lighting/atmosphere only.
+
+---
+
+### Open Questions (Pending Nicolas)
+
+1. Genre confirmation for full game expansion beyond the 5-level vertical slice
+2. Victory sequence — what happens after Level 5? Post-credits state?
+3. Confirm Level 5 easier than Level 4 (design intent: yes, Level 4 = hardest, Level 5 = climactic mastery)
+4. Replay value — hidden collectible or optional challenge for post-gate completionists?
