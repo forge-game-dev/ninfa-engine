@@ -3,53 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dungeon Runner — Physics Prototype v0.5 "Full Audio-Visual"</title>
+  <title>Dungeon Runner — Physics Prototype</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: #0d0d1a;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      font-family: 'Courier New', monospace;
-    }
-    #gameCanvas {
-      border: 2px solid #4a4a6a;
-      box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-    }
-    #controls {
-      position: fixed;
-      top: 10px; left: 10px;
-      color: #4fc3f7; font-size: 12px;
-      background: rgba(26, 26, 46, 0.95);
-      padding: 10px; border-radius: 4px;
-    }
-    #debug {
-      position: fixed;
-      top: 10px; right: 10px;
-      color: #00d4ff; font-size: 11px;
-      background: rgba(26, 26, 46, 0.95);
-      padding: 10px; border-radius: 4px;
-      text-align: right;
-    }
-    .version-tag {
-      position: fixed;
-      bottom: 10px; right: 10px;
-      color: #4a4a6a; font-size: 10px;
-      background: rgba(26,26,46,0.9);
-      padding: 4px 8px; border-radius: 4px;
-    }
+    body { background: #0d0d1a; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Courier New', monospace; }
+    #gameCanvas { border: 2px solid #4a4a6a; box-shadow: 0 0 20px rgba(0,212,255,0.3); }
+    #controls { position: fixed; top: 10px; left: 10px; color: #4fc3f7; font-size: 12px; background: rgba(26,26,46,0.95); padding: 10px; border-radius: 4px; }
+    #debug { position: fixed; top: 10px; right: 10px; color: #00d4ff; font-size: 11px; background: rgba(26,26,46,0.95); padding: 10px; border-radius: 4px; text-align: right; }
+    .version-tag { position: fixed; bottom: 10px; right: 10px; color: #4a4a6a; font-size: 10px; background: rgba(26,26,46,0.9); padding: 4px 8px; border-radius: 4px; }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="512" height="288"></canvas>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
   <div id="controls">
+    <strong>Dungeon Runner — Level 2: The Descent</strong><br>
     <strong>Controls:</strong><br>
-    ← / A — Move Left<br>
-    → / D — Move Right<br>
-    Space / ↑ / W — Jump<br>
-    R — Reset Level
+    Arrow / WASD — Move<br>
+    Space / Up / W — Jump<br>
+    R — Reset Level<br>
+    <br>
+    <strong>Collect all 12 crystals to open the portal.</strong>
   </div>
   <div id="debug">
     FPS: <span id="fps">60</span><br>
@@ -58,11 +31,12 @@
     Grounded: <span id="gr">false</span><br>
     Coyote: <span id="ct">0.00</span>s<br>
     Buffer: <span id="jb">0.00</span>s<br>
-    Crystals: <span id="cr">0</span>/1
+    Crystals: <span id="cr">0</span>/12
   </div>
-  <div class="version-tag">v0.5 — Full Audio-Visual | Cadenza audio_engine.js + ambient_engine.js</div>
+  <div class="version-tag">v6 — Level 2: The Descent | Moving Platforms + Checkpoints + Water</div>
+  <p id="p" style="position:fixed;bottom:40px;left:50%;transform:translateX(-50%);color:#00d4ff;font-size:14px;"></p>
   <script src="audio_engine.js"></script>
   <script src="ambient_engine.js"></script>
-  <script src="prototype_v5.js"></script>
+  <script src="prototype_v6.js"></script>
 </body>
 </html>
