@@ -1,0 +1,28 @@
+{
+  "id": "level_01",
+  "name": "Awakening",
+  "description": "Tutorial level - learn basic movement and jumping",
+  "tileSize": 32,
+  "canvasWidth": 512,
+  "canvasHeight": 288,
+  "background": "#1a1a2e",
+  "spawn": { "x": 32, "y": 192 },
+  "exit": { "x": 460, "y": 192, "w": 40, "h": 40 },
+  "platforms": [
+    { "id": "ground",    "type": "solid",      "x": 0,    "y": 256, "w": 512, "h": 32 },
+    { "id": "plat_a",    "type": "solid",      "x": 64,   "y": 224, "w": 128, "h": 32 },
+    { "id": "plat_b",    "type": "passthrough", "x": 256,  "y": 192, "w": 128, "h": 32 },
+    { "id": "plat_c",    "type": "solid",      "x": 400,  "y": 192, "w": 96,  "h": 32 }
+  ],
+  "torches": [],
+  "crystals": [
+    { "id": "crystal_01", "x": 320, "y": 160 }
+  ],
+  "hazards": [],
+  "checkpoints": [],
+  "parallax": {
+    "far": 0.2,
+    "mid": 0.6,
+    "foreground": 1.0
+  }
+}
