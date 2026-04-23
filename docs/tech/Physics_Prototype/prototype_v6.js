@@ -67,9 +67,11 @@ function el(id) { return document.getElementById(id); }
 
 function createPlayer(x, y) {
   return { x:x, y:y, w:32, h:32, vx:0, vy:0, grounded:false, coyote:0, jumpBuffer:0,
-    facingRight:true, state:'idle', animTime:0, animFrame:0, squashX:1, squashY:1, dying:false };
+    facingRight:true, state:'idle', animTime:0, animFrame:0, squashX:1, squashY:1, dying:false, wasGrounded:false };
 }
 
+
+function safeTrigger(name) { if (window.audioEngine) audioEngine.trigger(name); }
 function aabb(a, b) {
   return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
 }
@@ -147,6 +149,7 @@ function updatePlayer(dt) {
     return;
   }
   var p = player;
+  p.wasGrounded = p.grounded;
   p.jumpBuffer -= dt;
   p.coyote = p.grounded ? PHYSICS.coyoteTime : Math.max(0, p.coyote - dt);
 
@@ -182,8 +185,12 @@ function updatePlayer(dt) {
   p.grounded = false;
   for (var i = 0; i < platforms.length; i++) resolveSolid(p, platforms[i]);
   for (var i = 0; i < movingPlatforms.length; i++) resolveSolid(p, movingPlatforms[i]);
-  for (var i = 0; i < hazards.length; i++) if (aabb(p, hazards[i])) { triggerDeath(); return; }
-  for (var i = 0; i < waterZones.length; i++) if (aabb(p, waterZones[i])) { triggerDeath(); return; }
+  // LAND trigger
+  if (p.grounded && !p.wasGrounded) safeTrigger('LAND');
+
+
+  for (var i = 0; i < hazards.length; i++) if (aabb(p, hazards[i])) { safeTrigger('SPIKE_DEATH'); triggerDeath(); return; }
+  for (var i = 0; i < waterZones.length; i++) if (aabb(p, waterZones[i])) { safeTrigger('DROWN'); triggerDeath(); return; }
 
   for (var i = 0; i < crystals.length; i++) {
     var c = crystals[i];
