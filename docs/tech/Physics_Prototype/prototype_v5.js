@@ -48,7 +48,7 @@ Object.entries(SPRITE_MAP).forEach(([state, files]) => {
 });
 
 const PHYSICS = { gravity:10, maxFall:8, speed:5, jumpForce:10, coyoteTime:0.1, jumpBuffer:0.15 };
-const C = { player:'#00d4ff', crystal:'#fff', exit:'#00ff88', torch:'#ff9f43', bg:'#16213e' };
+const C = { player:'#00d4ff', crystal:'#fff', exit:'#00ff88', torch:'#ff9f43', bg:'#4a4a6a' };
 
 function updateLoadingProgress() {
   const p = document.getElementById('p');
