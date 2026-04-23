@@ -50,6 +50,8 @@ const AudioEngine = (function() {
       case 'CRYSTAL_SWITCH': _playCrystalSwitch(); break;
       case 'PRESSURE_PLATE': _playPressurePlate(); break;
       case 'VAULT_ACTIVATE': _playVaultActivate(); break;
+      case 'SPIKE_DEATH':          _playSpikeDeath();          break;
+      case 'TIMED_PLATFORM_DISAPPEAR': _playTimedPlatformDisappear(); break;
       default: console.warn('[AudioEngine] Unknown trigger:', name);
     }
   }
@@ -331,7 +333,54 @@ const AudioEngine = (function() {
     sub.start(); sub.stop(ctx.currentTime + 1.2);
   }
 
-  function _makeDistortionCurve(amount) {
+    // ============================================================
+  // LEVEL 4 SFX — Spike Death & Timed Platform Disappear
+  // ============================================================
+  function _playSpikeDeath() {
+    const scrape = ctx.createOscillator();
+    const ring = ctx.createOscillator();
+    const scrapeGain = ctx.createGain();
+    const ringGain = ctx.createGain();
+    const distortion = ctx.createWaveShaper();
+    scrape.type = 'sawtooth';
+    scrape.frequency.setValueAtTime(800, ctx.currentTime);
+    scrape.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.15);
+    scrapeGain.gain.setValueAtTime(0.25, ctx.currentTime);
+    scrapeGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    distortion.curve = _makeDistortionCurve(30);
+    scrape.connect(distortion); distortion.connect(scrapeGain); scrapeGain.connect(masterGain);
+    scrape.start(); scrape.stop(ctx.currentTime + 0.2);
+    ring.type = 'sine';
+    ring.frequency.value = 1200;
+    ringGain.gain.setValueAtTime(0.15, ctx.currentTime);
+    ringGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    ring.connect(ringGain); ringGain.connect(masterGain);
+    ring.start(); ring.stop(ctx.currentTime + 0.15);
+  }
+
+  function _playTimedPlatformDisappear() {
+    const sweep = ctx.createOscillator();
+    const crumble = ctx.createOscillator();
+    const sweepGain = ctx.createGain();
+    const crumbleGain = ctx.createGain();
+    sweep.type = 'sine';
+    sweep.frequency.setValueAtTime(800, ctx.currentTime);
+    sweep.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.3);
+    sweepGain.gain.setValueAtTime(0.2, ctx.currentTime);
+    sweepGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+    crumble.type = 'triangle';
+    crumble.frequency.setValueAtTime(300, ctx.currentTime);
+    crumble.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.25);
+    crumbleGain.gain.setValueAtTime(0, ctx.currentTime);
+    crumbleGain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.05);
+    crumbleGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    sweep.connect(sweepGain); sweepGain.connect(masterGain);
+    crumble.connect(crumbleGain); crumbleGain.connect(masterGain);
+    sweep.start(); crumble.start();
+    sweep.stop(ctx.currentTime + 0.35); crumble.stop(ctx.currentTime + 0.3);
+  }
+
+function _makeDistortionCurve(amount) {
     const samples = 44100;
     const curve = new Float32Array(samples);
     for (let i = 0; i < samples; i++) {
