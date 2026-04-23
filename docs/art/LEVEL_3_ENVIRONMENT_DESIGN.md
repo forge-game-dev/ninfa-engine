@@ -1,145 +1,188 @@
 # Dungeon Runner — Level 3 Environment Design: Deepening
 
-**Status:** Draft v0.1  
+**Status:** Updated v0.2  
 **Author:** Cedar (Environment Artist)  
 **Date:** 2026-04-23  
-**Prerequisite:** Vesper's Level 3 brief, GDD Section 3.3
+**Sources:** Vesper GDD Appendix C, Level 3 brief alignment
 
 ---
 
 ## Level Concept: "Deepening"
 
-Level 3 introduces keys and locked doors — the mechanic that forces backtracking and exploration. The environment must visually communicate locked vs. unlocked, key locations, and door progression.
-
-**Core Design Intent:** Puzzle-platforming atmosphere. Rooms feel like treasure vaults — controlled, deliberate, with visual hierarchy pointing players toward keys.
+Puzzle-platforming level introducing keys, locked doors, timed sequences, and pressure plates. Three zones with escalating complexity. Visual language must clearly distinguish permanent locks (key doors) from temporary barriers (timed doors).
 
 ---
 
-## New Environment Elements
+## Zone Breakdown (Updated with Vesper Brief)
 
-### Keys
-- **Appearance:** Small, high-contrast, 8×8 or 16×16px visual
-- **Color:** `#ffd700` (gold) — matches crystal palette, distinct from cyan player
-- **Animation:** Gentle rotation/pulse (3-4 frames, slower than crystals)
-- **Glow:** Soft gold halo, similar to crystal but warmer
-- **Placement:** Visible but requires platforming to reach
+### Zone A — The First Lock
+- 5 crystals, gold/red/blue key system
+- No time pressure — mechanic tutorial
+- Checkpoint at entry
+- 3 keys + 3 locked doors (one per color)
 
-### Locked Doors
-- **Size:** 32×64px (1×2 tiles) — taller than standard platforms
-- **States:**
-  - Locked: Stone texture, iron bars, `#4a4a6a` base with `#7a7a7a` metal accents
-  - Unlocked: Stone slides open / dissolves, passage clear
-- **Visual language:** Locked doors should look heavy and significant — not just a wall
+### Zone B — The Maze  
+- 6 crystals, timed doors (4 seconds baseline)
+- Crystal switches + pressure plates (2 simultaneous)
+- Checkpoint after timed sequence completion
+- Checkpoint at entry (from Zone A)
+- No checkpoint in Zone B mid-section — intentional difficulty
 
-### Key Doors (color-coded by key)
-- **Red door** → Red key
-- **Blue door** → Blue key  
-- **Gold door** → Gold key
-- **Pattern:** Door color matches key color — players learn the system intuitively
+### Zone C — The Vault
+- 3 crystals, locked final exit
+- Requires all 3 keys collected
+- Victory screen triggers here
+- No checkpoint — intentional difficulty
 
----
-
-## Color Palette Additions (Level 3)
-
-| Element | Hex | Notes |
-|---------|-----|-------|
-| Key Gold | `#ffd700` | Primary key color |
-| Key Red | `#ff4757` | Red level key |
-| Key Blue | `#3498db` | Blue level key |
-| Iron Bars | `#7a7a7a` | Door accents |
-| Door Frame | `#5a5a8a` | Stone surrounding door |
-| Unlocked Glow | `#50fa7b` | Door opening feedback |
-
-**Total Level 3 palette:** 15 colors (up from 12 in Levels 1-2)
+**Crystal scope:** 14 total, 10 required for gate (70%)
 
 ---
 
-## Tileset Additions
+## New Tile Types (Per Zone)
 
-### New Tile Types
-1. **Key (3 variants):** `key_gold_00.png`, `key_red_00.png`, `key_blue_00.png`
-2. **Door Locked (3 variants):** `door_red_locked_00.png`, `door_blue_locked_00.png`, `door_gold_locked_00.png`
-3. **Door Open:** `door_open_00.png` (transparent passage)
-4. **Vault Walls:** Reinforced stone sections suggesting treasure rooms
-5. **Hidden alcoves:** Platform variations that suggest secret areas
+### Zone A Tiles
+- Key (gold/red/blue): 16×16px, rotation animation 4f @ 400ms
+- Locked door (gold/red/blue): 32×64px, locked shimmer + unlock animation
 
-### Tileset Structure
+### Zone B Tiles
+- **Timed door**: 32×64px, visual countdown indicator (4s → 0)
+  - Color shifts from neutral to amber as time runs out
+  - Visual urgency increases at <2s remaining
+  - States: open / closing / timed / forcing-open
+- **Pressure plate**: 32×16px, 2 plates simultaneously required
+  - Visual: recessed stone that depresses when activated
+  - States: inactive (raised), active (pressed), connected glow line
+- **Crystal switch**: Trigger zone that activates when crystal collected
+  - Visual: subtle activation glyph on adjacent wall
+
+### Zone C Tiles  
+- **Triple-key vault door**: Larger ornate door (64×64px)
+  - Shows 3 key slots (gold/red/blue icons)
+  - All 3 slots glow when player has all keys
+  - Victory animation: doors part + golden light spill
+
+---
+
+## Color Palette (Updated)
+
+| Element | Hex | Zone |
+|---------|-----|------|
+| Background | `#1a1a2e` | All |
+| Platform Base | `#4a4a6a` | All |
+| Key Gold | `#ffd700` | A |
+| Key Red | `#ff4757` | A |
+| Key Blue | `#3498db` | A |
+| Door Locked | `#7a7a7a` | A |
+| Timed Door (neutral) | `#5a5a8a` | B |
+| Timed Door (warning) | `#ff9f43` | B |
+| Timed Door (urgent) | `#ff4757` | B |
+| Pressure Plate | `#5a5a8a` | B |
+| Pressure Plate Active | `#50fa7b` | B |
+| Vault Frame | `#3a3a5a` | C |
+| Vault Door | `#6a6aaa` | C |
+| Victory Gold | `#ffd700` | C |
+| **Total** | **16 colors** | |
+
+---
+
+## Tileset Structure
+
 ```
 docs/art/tilesets/level_3/
 ├── platforms/
-├── doors/          ← NEW: key doors + open state
-├── keys/           ← NEW: collectible keys
-├── vault_walls/    ← NEW: reinforced stone
-└── backgrounds/
+├── backgrounds/
+├── keys/
+│   ├── key_gold_00.png → key_gold_03.png  (4 frames)
+│   ├── key_red_00.png → key_red_03.png
+│   └── key_blue_00.png → key_blue_03.png
+├── doors/
+│   ├── door_gold_locked_00.png → door_gold_open_00.png
+│   ├── door_red_locked_00.png → door_red_open_00.png
+│   ├── door_blue_locked_00.png → door_blue_open_00.png
+│   ├── timed_door_neutral_00.png
+│   ├── timed_door_warning_00.png
+│   └── timed_door_urgent_00.png
+├── pressure_plates/
+│   ├── plate_inactive_00.png
+│   ├── plate_active_00.png
+│   └── plate_glow_line_00.png
+├── crystal_switches/
+│   └── switch_glyph_00.png
+├── vault/
+│   ├── vault_door_00.png (3 slots empty)
+│   ├── vault_door_ready_00.png (all slots lit)
+│   └── vault_door_open_00.png
+└── parallax/
+    ├── layer0_vault_far.png
+    ├── layer1_vault_mid.png
+    └── layer2_vault_near.png
 ```
+
+---
+
+## Animation Timing
+
+| Element | Frames | Duration | Behavior |
+|----------|--------|----------|----------|
+| Key rotation | 4 | 400ms/f (1.6s loop) | Continuous |
+| Key collect | 3 | 100ms/f | Plays once |
+| Door unlock | 3 | 100ms/f | Plays once |
+| Door open | 2 | 200ms/f | Plays once |
+| Timed door countdown | 4 | 1000ms/f | Synced to game timer |
+| Pressure plate press | 2 | 200ms/f | Plays once |
+| Pressure plate release | 2 | 300ms/f | Plays once |
+| Vault door open | 5 | 200ms/f | Plays once |
+| Victory glow pulse | 4 | 500ms/f | Continuous |
+
+---
+
+## Audio-Visual Sync (Cadenza Coordination)
+
+| Visual Event | Audio Trigger |
+|--------------|---------------|
+| Key collect | KEY_COLLECT |
+| Key door unlock | DOOR_UNLOCK |
+| Timed door close warning | TIMED_DOOR_WARNING |
+| Crystal switch activate | CRYSTAL_SWITCH |
+| Pressure plate engage | PRESSURE_PLATE |
+| Vault door open | DOOR_UNLOCK (vault variant) |
+| Victory screen | LEVEL_COMPLETE |
 
 ---
 
 ## Background Design
 
-### Parallax Layers (3 layers)
-- **Layer 0 (far):** Ancient stonework, carved pillars, faded murals — suggests old civilization
-- **Layer 1 (mid):** Vault arches, locked cabinet silhouettes, stone patterns
-- **Layer 2 (near):** Hanging chains, key-shaped shadows, decorative ironwork
+**Zone A:** Warm torch lighting, amber undertones — reassuring, tutorial mood
+**Zone B:** Cool blue-grey shift, pressure plate glow (#50fa7b), urgent amber for timed doors
+**Zone C:** Dramatic golden lighting, vault framing, victory anticipation
 
-### Mood
-- More enclosed than Level 2 (less water/open space)
-- Warmer lighting — torches more prominent, amber tones
-- Sense of discovery — rooms feel like they contain secrets
-
----
-
-## Zone Breakdown (Conceptual)
-
-**Zone A — The First Lock**
-- Single key, single door, straightforward path
-- Tutorial: player learns key → door connection
-- Warm torch lighting, amber undertones
-
-**Zone B — The Maze**
-- Multiple doors, keys placed in non-linear layout
-- Requires backtracking and exploration
-- Mood shifts slightly cooler to blue-grey
-
-**Zone C — The Vault**
-- High-value area — challenging platforming to reach
-- Multiple key types, complex door sequence
-- Climactic visual: large ornate doors, premium stone textures
+**Parallax layers (3 per level, matching Level 1-2 structure):**
+- Layer 0 (far): Ancient stonework, key-shaped shadows, faded symbols
+- Layer 1 (mid): Vault arches, mechanical door silhouettes, chain details
+- Layer 2 (near): Key pedestals, glowing pressure plate conduits, ornate door frames
 
 ---
 
-## Animation Notes
+## Visual Hierarchy for Playability
 
-### Key Animation
-- Rotation: 4 frames, 400ms per frame (1.6s loop)
-- Glow pulse: synced to rotation cycle
-- Collection: brief flash + particle burst (audio: key collect SFX)
-
-### Door Animation
-- Locked: subtle shimmer on iron bars (2 frames, 1s loop)
-- Unlocking: bars retract + stone slides (3 frames, 300ms total)
-- Open: empty frame, no animation
+1. Keys — high contrast, warm glow, always visible
+2. Timed doors — countdown visual is unobtrusive but readable
+3. Pressure plates — glow line shows connection to linked barrier
+4. Checkpoint placement — clearly visible from approach angle
+5. Exit portal — dramatic, unmistakable in Zone C
 
 ---
 
-## Audio-Visual Coordination
+## Sync Points
 
-- **Key collect:** Audio chime + visual flash + particle burst
-- **Door unlock:** Stone grinding SFX + visual retraction
-- **Key proximity:** Soft glow intensifies as player approaches
-- **Ambience:** Layer 3 music intensifies near locked doors (anticipation)
-
----
-
-## Sync with Other Roles
-
-| Role | Coordination Point |
-|------|---------------------|
-| Kairo | Key character animation (if key has owner) |
-| Zephyr | Key/door tile loading in prototype_v5.js |
-| Cadenza | Key collect SFX, door unlock audio |
-| Vesper | Key/door placement in level JSON |
+| Role | Coordination |
+|------|-------------|
+| Vesper | Crystal positions, zone flow, gate logic from Appendix C |
+| Zephyr | Tile loading, timed door timer sync, pressure plate state |
+| Cadenza | KEY_COLLECT, DOOR_UNLOCK, TIMED_DOOR_WARNING, CRYSTAL_SWITCH, PRESSURE_PLATE |
+| Kairo | Any character interaction with keys/doors (if applicable) |
+| Verin | Visual clarity test for timed door countdown, pressure plate connection |
 
 ---
 
-**Next:** Awaiting Vesper's full Level 3 brief for placement specifics. Tile production pending sprite tools resolution.
+**Next:** Awaiting Vesper's Appendix C crystal positions for tile production specs. PNG production blocked — standby.
