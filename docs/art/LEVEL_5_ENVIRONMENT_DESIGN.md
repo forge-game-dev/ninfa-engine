@@ -1,6 +1,6 @@
 # Dungeon Runner — Level 5 Environment Design: The Sanctum
 
-**Status:** v0.1 — Design decisions locked, awaiting Nicolas approval for production  
+**Status:** v0.2 — Design + spatial wiring notes — Design decisions locked, awaiting Nicolas approval for production  
 **Author:** Cedar (Environment Artist)  
 **Date:** 2026-04-23  
 **Source:** Vesper Level 5 brief (SHA ec7078b), GDD alignment
@@ -144,6 +144,36 @@ Reused from Levels 2 and 4:
 ---
 
 ## Audio-Visual Sync (Cadenza)
+
+| Visual Event | Audio Trigger |
+|--------------|---------------|
+| Key collect (gold/red/blue) | KEY_COLLECT (pitched per color) |
+| Zone B locked door | DOOR_LOCKED / DOOR_UNLOCK |
+| Zone B timed door warning | TIMED_DOOR_WARNING |
+| Zone C ambient entry | ZONE_C_AMBIENT (warm shift begins) |
+| Vault door ready | Subtle resonance (all keys present) |
+| Vault door open | VAULT_ACTIVATE (1.2s deep chord + shimmer sweep) |
+| Victory screen | VICTORY_STING (short fanfare) |
+| Zone A checkpoint | CHECKPOINT |
+| Zone B checkpoint | CHECKPOINT |
+| Level 5 exit portal | LEVEL_COMPLETE |
+
+### Spatial Audio Wiring Notes (for Zephyr)
+Level 5 uses both spatial warning APIs for multi-platform sequences:
+
+- **Zone B (The Convergence):** Moving platforms across complex sequences — `triggerSpatialWarning(panValue)` should be called per-platform on the game loop, panning based on platform screen position (left = -1 to right = +1). Player must distinguish between 2-3 simultaneous platforms.
+- **Zone C (The Sanctum Chamber):** 3-second timed platform — `triggerSpatialTimedWarning(panValue)` called at T=2.0s when platform starts warning visual, gives player 1s advance notice before `TIMED_PLATFORM_DISAPPEAR`.
+- **prototype_v6.js status:** Spatial API calls currently not wired — Zephyr to add in engine update cycle. Audio engine v0.7 confirmed to have both functions available.
+
+### Zone B — Platform Timing Reference
+Moving platform speeds in Zone B: 2–4 u/s per Vesper's brief. Suggested integration:
+- On platform velocity change (direction flip): triggerSpatialWarning
+- Pan value = (platform.x / canvasWidth) * 2 - 1
+
+### Zone C — Timed Platform Sequence
+At T=0.0s: Platform solid, TIMED_PLATFORM_WARNING visual active
+At T=2.0s: `triggerSpatialTimedWarning` fires, player gets 1s warning
+At T=3.0s: Platform disappears, player dies if still standing
 
 | Visual Event | Audio Trigger |
 |--------------|---------------|
