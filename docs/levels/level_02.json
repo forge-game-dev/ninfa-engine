@@ -1,0 +1,73 @@
+{
+  "id": "level_02",
+  "name": "Descent",
+  "description": "Torch-lit descent — precision jumping through vertical and horizontal shaft sections. Water channels test your timing.",
+  "theme": "Torch-lit Descent",
+  "challengeFocus": "Precision jumping",
+  "totalCrystals": 8,
+  "tileSize": 32,
+  "background": "#1a1a2e",
+  "palette": {
+    "platformDark": "#4a4a6a",
+    "platformLight": "#7a7a8a",
+    "player": "#00d4ff",
+    "crystal": "#ffd700",
+    "exit": "#2a9d8f",
+    "torch": "#ff9f43",
+    "water": "#2980b9"
+  },
+  "spawn": { "x": 32, "y": 64 },
+  "exit": { "x": 480, "y": 480, "w": 48, "h": 64 },
+  "platforms": [
+    { "x": 0, "y": 96, "w": 128, "h": 32, "type": "solid" },
+    { "x": 192, "y": 128, "w": 64, "h": 32, "type": "solid" },
+    { "x": 320, "y": 96, "w": 96, "h": 32, "type": "solid" },
+    { "x": 64, "y": 192, "w": 96, "h": 32, "type": "passthrough" },
+    { "x": 224, "y": 224, "w": 64, "h": 32, "type": "solid" },
+    { "x": 352, "y": 192, "w": 96, "h": 32, "type": "solid" },
+    { "x": 96, "y": 288, "w": 128, "h": 32, "type": "solid" },
+    { "x": 288, "y": 320, "w": 64, "h": 32, "type": "passthrough" },
+    { "x": 416, "y": 288, "w": 96, "h": 32, "type": "solid" },
+    { "x": 32, "y": 384, "w": 96, "h": 32, "type": "solid" },
+    { "x": 192, "y": 416, "w": 64, "h": 32, "type": "solid" },
+    { "x": 320, "y": 384, "w": 128, "h": 32, "type": "solid" },
+    { "x": 480, "y": 544, "w": 32, "h": 32, "type": "solid" },
+    { "x": 256, "y": 512, "w": 160, "h": 32, "type": "solid" }
+  ],
+  "movingPlatforms": [
+    { "x": 128, "y": 160, "w": 64, "h": 16, "type": "movingH", "velocityX": 1.5, "minX": 128, "maxX": 220 },
+    { "x": 320, "y": 256, "w": 64, "h": 16, "type": "movingH", "velocityX": -1.5, "minX": 288, "maxX": 384 }
+  ],
+  "checkpoints": [
+    { "x": 352, "y": 192, "triggerX": 352, "triggerY": 192, "index": 1 },
+    { "x": 32, "y": 384, "triggerX": 32, "triggerY": 384, "index": 2 }
+  ],
+  "crystals": [
+    { "x": 96, "y": 160, "collected": false },
+    { "x": 224, "y": 192, "collected": false },
+    { "x": 384, "y": 160, "collected": false },
+    { "x": 160, "y": 256, "collected": false },
+    { "x": 448, "y": 256, "collected": false },
+    { "x": 160, "y": 352, "collected": false },
+    { "x": 352, "y": 352, "collected": false },
+    { "x": 320, "y": 448, "collected": false }
+  ],
+  "torches": [
+    { "x": 64, "y": 160, "radius": 2.0 },
+    { "x": 224, "y": 192, "radius": 2.0 },
+    { "x": 352, "y": 160, "radius": 2.0 },
+    { "x": 96, "y": 256, "radius": 2.0 },
+    { "x": 448, "y": 288, "radius": 2.0 },
+    { "x": 32, "y": 352, "radius": 2.0 },
+    { "x": 256, "y": 480, "radius": 2.0 },
+    { "x": 480, "y": 352, "radius": 2.0 }
+  ],
+  "hazards": [
+    { "x": 288, "y": 96, "w": 32, "h": 32, "type": "spike" },
+    { "x": 320, "y": 320, "w": 64, "h": 16, "type": "water" },
+    { "x": 160, "y": 416, "w": 32, "h": 16, "type": "spike" },
+    { "x": 192, "y": 544, "w": 64, "h": 16, "type": "water" }
+  ],
+  "levelComplete": false,
+  "notes": "Vesper brief v1 — water channels, 2 moving platforms, 2 checkpoints, 8 crystals (per GDD table). Precision jumping sections require exact timing. Moving platforms (MP-H1:128-220, MP-H2:288-384) carry player when grounded."
+}
