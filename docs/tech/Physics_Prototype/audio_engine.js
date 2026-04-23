@@ -1,7 +1,7 @@
 /**
- * DUNGEON RUNNER — Audio Engine v0.1
+ * DUNGEON RUNNER — Audio Engine v0.2
  * Cadenza, Audio Designer
- * For prototype.js integration (D15 Gate)
+ * For prototype.js integration
  * 
  * Usage:
  *   1. Include this script after prototype.js
@@ -9,7 +9,8 @@
  *   3. Trigger sounds via window.audioEngine.trigger(id)
  * 
  * Trigger IDs:
- *   JUMP, LAND, CRYSTAL_COLLECT, DEATH, CHECKPOINT, LEVEL_COMPLETE, PORTAL
+ *   JUMP, COYOTE_JUMP, LAND, CRYSTAL_COLLECT, DEATH,
+ *   CHECKPOINT, LEVEL_COMPLETE, PORTAL
  */
 
 // ─────────────────────────────────────────────
@@ -53,13 +54,14 @@ window.audioEngine = (function () {
     resume();
 
     switch (id) {
-      case 'JUMP':           _playJump();           break;
-      case 'LAND':           _playLand();           break;
-      case 'CRYSTAL_COLLECT': _playCrystal();        break;
-      case 'DEATH':           _playDeath();          break;
-      case 'CHECKPOINT':     _playCheckpoint();     break;
-      case 'LEVEL_COMPLETE': _playLevelComplete();  break;
-      case 'PORTAL':          _playPortal();         break;
+      case 'JUMP':            _playJump();             break;
+      case 'COYOTE_JUMP':     _playCoyoteJump();       break;
+      case 'LAND':            _playLand();             break;
+      case 'CRYSTAL_COLLECT': _playCrystal();          break;
+      case 'DEATH':           _playDeath();            break;
+      case 'CHECKPOINT':      _playCheckpoint();       break;
+      case 'LEVEL_COMPLETE': _playLevelComplete();   break;
+      case 'PORTAL':          _playPortal();          break;
       default:
         console.warn('[Audio] Unknown trigger:', id);
     }
@@ -67,7 +69,7 @@ window.audioEngine = (function () {
 
   // ── Internal synthesis ─────────────────
 
-  // JUMP: Short whoosh — filtered noise burst
+  // JUMP: Short whoosh — filtered sawtooth sweep
   function _playJump() {
     const dur = 0.2;
     const osc = ctx.createOscillator();
@@ -82,6 +84,32 @@ window.audioEngine = (function () {
     filter.frequency.value = 1200;
 
     gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(masterGain);
+
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + dur);
+  }
+
+  // COYOTE_JUMP: Softer confirmation — slightly quieter than normal jump
+  // Triggers when player jumps within coyote time window (after leaving platform edge)
+  function _playCoyoteJump() {
+    const dur = 0.22;
+    const osc = ctx.createOscillator();
+    const filter = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(320, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + dur);
+
+    filter.type = 'lowpass';
+    filter.frequency.value = 800;
+
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);  // Quieter than normal jump
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
 
     osc.connect(filter);
@@ -114,13 +142,11 @@ window.audioEngine = (function () {
 
   // CRYSTAL_COLLECT: Ascending chime
   function _playCrystal() {
-    const dur = 0.35;
     const notes = [880, 1109, 1320];
-
-    notes.forEach((freq, i) => {
-      const delay = i * 0.08;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+    notes.forEach(function(freq, i) {
+      var delay = i * 0.08;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
 
       osc.type = 'sine';
       osc.frequency.value = freq;
@@ -139,9 +165,9 @@ window.audioEngine = (function () {
 
   // DEATH: Fade + descending tone
   function _playDeath() {
-    const dur = 0.8;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    var dur = 0.8;
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
 
     osc.type = 'sine';
     osc.frequency.setValueAtTime(440, ctx.currentTime);
@@ -159,9 +185,9 @@ window.audioEngine = (function () {
 
   // CHECKPOINT: Warm beacon tone
   function _playCheckpoint() {
-    const dur = 0.5;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    var dur = 0.5;
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
 
     osc.type = 'sine';
     osc.frequency.setValueAtTime(330, ctx.currentTime);
@@ -181,11 +207,11 @@ window.audioEngine = (function () {
 
   // LEVEL_COMPLETE: Victory fanfare
   function _playLevelComplete() {
-    const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
-    notes.forEach((freq, i) => {
-      const delay = i * 0.18;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+    var notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
+    notes.forEach(function(freq, i) {
+      var delay = i * 0.18;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
 
       osc.type = 'triangle';
       osc.frequency.value = freq;
@@ -205,9 +231,9 @@ window.audioEngine = (function () {
 
   // PORTAL: Swirling tone
   function _playPortal() {
-    const dur = 0.6;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    var dur = 0.6;
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
 
     osc.type = 'sine';
     osc.frequency.setValueAtTime(300, ctx.currentTime);
@@ -227,9 +253,9 @@ window.audioEngine = (function () {
 
   // ── Public API ──────────────────────────
   return {
-    init,
-    resume,
-    setVolume,
-    trigger
+    init: init,
+    resume: resume,
+    setVolume: setVolume,
+    trigger: trigger
   };
 })();
