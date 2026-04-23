@@ -50,6 +50,9 @@ const AudioEngine = (function() {
       case 'CRYSTAL_SWITCH': _playCrystalSwitch(); break;
       case 'PRESSURE_PLATE': _playPressurePlate(); break;
       case 'VAULT_ACTIVATE': _playVaultActivate(); break;
+      case 'VICTORY_STING':       _playVictorySting();        break;
+      case 'ZONE_C_AMBIENT_START': startZoneCAmbient();       break;
+      case 'ZONE_C_AMBIENT_STOP':  stopZoneCAmbient();        break;
       case 'SPIKE_DEATH':          _playSpikeDeath();          break;
       case 'TIMED_PLATFORM_DISAPPEAR': _playTimedPlatformDisappear(); break;
       default: console.warn('[AudioEngine] Unknown trigger:', name);
@@ -380,6 +383,90 @@ const AudioEngine = (function() {
     sweep.stop(ctx.currentTime + 0.35); crumble.stop(ctx.currentTime + 0.3);
   }
 
+  // ============================================================
+  // LEVEL 5 — The Sanctum
+  // ============================================================
+  function _playVictorySting() {
+    const freqs = [523, 659, 784];
+    freqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.1;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.22, t + 0.05);
+      gain.gain.setValueAtTime(0.22, t + 0.5);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(t); osc.stop(t + 1.2);
+    });
+    const shimmer = ctx.createOscillator();
+    const shimmerGain = ctx.createGain();
+    shimmer.type = 'sine';
+    shimmer.frequency.setValueAtTime(1500, ctx.currentTime);
+    shimmer.frequency.exponentialRampToValueAtTime(2000, ctx.currentTime + 0.5);
+    shimmerGain.gain.setValueAtTime(0.08, ctx.currentTime);
+    shimmerGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.0);
+    shimmer.connect(shimmerGain); shimmerGain.connect(masterGain);
+    shimmer.start(); shimmer.stop(ctx.currentTime + 1.0);
+  }
+
+  // ---- ZONE C AMBIENT ----
+  // Module-level state (accessible to both start and stop)
+  let zoneCGainNode = null;
+  let zoneCOsc1 = null;
+  let zoneCOsc2 = null;
+  let zoneCLFO = null;
+  let zoneCFilter = null;
+  let zoneCActive = false;
+
+  function startZoneCAmbient() {
+    if (zoneCActive) return;
+    init(); resume();
+    zoneCActive = true;
+    zoneCFilter = ctx.createBiquadFilter();
+    zoneCFilter.type = 'lowpass';
+    zoneCFilter.frequency.value = 600;
+    zoneCFilter.Q.value = 1.0;
+    zoneCGainNode = ctx.createGain();
+    zoneCGainNode.gain.setValueAtTime(0, ctx.currentTime);
+    zoneCGainNode.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 2.0);
+    zoneCOsc1 = ctx.createOscillator();
+    zoneCOsc2 = ctx.createOscillator();
+    zoneCLFO = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    zoneCOsc1.type = 'sine';
+    zoneCOsc1.frequency.value = 220;
+    zoneCOsc2.type = 'triangle';
+    zoneCOsc2.frequency.value = 330;
+    zoneCLFO.type = 'sine';
+    zoneCLFO.frequency.value = 0.33;
+    lfoGain.gain.value = 4;
+    zoneCLFO.connect(lfoGain);
+    lfoGain.connect(zoneCOsc1.frequency);
+    zoneCOsc1.connect(zoneCFilter);
+    zoneCOsc2.connect(zoneCFilter);
+    zoneCFilter.connect(zoneCGainNode);
+    zoneCGainNode.connect(masterGain);
+    zoneCOsc1.start();
+    zoneCOsc2.start();
+    zoneCLFO.start();
+  }
+
+  function stopZoneCAmbient() {
+    if (!zoneCActive) return;
+    zoneCActive = false;
+    if (zoneCGainNode) {
+      zoneCGainNode.gain.setTargetAtTime(0, ctx.currentTime, 0.3);
+      const osc1 = zoneCOsc1, osc2 = zoneCOsc2, lfo = zoneCLFO, filt = zoneCFilter, gain = zoneCGainNode;
+      setTimeout(() => {
+        try { osc1.stop(); osc2.stop(); lfo.stop(); } catch(e) {}
+      }, 1500);
+      [zoneCOsc1, zoneCOsc2, zoneCLFO, zoneCFilter, zoneCGainNode] = [null, null, null, null, null];
+    }
+  }
+
 function _makeDistortionCurve(amount) {
     const samples = 44100;
     const curve = new Float32Array(samples);
@@ -543,5 +630,7 @@ function _makeDistortionCurve(amount) {
     triggerSpatialWarning,
     triggerSpatialTimedWarning,
     get PROXIMITY_ACTIVE() { return proximityActive; }
-  };
+    startZoneCAmbient,
+    stopZoneCAmbient,
+    };
 })();
