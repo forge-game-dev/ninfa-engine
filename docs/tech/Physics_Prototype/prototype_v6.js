@@ -204,7 +204,7 @@ function updatePlayer(dt) {
       cp.activated = true; lastCheckpoint = cp; if (window.audioEngine) audioEngine.trigger('CHECKPOINT');
     }
   }
-  if (exitPortal && crystals.every(function(c){return c.collected;}) && aabb(p, exitPortal)) {
+  if (exitPortal && crystals.filter(function(c){return c.collected;}).length >= crystalGate && aabb(p, exitPortal)) {
     levelComplete = true; if (window.audioEngine) audioEngine.trigger('LEVEL_COMPLETE');
   }
 
@@ -368,7 +368,7 @@ function render() {
     ctx.strokeStyle = cp.activated ? '#00ff88' : '#7a7a8a';
     ctx.lineWidth = 2; ctx.strokeRect(cp.x, cp.y, 32, 64);
   }
-  if (crystals && crystals.every(function(c){return c.collected;}) && exitPortal) {
+  if (crystals && crystals.filter(function(c){return c.collected;}).length >= crystalGate && exitPortal) {
     ctx.fillStyle = C.exit; ctx.shadowColor = C.exit; ctx.shadowBlur = 20;
     ctx.fillRect(exitPortal.x, exitPortal.y, exitPortal.w, exitPortal.h); ctx.shadowBlur = 0;
   }
