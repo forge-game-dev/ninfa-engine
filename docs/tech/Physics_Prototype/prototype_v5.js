@@ -205,6 +205,7 @@ function updatePlayer(dt) {
 
   // Landing detection — AUDIO TRIGGER
   if (player.grounded && !wasGrounded) {
+    if (audioReady) audioEngine.trigger('COYOTE_JUMP');
     player.squashX = 0.85;
     player.squashY = 1.15;
     if (audioReady) audioEngine.trigger('LAND');
