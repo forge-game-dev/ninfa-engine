@@ -1,6 +1,6 @@
 // ============================================================
-// audio_engine.js  Dungeon Runner Audio System v0.4
-// Level 3 Audio Triggers Added
+// audio_engine.js  Dungeon Runner Audio System v0.5
+// Cadenza  Audio Designer @ GameDev
 // ============================================================
 
 const AudioEngine = (function() {
@@ -157,31 +157,25 @@ const AudioEngine = (function() {
     const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
     const noiseData = noiseBuffer.getChannelData(0);
     for (let i = 0; i < noiseData.length; i++) noiseData[i] = Math.random() * 2 - 1;
-
     const noise = ctx.createBufferSource();
     noise.buffer = noiseBuffer;
     noise.loop = true;
-
     const lpf = ctx.createBiquadFilter();
     lpf.type = 'lowpass';
     lpf.frequency.setValueAtTime(1000, ctx.currentTime);
     lpf.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 1.8);
-
     const rumbleOsc = ctx.createOscillator();
     rumbleOsc.type = 'sine';
     rumbleOsc.frequency.value = 55;
-
     const noiseGain = ctx.createGain();
     noiseGain.gain.setValueAtTime(0, ctx.currentTime);
     noiseGain.gain.linearRampToValueAtTime(0.45, ctx.currentTime + 0.15);
     noiseGain.gain.setValueAtTime(0.45, ctx.currentTime + 0.4);
     noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.0);
-
     const rumbleGain = ctx.createGain();
     rumbleGain.gain.setValueAtTime(0, ctx.currentTime);
     rumbleGain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.15);
     rumbleGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.0);
-
     noise.connect(lpf); lpf.connect(noiseGain); noiseGain.connect(masterGain);
     rumbleOsc.connect(rumbleGain); rumbleGain.connect(masterGain);
     noise.start(); rumbleOsc.start();
@@ -189,45 +183,36 @@ const AudioEngine = (function() {
   }
 
   // ============================================================
-  // LEVEL 3 SFX  NEW TRIGGERS
+  // LEVEL 3 SFX
   // ============================================================
 
-  // KEY_COLLECT  bright chime, pitched per key color (param: 'gold'|'red'|'blue')
   function _playKeyCollect(color) {
     const freqMap = { gold: 1200, red: 900, blue: 660 };
     const freq = freqMap[color] || 900;
-    const duration = 0.3;
-
     const osc1 = ctx.createOscillator();
     const osc2 = ctx.createOscillator();
     const gain = ctx.createGain();
     const filter = ctx.createBiquadFilter();
     filter.type = 'highpass';
     filter.frequency.value = 400;
-
     osc1.type = 'sine';
     osc1.frequency.value = freq;
     osc2.type = 'triangle';
     osc2.frequency.value = freq * 2;
-
     gain.gain.setValueAtTime(0, ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
     osc1.connect(filter); osc2.connect(filter); filter.connect(gain); gain.connect(masterGain);
     osc1.start(); osc2.start();
-    osc1.stop(ctx.currentTime + duration); osc2.stop(ctx.currentTime + duration);
+    osc1.stop(ctx.currentTime + 0.3); osc2.stop(ctx.currentTime + 0.3);
   }
 
-  // DOOR_LOCKED  dull thud + rejection buzz
   function _playDoorLocked() {
     const thud = ctx.createOscillator();
     const buzz = ctx.createOscillator();
     const thudGain = ctx.createGain();
     const buzzGain = ctx.createGain();
     const distortion = ctx.createWaveShaper();
-
-    // Thud: low sine with fast decay
     thud.type = 'sine';
     thud.frequency.setValueAtTime(120, ctx.currentTime);
     thud.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.15);
@@ -235,9 +220,7 @@ const AudioEngine = (function() {
     thudGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
     thud.connect(thudGain); thudGain.connect(masterGain);
     thud.start(); thud.stop(ctx.currentTime + 0.2);
-
-    // Buzz: harsh layered tones
-    distortion.curve = makeDistortionCurve(50);
+    distortion.curve = _makeDistortionCurve(50);
     buzz.type = 'sawtooth';
     buzz.frequency.value = 80;
     buzzGain.gain.setValueAtTime(0.15, ctx.currentTime + 0.05);
@@ -246,22 +229,17 @@ const AudioEngine = (function() {
     buzz.start(ctx.currentTime + 0.05); buzz.stop(ctx.currentTime + 0.4);
   }
 
-  // DOOR_UNLOCK  mechanical click + resonant sweep
   function _playDoorUnlock() {
     const click = ctx.createOscillator();
     const sweep = ctx.createOscillator();
     const clickGain = ctx.createGain();
     const sweepGain = ctx.createGain();
-
-    // Click: sharp transient at 50ms
     click.type = 'square';
     click.frequency.value = 2000;
     clickGain.gain.setValueAtTime(0.5, ctx.currentTime);
     clickGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
     click.connect(clickGain); clickGain.connect(masterGain);
     click.start(); click.stop(ctx.currentTime + 0.05);
-
-    // Sweep: resonant low-to-mid, 0.5s
     sweep.type = 'sine';
     sweep.frequency.setValueAtTime(150, ctx.currentTime + 0.05);
     sweep.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.5);
@@ -273,7 +251,6 @@ const AudioEngine = (function() {
     sweep.start(ctx.currentTime + 0.05); sweep.stop(ctx.currentTime + 0.55);
   }
 
-  // TIMED_DOOR_WARNING  two-tone urgent alert at ~1s before door closes
   function _playTimedDoorWarning() {
     [800, 600].forEach((freq, i) => {
       const osc = ctx.createOscillator();
@@ -289,7 +266,6 @@ const AudioEngine = (function() {
     });
   }
 
-  // CRYSTAL_SWITCH  sharp activation ping
   function _playCrystalSwitch() {
     const osc = ctx.createOscillator();
     const osc2 = ctx.createOscillator();
@@ -306,7 +282,6 @@ const AudioEngine = (function() {
     osc.stop(ctx.currentTime + 0.2); osc2.stop(ctx.currentTime + 0.2);
   }
 
-  // PRESSURE_PLATE  heavy click thud
   function _playPressurePlate() {
     const osc = ctx.createOscillator();
     const osc2 = ctx.createOscillator();
@@ -323,10 +298,8 @@ const AudioEngine = (function() {
     osc.stop(ctx.currentTime + 0.15); osc2.stop(ctx.currentTime + 0.15);
   }
 
-  // VAULT_ACTIVATE  deep resonant finale, 1.2s, the climax of Level 3
   function _playVaultActivate() {
-    // Deep chord: layered low sines
-    const freqs = [82, 110, 123, 165]; // E2, A2, B2, E3  open chord feel
+    const freqs = [82, 110, 123, 165];
     freqs.forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -339,8 +312,6 @@ const AudioEngine = (function() {
       osc.connect(gain); gain.connect(masterGain);
       osc.start(); osc.stop(ctx.currentTime + 1.2);
     });
-
-    // Shimmer sweep: high to mid, crosses the chord
     const sweep = ctx.createOscillator();
     const sweepGain = ctx.createGain();
     sweep.type = 'sine';
@@ -350,8 +321,6 @@ const AudioEngine = (function() {
     sweepGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.0);
     sweep.connect(sweepGain); sweepGain.connect(masterGain);
     sweep.start(ctx.currentTime + 0.1); sweep.stop(ctx.currentTime + 1.0);
-
-    // Sub thud: heavy bottom
     const sub = ctx.createOscillator();
     const subGain = ctx.createGain();
     sub.type = 'sine';
@@ -362,8 +331,7 @@ const AudioEngine = (function() {
     sub.start(); sub.stop(ctx.currentTime + 1.2);
   }
 
-  // ---- DISTORTION CURVE HELPER ----
-  function makeDistortionCurve(amount) {
+  function _makeDistortionCurve(amount) {
     const samples = 44100;
     const curve = new Float32Array(samples);
     for (let i = 0; i < samples; i++) {
@@ -374,6 +342,73 @@ const AudioEngine = (function() {
   }
 
   // ============================================================
+  // LEVEL 4 SPATIAL WARNINGS  per-platform directional audio
+  // ============================================================
+
+  function _buildImpulseReverb(durationSec) {
+    const reverb = ctx.createConvolver();
+    const irLength = ctx.sampleRate * durationSec;
+    const impulse = ctx.createBuffer(2, irLength, ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const data = impulse.getChannelData(ch);
+      for (let i = 0; i < irLength; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / irLength, 2);
+      }
+    }
+    reverb.buffer = impulse;
+    return reverb;
+  }
+
+  // MOVING_PLATFORM_WARNING  metallic ping, directional pan, cave reverb
+  function _playMovingPlatformWarning(panValue) {
+    const panner = ctx.createStereoPanner();
+    panner.pan.value = Math.max(-1, Math.min(1, panValue || 0));
+    const reverb = _buildImpulseReverb(0.3);
+    const dryGain = ctx.createGain();
+    dryGain.gain.value = 0.7;
+    const wetGain = ctx.createGain();
+    wetGain.gain.value = 0.3;
+    [400, 800].forEach(freq => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = freq === 400 ? 'triangle' : 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+      osc.connect(gain); gain.connect(panner);
+      osc.start(); osc.stop(ctx.currentTime + 0.2);
+    });
+    panner.connect(dryGain); dryGain.connect(masterGain);
+    panner.connect(reverb); reverb.connect(wetGain); wetGain.connect(masterGain);
+  }
+
+  // TIMED_PLATFORM_WARNING  softer dual-tone, 3s warning
+  function _playTimedPlatformWarning(panValue) {
+    const panner = ctx.createStereoPanner();
+    panner.pan.value = Math.max(-1, Math.min(1, panValue || 0));
+    const reverb = _buildImpulseReverb(0.5);
+    const dryGain = ctx.createGain();
+    dryGain.gain.value = 0.6;
+    const wetGain = ctx.createGain();
+    wetGain.gain.value = 0.4;
+    [200, 300].forEach(freq => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime + 0.3);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.connect(gain); gain.connect(panner);
+      osc.start(); osc.stop(ctx.currentTime + 0.4);
+    });
+    panner.connect(dryGain); dryGain.connect(masterGain);
+    panner.connect(reverb); reverb.connect(wetGain); wetGain.connect(masterGain);
+  }
+
+  // ============================================================
   // PROXIMITY SYSTEM (unchanged from v0.3)
   // ============================================================
   function startProximitySound() {
@@ -381,22 +416,18 @@ const AudioEngine = (function() {
     resume();
     if (proximityActive) return;
     proximityActive = true;
-
     proximityGainNode = ctx.createGain();
     proximityGainNode.gain.value = 0;
-
     proximityFilter = ctx.createBiquadFilter();
     proximityFilter.type = 'bandpass';
     proximityFilter.frequency.value = 660;
     proximityFilter.Q.value = 1.5;
-
     proximityOsc1 = ctx.createOscillator();
     proximityOsc2 = ctx.createOscillator();
     proximityOsc1.type = 'sine';
     proximityOsc2.type = 'sine';
     proximityOsc1.frequency.value = 660;
     proximityOsc2.frequency.value = 663.3;
-
     proximityLFO = ctx.createOscillator();
     const lfoGain = ctx.createGain();
     proximityLFO.type = 'sine';
@@ -404,12 +435,10 @@ const AudioEngine = (function() {
     lfoGain.gain.value = 8;
     proximityLFO.connect(lfoGain);
     lfoGain.connect(proximityOsc1.frequency);
-
     proximityOsc1.connect(proximityFilter);
     proximityOsc2.connect(proximityFilter);
     proximityFilter.connect(proximityGainNode);
     proximityGainNode.connect(masterGain);
-
     proximityOsc1.start();
     proximityOsc2.start();
     proximityLFO.start();
@@ -453,6 +482,8 @@ const AudioEngine = (function() {
     updateProximitySound,
     stopProximitySound,
     setProximityTarget,
+    triggerSpatialWarning,
+    triggerSpatialTimedWarning,
     get PROXIMITY_ACTIVE() { return proximityActive; }
   };
 })();
