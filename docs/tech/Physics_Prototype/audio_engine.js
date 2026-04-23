@@ -1,377 +1,458 @@
-/**
- * DUNGEON RUNNER — Audio Engine v0.3b
- * Cadenza, Audio Designer & Zephyr, Game Developer
- * For prototype.js integration
- * 
- * Usage:
- *   1. Include this script after prototype.js
- *   2. Call window.audioEngine.init() on game start
- *   3. Trigger sounds via window.audioEngine.trigger(id)
- *   4. Proximity: setProximityTarget(player, crystals) once, updateProximity() every frame
- *
- * Trigger IDs: JUMP, COYOTE_JUMP, LAND, CRYSTAL_COLLECT, DEATH,
- *              CHECKPOINT, LEVEL_COMPLETE, PORTAL, DROWN
- */
-(function() {
-  'use strict';
+// ============================================================
+// audio_engine.js  Dungeon Runner Audio System v0.4
+// Level 3 Audio Triggers Added
+// ============================================================
 
-  var AudioEngine = window.AudioEngine = {};
+const AudioEngine = (function() {
+  let ctx = null;
+  let masterGain = null;
+  let proximityGainNode = null;
+  let proximityOsc1 = null;
+  let proximityOsc2 = null;
+  let proximityLFO = null;
+  let proximityFilter = null;
+  let proximityActive = false;
+  let proximityTimer = null;
+  let activeSounds = [];
+  let proximityTarget = null;
+  let proximityCrystals = [];
 
-  // ── Context ────────────────────────────────────────────────
-  var ctx = null;
-  var muted = false;
-  var isPaused = false;
-
-  // ── Config ─────────────────────────────────────────────────
-  var CONFIG = {
-    masterVolume:  0.7,
-    musicVolume:  0.55,
-    sfxVolume:    0.85,
-    crossfadeDur: 2.0
-  };
-
-  // ── Master gain ────────────────────────────────────────────
-  var masterGain = null;
-
-  function getMasterVolume() {
-    return masterGain ? masterGain.gain.value : CONFIG.masterVolume;
-  }
-
-  // ── Trigger IDs ───────────────────────────────────────────
-  var TRIGGERS = {
-    JUMP:            'SFX_JUMP',
-    COYOTE_JUMP:     'SFX_COYOTE_JUMP',
-    LAND:            'SFX_LAND',
-    CRYSTAL_COLLECT: 'SFX_CRYSTAL_COLLECT',
-    DEATH:           'SFX_DEATH',
-    CHECKPOINT:      'SFX_CHECKPOINT',
-    LEVEL_COMPLETE:  'SFX_LEVEL_COMPLETE',
-    PORTAL:          'SFX_PORTAL',
-    DROWN:           'SFX_DROWN'
-  };
-
-  // ── Init ──────────────────────────────────────────────────
-  AudioEngine.init = function() {
+  // ---- INIT ----
+  function init() {
     if (ctx) return;
     ctx = new (window.AudioContext || window.webkitAudioContext)();
     masterGain = ctx.createGain();
-    masterGain.gain.value = CONFIG.masterVolume;
+    masterGain.gain.value = 0.7;
     masterGain.connect(ctx.destination);
-  };
+  }
 
   function resume() {
     if (ctx && ctx.state === 'suspended') ctx.resume();
   }
 
-  // ── Helper: make oscillator ────────────────────────────────
-  function makeOsc(type, freq) {
-    var o = ctx.createOscillator();
-    o.type = type;
-    o.frequency.value = freq;
-    return o;
+  // ---- CORE TRIGGER ----
+  function trigger(name, param) {
+    init();
+    resume();
+    switch (name) {
+      case 'JUMP':         _playJump();       break;
+      case 'LAND':          _playLand();       break;
+      case 'CRYSTAL':       _playCrystal();    break;
+      case 'EXIT':          _playExit();       break;
+      case 'COMPLETE':      _playComplete();   break;
+      case 'DEATH':         _playDeath();      break;
+      case 'CHECKPOINT':    _playCheckpoint(); break;
+      case 'DROWN':         _playDrown();      break;
+      case 'KEY_COLLECT':   _playKeyCollect(param); break;
+      case 'DOOR_LOCKED':   _playDoorLocked(); break;
+      case 'DOOR_UNLOCK':   _playDoorUnlock(); break;
+      case 'TIMED_DOOR_WARNING': _playTimedDoorWarning(); break;
+      case 'CRYSTAL_SWITCH': _playCrystalSwitch(); break;
+      case 'PRESSURE_PLATE': _playPressurePlate(); break;
+      case 'VAULT_ACTIVATE': _playVaultActivate(); break;
+      default: console.warn('[AudioEngine] Unknown trigger:', name);
+    }
   }
 
-  // ── SFX: JUMP ─────────────────────────────────────────────
-  AudioEngine.trigger_JUMP = function() {
-    var osc = makeOsc('sine', 280);
-    var g   = ctx.createGain();
-    osc.connect(g); g.connect(masterGain);
+  // ---- EXISTING SFX ----
+  function _playJump() {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
     osc.frequency.setValueAtTime(280, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(560, ctx.currentTime + 0.08);
-    g.gain.setValueAtTime(0.3, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.18);
-  };
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    osc.connect(gain); gain.connect(masterGain);
+    osc.start(); osc.stop(ctx.currentTime + 0.15);
+  }
 
-  // ── SFX: COYOTE_JUMP ──────────────────────────────────────
-  AudioEngine.trigger_COYOTE_JUMP = function() {
-    var osc  = makeOsc('triangle', 220);
-    var filt = ctx.createBiquadFilter();
-    var g    = ctx.createGain();
-    osc.connect(filt); filt.connect(g); g.connect(masterGain);
-    filt.type = 'lowpass'; filt.frequency.value = 1200;
-    g.gain.setValueAtTime(0.15, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.22);
-  };
+  function _playLand() {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(180, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 0.07);
+    gain.gain.setValueAtTime(0.35, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+    osc.connect(gain); gain.connect(masterGain);
+    osc.start(); osc.stop(ctx.currentTime + 0.1);
+  }
 
-  // ── SFX: LAND ─────────────────────────────────────────────
-  AudioEngine.trigger_LAND = function() {
-    var sr   = ctx.sampleRate;
-    var buf  = ctx.createBuffer(1, sr * 0.1, sr);
-    var d    = buf.getChannelData(0);
-    for (var i = 0; i < d.length; i++)
-      d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (d.length * 0.3));
-    var src  = ctx.createBufferSource(); src.buffer = buf;
-    var filt = ctx.createBiquadFilter(); filt.type = 'lowpass'; filt.frequency.value = 400;
-    var g    = ctx.createGain(); g.gain.value = 0.4;
-    src.connect(filt); filt.connect(g); g.connect(masterGain);
-    src.start();
-  };
-
-  // ── SFX: CRYSTAL_COLLECT ──────────────────────────────────
-  AudioEngine.trigger_CRYSTAL_COLLECT = function() {
-    var freqs = [660, 880, 1100];
-    for (var i = 0; i < freqs.length; i++) {
-      var f = freqs[i];
-      var osc = makeOsc('sine', f);
-      var g   = ctx.createGain();
-      osc.connect(g); g.connect(masterGain);
-      var t = ctx.currentTime + i * 0.04;
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.2, t + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+  function _playCrystal() {
+    [660, 880, 1100].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.04;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.2, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      osc.connect(gain); gain.connect(masterGain);
       osc.start(t); osc.stop(t + 0.3);
-    }
-  };
+    });
+  }
 
-  // ── SFX: DEATH ────────────────────────────────────────────
-  AudioEngine.trigger_DEATH = function() {
-    var osc = makeOsc('sawtooth', 400);
-    var g   = ctx.createGain();
-    osc.connect(g); g.connect(masterGain);
+  function _playExit() {
+    [440, 550, 660, 880].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.1;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.15, t + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(t); osc.stop(t + 0.6);
+    });
+  }
+
+  function _playComplete() {
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.12;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.2, t + 0.05);
+      gain.gain.setValueAtTime(0.2, t + 0.3);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 1.0);
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(t); osc.stop(t + 1.0);
+    });
+  }
+
+  function _playDeath() {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(400, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.6);
-    g.gain.setValueAtTime(0.3, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.8);
-  };
+    osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.5);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.connect(gain); gain.connect(masterGain);
+    osc.start(); osc.stop(ctx.currentTime + 0.5);
+  }
 
-  // ── SFX: CHECKPOINT ───────────────────────────────────────
-  AudioEngine.trigger_CHECKPOINT = function() {
-    var freqs = [523, 659, 784];
-    for (var i = 0; i < freqs.length; i++) {
-      var f = freqs[i];
-      var osc = makeOsc('sine', f);
-      var g   = ctx.createGain();
-      osc.connect(g); g.connect(masterGain);
-      var t = ctx.currentTime + i * 0.12;
-      g.gain.setValueAtTime(0.25, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
-      osc.start(t); osc.stop(t + 0.25);
-    }
-  };
+  function _playCheckpoint() {
+    [330, 440, 550, 660].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.08;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.18, t + 0.03);
+      gain.gain.setValueAtTime(0.18, t + 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(t); osc.stop(t + 0.5);
+    });
+  }
 
-  // ── SFX: LEVEL_COMPLETE ──────────────────────────────────
-  AudioEngine.trigger_LEVEL_COMPLETE = function() {
-    var melody = [523, 659, 784, 1047];
-    for (var i = 0; i < melody.length; i++) {
-      var f = melody[i];
-      var osc = makeOsc('sine', f);
-      var g   = ctx.createGain();
-      osc.connect(g); g.connect(masterGain);
-      var t = ctx.currentTime + i * 0.18;
-      g.gain.setValueAtTime(0.3, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
-      osc.start(t); osc.stop(t + 0.35);
-    }
-  };
+  function _playDrown() {
+    const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
+    const noiseData = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < noiseData.length; i++) noiseData[i] = Math.random() * 2 - 1;
 
-  // ── SFX: PORTAL ───────────────────────────────────────────
-  AudioEngine.trigger_PORTAL = function() {
-    var osc = makeOsc('sine', 200);
-    var g   = ctx.createGain();
-    osc.connect(g); g.connect(masterGain);
-    osc.frequency.setValueAtTime(200, ctx.currentTime);
-    osc.frequency.linearRampToValueAtTime(800, ctx.currentTime + 0.4);
-    g.gain.setValueAtTime(0.3, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.6);
-  };
-
-  // ── SFX: DROWN (production — Cadenza) ─────────────────────
-  // Character: white noise → lowpass sweep (1kHz→200Hz) + 55Hz rumble sine.
-  // Fade in fast (0.15s), slow out (1.8s). Distinct from DEATH (sharp/high).
-  AudioEngine.trigger_DROWN = function() {
-    if (!ctx) return;
-    var now = ctx.currentTime;
-    var dur = 2.0;
-
-    // White noise: muffled underwater texture
-    var bufSamples = Math.floor(ctx.sampleRate * 0.5);
-    var buf = ctx.createBuffer(1, bufSamples, ctx.sampleRate);
-    var d = buf.getChannelData(0);
-    for (var i = 0; i < bufSamples; i++) d[i] = Math.random() * 2 - 1;
-
-    var noise = ctx.createBufferSource();
-    noise.buffer = buf;
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer;
     noise.loop = true;
 
-    var lpf = ctx.createBiquadFilter();
+    const lpf = ctx.createBiquadFilter();
     lpf.type = 'lowpass';
-    lpf.frequency.setValueAtTime(1000, now);
-    lpf.frequency.exponentialRampToValueAtTime(200, now + dur);
-    lpf.Q.value = 1.2;
+    lpf.frequency.setValueAtTime(1000, ctx.currentTime);
+    lpf.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 1.8);
 
-    var gNoise = ctx.createGain();
-    gNoise.gain.setValueAtTime(0, now);
-    gNoise.gain.linearRampToValueAtTime(0.45, now + 0.15);
-    gNoise.gain.setValueAtTime(0.45, now + 0.4);
-    gNoise.gain.exponentialRampToValueAtTime(0.001, now + dur);
+    const rumbleOsc = ctx.createOscillator();
+    rumbleOsc.type = 'sine';
+    rumbleOsc.frequency.value = 55;
 
-    // Low rumble: 55Hz sine (underwater pressure)
-    var rumble = ctx.createOscillator();
-    rumble.type = 'sine';
-    rumble.frequency.value = 55;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0, ctx.currentTime);
+    noiseGain.gain.linearRampToValueAtTime(0.45, ctx.currentTime + 0.15);
+    noiseGain.gain.setValueAtTime(0.45, ctx.currentTime + 0.4);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.0);
 
-    var gRumble = ctx.createGain();
-    gRumble.gain.setValueAtTime(0, now);
-    gRumble.gain.linearRampToValueAtTime(0.22, now + 0.2);
-    gRumble.gain.exponentialRampToValueAtTime(0.001, now + dur);
+    const rumbleGain = ctx.createGain();
+    rumbleGain.gain.setValueAtTime(0, ctx.currentTime);
+    rumbleGain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.15);
+    rumbleGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.0);
 
-    var master = ctx.createGain();
-    master.gain.value = getMasterVolume();
-
-    noise.connect(lpf);
-    lpf.connect(gNoise);
-    gNoise.connect(master);
-    rumble.connect(gRumble);
-    gRumble.connect(master);
-    master.connect(ctx.destination);
-
-    noise.start(now);
-    rumble.start(now);
-    noise.stop(now + dur);
-    rumble.stop(now + dur);
-  };
-
-  // ══════════════════════════════════════════════════════════════
-  // CRYSTAL PROXIMITY — v0.3 dual-oscillator system
-  // Per Cadenza's spec:
-  //   660Hz + 663.3Hz oscillators, bandpass filter Q=5
-  //   Step-curve volume: 0.35→0.25→0.18→0.06→0
-  //   Filter frequency: max(400, 660 - dist*20)
-  // ══════════════════════════════════════════════════════════════
-
-  var _proxPlayer   = null;
-  var _proxCrystals = [];
-  var _proxGain     = null;
-  var _proxOsc1     = null;
-  var _proxOsc2     = null;
-  var _proxFilter   = null;
-  var _proxActive   = false;
-
-  function _proxDist(ax, ay, bx, by) {
-    var dx = ax - bx, dy = ay - by;
-    return Math.sqrt(dx * dx + dy * dy);
+    noise.connect(lpf); lpf.connect(noiseGain); noiseGain.connect(masterGain);
+    rumbleOsc.connect(rumbleGain); rumbleGain.connect(masterGain);
+    noise.start(); rumbleOsc.start();
+    noise.stop(ctx.currentTime + 2.0); rumbleOsc.stop(ctx.currentTime + 2.0);
   }
 
-  function _proxStart() {
-    if (!ctx || _proxOsc1) return;
-    _proxGain   = ctx.createGain();
-    _proxOsc1   = ctx.createOscillator();
-    _proxOsc2   = ctx.createOscillator();
-    _proxFilter = ctx.createBiquadFilter();
+  // ============================================================
+  // LEVEL 3 SFX  NEW TRIGGERS
+  // ============================================================
 
-    _proxOsc1.type = 'sine'; _proxOsc1.frequency.value = 660;
-    _proxOsc2.type = 'sine'; _proxOsc2.frequency.value = 663.3;
-    _proxFilter.type = 'bandpass';
-    _proxFilter.frequency.value = 660;
-    _proxFilter.Q.value = 5;
+  // KEY_COLLECT  bright chime, pitched per key color (param: 'gold'|'red'|'blue')
+  function _playKeyCollect(color) {
+    const freqMap = { gold: 1200, red: 900, blue: 660 };
+    const freq = freqMap[color] || 900;
+    const duration = 0.3;
 
-    _proxGain.gain.value = 0;
-    _proxOsc1.connect(_proxGain);
-    _proxOsc2.connect(_proxGain);
-    _proxGain.connect(_proxFilter);
-    _proxFilter.connect(masterGain);
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.value = 400;
 
-    _proxOsc1.start();
-    _proxOsc2.start();
-    _proxActive = true;
+    osc1.type = 'sine';
+    osc1.frequency.value = freq;
+    osc2.type = 'triangle';
+    osc2.frequency.value = freq * 2;
+
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+    osc1.connect(filter); osc2.connect(filter); filter.connect(gain); gain.connect(masterGain);
+    osc1.start(); osc2.start();
+    osc1.stop(ctx.currentTime + duration); osc2.stop(ctx.currentTime + duration);
   }
 
-  function _proxStop() {
-    if (_proxOsc1) { try { _proxOsc1.stop(); } catch(e){} _proxOsc1 = null; }
-    if (_proxOsc2) { try { _proxOsc2.stop(); } catch(e){} _proxOsc2 = null; }
-    _proxGain = null; _proxFilter = null; _proxActive = false;
+  // DOOR_LOCKED  dull thud + rejection buzz
+  function _playDoorLocked() {
+    const thud = ctx.createOscillator();
+    const buzz = ctx.createOscillator();
+    const thudGain = ctx.createGain();
+    const buzzGain = ctx.createGain();
+    const distortion = ctx.createWaveShaper();
+
+    // Thud: low sine with fast decay
+    thud.type = 'sine';
+    thud.frequency.setValueAtTime(120, ctx.currentTime);
+    thud.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.15);
+    thudGain.gain.setValueAtTime(0.4, ctx.currentTime);
+    thudGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    thud.connect(thudGain); thudGain.connect(masterGain);
+    thud.start(); thud.stop(ctx.currentTime + 0.2);
+
+    // Buzz: harsh layered tones
+    distortion.curve = makeDistortionCurve(50);
+    buzz.type = 'sawtooth';
+    buzz.frequency.value = 80;
+    buzzGain.gain.setValueAtTime(0.15, ctx.currentTime + 0.05);
+    buzzGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    buzz.connect(distortion); distortion.connect(buzzGain); buzzGain.connect(masterGain);
+    buzz.start(ctx.currentTime + 0.05); buzz.stop(ctx.currentTime + 0.4);
   }
 
-  // Call once at level start
-  AudioEngine.setProximityTarget = function(player, crystals) {
-    _proxStop();
-    _proxPlayer   = player;
-    _proxCrystals = crystals || [];
-    if (ctx && _proxCrystals.length > 0) _proxStart();
-  };
+  // DOOR_UNLOCK  mechanical click + resonant sweep
+  function _playDoorUnlock() {
+    const click = ctx.createOscillator();
+    const sweep = ctx.createOscillator();
+    const clickGain = ctx.createGain();
+    const sweepGain = ctx.createGain();
 
-  // Call every frame
-  AudioEngine.updateProximity = function() {
-    if (!_proxActive || !_proxPlayer || _proxCrystals.length === 0) return;
+    // Click: sharp transient at 50ms
+    click.type = 'square';
+    click.frequency.value = 2000;
+    clickGain.gain.setValueAtTime(0.5, ctx.currentTime);
+    clickGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+    click.connect(clickGain); clickGain.connect(masterGain);
+    click.start(); click.stop(ctx.currentTime + 0.05);
 
-    var px = _proxPlayer.x !== undefined ? _proxPlayer.x : _proxPlayer.px;
-    var py = _proxPlayer.y !== undefined ? _proxPlayer.y : _proxPlayer.py;
+    // Sweep: resonant low-to-mid, 0.5s
+    sweep.type = 'sine';
+    sweep.frequency.setValueAtTime(150, ctx.currentTime + 0.05);
+    sweep.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.5);
+    sweepGain.gain.setValueAtTime(0, ctx.currentTime + 0.05);
+    sweepGain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.1);
+    sweepGain.gain.setValueAtTime(0.25, ctx.currentTime + 0.35);
+    sweepGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
+    sweep.connect(sweepGain); sweepGain.connect(masterGain);
+    sweep.start(ctx.currentTime + 0.05); sweep.stop(ctx.currentTime + 0.55);
+  }
 
-    var minDist = Infinity;
-    for (var i = 0; i < _proxCrystals.length; i++) {
-      var c = _proxCrystals[i];
-      if (!c.collected) {
-        var cx = c.x * 32 + 16, cy = c.y * 32 + 16;
-        var d = _proxDist(px, py, cx, cy);
-        if (d < minDist) minDist = d;
-      }
+  // TIMED_DOOR_WARNING  two-tone urgent alert at ~1s before door closes
+  function _playTimedDoorWarning() {
+    [800, 600].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.1;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.15, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(t); osc.stop(t + 0.1);
+    });
+  }
+
+  // CRYSTAL_SWITCH  sharp activation ping
+  function _playCrystalSwitch() {
+    const osc = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1400, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.1);
+    osc2.type = 'triangle';
+    osc2.frequency.value = 2800;
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    osc.connect(gain); osc2.connect(gain); gain.connect(masterGain);
+    osc.start(); osc2.start();
+    osc.stop(ctx.currentTime + 0.2); osc2.stop(ctx.currentTime + 0.2);
+  }
+
+  // PRESSURE_PLATE  heavy click thud
+  function _playPressurePlate() {
+    const osc = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(200, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 0.08);
+    osc2.type = 'sine';
+    osc2.frequency.value = 400;
+    gain.gain.setValueAtTime(0.4, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    osc.connect(gain); osc2.connect(gain); gain.connect(masterGain);
+    osc.start(); osc2.start();
+    osc.stop(ctx.currentTime + 0.15); osc2.stop(ctx.currentTime + 0.15);
+  }
+
+  // VAULT_ACTIVATE  deep resonant finale, 1.2s, the climax of Level 3
+  function _playVaultActivate() {
+    // Deep chord: layered low sines
+    const freqs = [82, 110, 123, 165]; // E2, A2, B2, E3  open chord feel
+    freqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.1 + i * 0.05);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime + 0.6);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(); osc.stop(ctx.currentTime + 1.2);
+    });
+
+    // Shimmer sweep: high to mid, crosses the chord
+    const sweep = ctx.createOscillator();
+    const sweepGain = ctx.createGain();
+    sweep.type = 'sine';
+    sweep.frequency.setValueAtTime(3000, ctx.currentTime + 0.1);
+    sweep.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.8);
+    sweepGain.gain.setValueAtTime(0.1, ctx.currentTime + 0.1);
+    sweepGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.0);
+    sweep.connect(sweepGain); sweepGain.connect(masterGain);
+    sweep.start(ctx.currentTime + 0.1); sweep.stop(ctx.currentTime + 1.0);
+
+    // Sub thud: heavy bottom
+    const sub = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    sub.type = 'sine';
+    sub.frequency.value = 40;
+    subGain.gain.setValueAtTime(0.3, ctx.currentTime);
+    subGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+    sub.connect(subGain); subGain.connect(masterGain);
+    sub.start(); sub.stop(ctx.currentTime + 1.2);
+  }
+
+  // ---- DISTORTION CURVE HELPER ----
+  function makeDistortionCurve(amount) {
+    const samples = 44100;
+    const curve = new Float32Array(samples);
+    for (let i = 0; i < samples; i++) {
+      const x = (i * 2) / samples - 1;
+      curve[i] = ((Math.PI + amount) * x) / (Math.PI + amount * Math.abs(x));
     }
+    return curve;
+  }
 
-    // Step-curve volume per Cadenza spec
-    var vol;
-    if      (minDist < 0.5) vol = 0.35;
-    else if (minDist < 1)   vol = 0.25;
-    else if (minDist < 2)   vol = 0.18;
-    else if (minDist < 3)   vol = 0.06;
-    else                    vol = 0;
-
-    _proxGain.gain.value = vol;
-
-    var filtFreq = Math.max(400, 660 - minDist * 20);
-    _proxFilter.frequency.value = filtFreq;
-
-    if (vol === 0 && _proxActive)  { _proxStop(); }
-    if (vol >  0 && !_proxActive) { _proxStart(); }
-  };
-
-  // Call on level exit / death
-  AudioEngine.stopProximity = function() {
-    _proxStop();
-    _proxPlayer = null; _proxCrystals = [];
-  };
-
-  // ── Music crossfade ────────────────────────────────────────
-  var _musicSrc  = null;
-  var _musicGain = null;
-
-  AudioEngine.crossfadeTo = function(url) {
-    if (!ctx) return;
-    var newGain = ctx.createGain();
-    newGain.gain.value = 0; newGain.connect(masterGain);
-    fetch(url).then(function(r) { return r.arrayBuffer(); })
-      .then(function(buf) {
-        ctx.decodeAudioData(buf, function(dec) {
-          var src = ctx.createBufferSource();
-          src.buffer = dec; src.loop = true;
-          src.connect(newGain); src.start();
-          if (_musicGain) _musicGain.gain.setTargetAtTime(0, ctx.currentTime, CONFIG.crossfadeDur / 3);
-          if (_musicSrc)  setTimeout(function() { try { _musicSrc.stop(); } catch(e){} }, CONFIG.crossfadeDur * 1000 + 100);
-          _musicSrc = src; _musicGain = newGain;
-          newGain.gain.setTargetAtTime(CONFIG.musicVolume, ctx.currentTime, CONFIG.crossfadeDur / 3);
-        });
-      });
-  };
-
-  // ── Dispatch trigger(id) ───────────────────────────────────
-  AudioEngine.trigger = function(id) {
+  // ============================================================
+  // PROXIMITY SYSTEM (unchanged from v0.3)
+  // ============================================================
+  function startProximitySound() {
+    init();
     resume();
-    switch(id) {
-      case 'SFX_JUMP':            AudioEngine.trigger_JUMP();            break;
-      case 'SFX_COYOTE_JUMP':     AudioEngine.trigger_COYOTE_JUMP();    break;
-      case 'SFX_LAND':            AudioEngine.trigger_LAND();            break;
-      case 'SFX_CRYSTAL_COLLECT': AudioEngine.trigger_CRYSTAL_COLLECT(); break;
-      case 'SFX_DEATH':           AudioEngine.trigger_DEATH();           break;
-      case 'SFX_CHECKPOINT':      AudioEngine.trigger_CHECKPOINT();      break;
-      case 'SFX_LEVEL_COMPLETE':  AudioEngine.trigger_LEVEL_COMPLETE();  break;
-      case 'SFX_PORTAL':          AudioEngine.trigger_PORTAL();          break;
-      case 'SFX_DROWN':           AudioEngine.trigger_DROWN();           break;
-    }
+    if (proximityActive) return;
+    proximityActive = true;
+
+    proximityGainNode = ctx.createGain();
+    proximityGainNode.gain.value = 0;
+
+    proximityFilter = ctx.createBiquadFilter();
+    proximityFilter.type = 'bandpass';
+    proximityFilter.frequency.value = 660;
+    proximityFilter.Q.value = 1.5;
+
+    proximityOsc1 = ctx.createOscillator();
+    proximityOsc2 = ctx.createOscillator();
+    proximityOsc1.type = 'sine';
+    proximityOsc2.type = 'sine';
+    proximityOsc1.frequency.value = 660;
+    proximityOsc2.frequency.value = 663.3;
+
+    proximityLFO = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    proximityLFO.type = 'sine';
+    proximityLFO.frequency.value = 0.15;
+    lfoGain.gain.value = 8;
+    proximityLFO.connect(lfoGain);
+    lfoGain.connect(proximityOsc1.frequency);
+
+    proximityOsc1.connect(proximityFilter);
+    proximityOsc2.connect(proximityFilter);
+    proximityFilter.connect(proximityGainNode);
+    proximityGainNode.connect(masterGain);
+
+    proximityOsc1.start();
+    proximityOsc2.start();
+    proximityLFO.start();
+  }
+
+  function updateProximitySound(player, crystals) {
+    if (!proximityActive || crystals.length === 0) return;
+    let minDist = Infinity;
+    crystals.forEach(c => {
+      const dx = player.x - c.x;
+      const dy = player.y - c.y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < minDist) minDist = d;
+    });
+    const maxRange = 3;
+    const minRange = 0.5;
+    const vol = Math.max(0, Math.min(0.35, 0.35 * (1 - (minDist - minRange) / (maxRange - minRange))));
+    proximityGainNode.gain.setTargetAtTime(vol, ctx.currentTime, 0.1);
+  }
+
+  function stopProximitySound() {
+    if (!proximityActive) return;
+    proximityActive = false;
+    [proximityOsc1, proximityOsc2, proximityLFO].forEach(o => { try { o.stop(); } catch(e) {} });
+    [proximityOsc1, proximityOsc2, proximityLFO, proximityFilter, proximityGainNode] = [null, null, null, null, null];
+  }
+
+  function setProximityTarget(player, crystals) {
+    proximityTarget = player;
+    proximityCrystals = crystals;
+  }
+
+  // ============================================================
+  // PUBLIC API
+  // ============================================================
+  return {
+    init,
+    resume,
+    trigger,
+    startProximitySound,
+    updateProximitySound,
+    stopProximitySound,
+    setProximityTarget,
+    get PROXIMITY_ACTIVE() { return proximityActive; }
   };
-
-  AudioEngine.TRIGGERS = TRIGGERS;
-
 })();
