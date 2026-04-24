@@ -684,7 +684,7 @@ function _makeDistortionCurve(amount) {
     setProximityTarget,
     triggerSpatialWarning,
     triggerSpatialTimedWarning,
-    get PROXIMITY_ACTIVE() { return proximityActive; }
+    get PROXIMITY_ACTIVE() { return proximityActive; },
     startZoneCAmbient,
     stopZoneCAmbient,
     };
