@@ -1,0 +1,54 @@
+{
+  "id": "level_03",
+  "name": "The Deepening",
+  "player": { "x": 2, "y": 13 },
+  "crystalGate": 10,
+  "crystals": [
+    { "id": "C-01", "x": 5,   "y": 12, "zone": "A" },
+    { "id": "C-02", "x": 12,  "y": 12, "zone": "A" },
+    { "id": "C-03", "x": 22,  "y": 9,  "zone": "A" },
+    { "id": "C-04", "x": 38,  "y": 10, "zone": "A" },
+    { "id": "C-05", "x": 48,  "y": 12, "zone": "B" },
+    { "id": "C-06", "x": 52,  "y": 9,  "zone": "B" },
+    { "id": "C-07", "x": 58,  "y": 9,  "zone": "B" },
+    { "id": "C-08", "x": 63,  "y": 12, "zone": "B" },
+    { "id": "C-09", "x": 68,  "y": 8,  "zone": "B" },
+    { "id": "C-10", "x": 74,  "y": 12, "zone": "B" },
+    { "id": "C-11", "x": 84,  "y": 12, "zone": "C" },
+    { "id": "C-12", "x": 90,  "y": 12, "zone": "C" },
+    { "id": "C-13", "x": 95,  "y": 9,  "zone": "C" },
+    { "id": "C-14", "x": 100, "y": 9,  "zone": "C" }
+  ],
+  "keys": [
+    { "id": "KEY_A",  "x": 24, "y": 9,  "zone": "A", "type": "gold"   },
+    { "id": "KEY_B1", "x": 54, "y": 8,  "zone": "B", "type": "silver" },
+    { "id": "KEY_B2", "x": 70, "y": 7,  "zone": "B", "type": "copper" }
+  ],
+  "doors": [
+    { "id": "DOOR_A",   "x": 29, "y": 13, "zone": "A", "type": "locked",    "key": "KEY_A"  },
+    { "id": "DOOR_B1",  "x": 57, "y": 13, "zone": "B", "type": "locked",   "key": "KEY_B1" },
+    { "id": "DOOR_B2",  "x": 72, "y": 13, "zone": "B", "type": "pressure", "linkedPlate": "PP_B1" }
+  ],
+  "pressurePlates": [
+    { "id": "PP_A",  "x": 33, "y": 13, "zone": "A", "linkedDoor": null },
+    { "id": "PP_B1", "x": 61, "y": 13, "zone": "B", "linkedDoor": "DOOR_B2" },
+    { "id": "PP_B2", "x": 75, "y": 13, "zone": "B", "linkedDoor": null }
+  ],
+  "movingPlatforms": [
+    { "id": "MP_01", "x": 40, "y": 11, "width": 3, "height": 1, "type": "horizontal", "minX": 35, "maxX": 48, "speed": 2.5 },
+    { "id": "MP_02", "x": 55, "y": 9,  "width": 3, "height": 1, "type": "vertical",   "minY": 9,  "maxY": 13, "speed": 2.0 },
+    { "id": "MP_03", "x": 78, "y": 10, "width": 3, "height": 1, "type": "vertical",   "minY": 9,  "maxY": 13, "speed": 2.0 }
+  ],
+  "crystalSwitch": { "id": "CS_01", "x": 91, "y": 9, "zone": "C" },
+  "vaultDoor":     { "id": "VAULT_01", "x": 97, "y": 8, "width": 2, "zone": "C" },
+  "checkpoints": [
+    { "id": "CP-01", "x": 2,  "y": 13, "zone": "A" },
+    { "id": "CP-02", "x": 52, "y": 13, "zone": "B" }
+  ],
+  "spikes": [
+    { "x": 15, "y": 13, "width": 3 },
+    { "x": 43, "y": 13, "width": 2 },
+    { "x": 87, "y": 13, "width": 2 }
+  ],
+  "exit": { "x": 103, "y": 13 }
+}
