@@ -304,8 +304,8 @@ function drawTimedPlatform(){
   if(!timedPlatform)return;
   var tp=timedPlatform;
   var tileKey='platforms/platform_timed_00.png';
-  if(tp.state==='warning')tileKey='platform_timed_warning_00.png';
-  else if(tp.state==='disappeared')tileKey='platform_timed_gone_00.png';
+  if(tp.state==='warning')tileKey='platforms/platform_timed_warning_00.png';
+  else if(tp.state==='disappeared')tileKey='platforms/platform_timed_gone_00.png';
   ctx.globalAlpha=tp.state==='disappeared'?0.2:1.0;
   drawTile(tileKey,tp.x,tp.y,tp.w,tp.h);
   if(tp.state!=='disappeared'){ctx.fillStyle='#ffa500';ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.fillText(Math.ceil(tp.timer)+'s',tp.x+tp.w/2,tp.y-4);}
