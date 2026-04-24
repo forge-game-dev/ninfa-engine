@@ -11,7 +11,7 @@ var W=800,H=640,c=document.getElementById('c'),ctx=c.getContext('2d');
 c.width=W;c.height=H;
 var GRAVITY=10,MAX_FALL=8,SPEED=5,COYOTE=0.1,JUMP=-8,JUMP_BUFFER=0.2;
 var keys={},animTime=0,lastTime=0,deaths=0,deathTimer=0,levelComplete=false;
-var collected=0,crystalGate=12;
+var collected=0,crystalGate=12,inZoneC=false;
 var player={x:32,y:64,w:28,h:28,vx:0,vy:0,grounded:false,lastGrounded:0,jumpBuffer:0,facingRight:true,coyoteT:0};
 
 function el(id){return document.getElementById(id);}
@@ -166,6 +166,15 @@ function updatePlayer(dt){
     return;
   }
   if(levelComplete)return;
+  // Zone C boundary detection (cold stone → golden transition)
+  var inZoneCNOW = player.y >= 288 && player.x >= 192;
+  if(inZoneCNOW && !inZoneC){
+    inZoneC = true;
+    if(audioEngine && audioEngine.trigger) audioEngine.trigger("ZONE_C_AMBIENT_START");
+  } else if(!inZoneCNOW && inZoneC){
+    inZoneC = false;
+    if(audioEngine && audioEngine.trigger) audioEngine.trigger("ZONE_C_AMBIENT_STOP");
+  }
 
   var wasGrounded=player.grounded;
   var left=keys['ArrowLeft']||keys['KeyA'];
@@ -215,7 +224,7 @@ function updatePlayer(dt){
     if(!cr.collected&&aabb(player.x,player.y,player.w,player.h,cr.x-8,cr.y-8,16,16)){
       cr.collected=true;collected++;updateDOM();
       if(audioEngine)audioEngine.trigger('CRYSTAL');
-      if(collected>=crystalGate&&!levelComplete){levelComplete=true;if(audioEngine)audioEngine.trigger('EXIT');}
+      if(collected>=crystalGate&&!levelComplete){levelComplete=true;if(audioEngine)audioEngine.trigger('VICTORY_STING');}
     }
   }
   for(var i=0;i<checkpoints.length;i++){
