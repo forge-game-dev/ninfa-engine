@@ -158,33 +158,97 @@ const AudioEngine = (function() {
     });
   }
 
+  // ============================================================
+  // LEVEL 2 SFX — DROWN (production replacement)
+  // Distinction from SPIKE_DEATH: liquid submergence, pressure,
+  // resonant panic tones — NOT harsh metallic scraping.
+  // ============================================================
   function _playDrown() {
-    const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
-    const noiseData = noiseBuffer.getChannelData(0);
-    for (let i = 0; i < noiseData.length; i++) noiseData[i] = Math.random() * 2 - 1;
-    const noise = ctx.createBufferSource();
-    noise.buffer = noiseBuffer;
-    noise.loop = true;
+    // --- Panic tone: pitch-bending resonant sine (trapped air) ---
+    const panic = ctx.createOscillator();
+    const panicGain = ctx.createGain();
+    panic.type = "sine";
+    panic.frequency.setValueAtTime(900, ctx.currentTime);
+    panic.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 1.4);
+    panicGain.gain.setValueAtTime(0.22, ctx.currentTime);
+    panicGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+
+    // --- Panic harmonic: soft harmonic layer for depth ---
+    const panicHarm = ctx.createOscillator();
+    const panicHarmGain = ctx.createGain();
+    panicHarm.type = "triangle";
+    panicHarm.frequency.setValueAtTime(1350, ctx.currentTime);
+    panicHarm.frequency.exponentialRampToValueAtTime(330, ctx.currentTime + 1.4);
+    panicHarmGain.gain.setValueAtTime(0.08, ctx.currentTime);
+    panicHarmGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.3);
+
+    // --- Noise layer 1: submersion rush (wide bandpass, fast fade) ---
+    const noiseA = ctx.createBufferSource();
+    const bufA = ctx.createBuffer(1, ctx.sampleRate * 1.5, ctx.sampleRate);
+    const dA = bufA.getChannelData(0);
+    for (let i = 0; i < dA.length; i++) dA[i] = Math.random() * 2 - 1;
+    noiseA.buffer = bufA; noiseA.loop = true;
+    const bpf = ctx.createBiquadFilter();
+    bpf.type = "bandpass"; bpf.frequency.value = 500; bpf.Q.value = 0.4;
+    const noiseAGain = ctx.createGain();
+    noiseAGain.gain.setValueAtTime(0, ctx.currentTime);
+    noiseAGain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.12);
+    noiseAGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+    noiseA.connect(bpf); bpf.connect(noiseAGain); noiseAGain.connect(masterGain);
+
+    // --- Noise layer 2: deep rumble tail (lowpass, longer tail) ---
+    const noiseB = ctx.createBufferSource();
+    const bufB = ctx.createBuffer(1, ctx.sampleRate * 3.5, ctx.sampleRate);
+    const dB = bufB.getChannelData(0);
+    for (let i = 0; i < dB.length; i++) dB[i] = Math.random() * 2 - 1;
+    noiseB.buffer = bufB; noiseB.loop = true;
     const lpf = ctx.createBiquadFilter();
-    lpf.type = 'lowpass';
-    lpf.frequency.setValueAtTime(1000, ctx.currentTime);
-    lpf.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 1.8);
-    const rumbleOsc = ctx.createOscillator();
-    rumbleOsc.type = 'sine';
-    rumbleOsc.frequency.value = 55;
-    const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0, ctx.currentTime);
-    noiseGain.gain.linearRampToValueAtTime(0.45, ctx.currentTime + 0.15);
-    noiseGain.gain.setValueAtTime(0.45, ctx.currentTime + 0.4);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.0);
-    const rumbleGain = ctx.createGain();
-    rumbleGain.gain.setValueAtTime(0, ctx.currentTime);
-    rumbleGain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.15);
-    rumbleGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.0);
-    noise.connect(lpf); lpf.connect(noiseGain); noiseGain.connect(masterGain);
-    rumbleOsc.connect(rumbleGain); rumbleGain.connect(masterGain);
-    noise.start(); rumbleOsc.start();
-    noise.stop(ctx.currentTime + 2.0); rumbleOsc.stop(ctx.currentTime + 2.0);
+    lpf.type = "lowpass";
+    lpf.frequency.setValueAtTime(1200, ctx.currentTime);
+    lpf.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 2.5);
+    const noiseBGain = ctx.createGain();
+    noiseBGain.gain.setValueAtTime(0, ctx.currentTime);
+    noiseBGain.gain.linearRampToValueAtTime(0.38, ctx.currentTime + 0.2);
+    noiseBGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.5);
+    noiseB.connect(lpf); lpf.connect(noiseBGain); noiseBGain.connect(masterGain);
+
+    // --- Water pressure: deep sub-frequency (liquid weight) ---
+    const pressure = ctx.createOscillator();
+    const pressureGain = ctx.createGain();
+    pressure.type = "sine";
+    pressure.frequency.setValueAtTime(60, ctx.currentTime);
+    pressure.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 1.0);
+    pressureGain.gain.setValueAtTime(0, ctx.currentTime);
+    pressureGain.gain.linearRampToValueAtTime(0.28, ctx.currentTime + 0.18);
+    pressureGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.0);
+    pressure.connect(pressureGain); pressureGain.connect(masterGain);
+
+    // --- Undercurrent: slow LFO modulated tone (water movement) ---
+    const under = ctx.createOscillator();
+    const underLFO = ctx.createOscillator();
+    const underLFOGain = ctx.createGain();
+    const underGain = ctx.createGain();
+    under.type = "sine"; under.frequency.value = 110;
+    underLFO.type = "sine"; underLFO.frequency.value = 3.5;
+    underLFOGain.gain.value = 18;
+    underLFO.connect(underLFOGain); underLFOGain.connect(under.frequency);
+    underGain.gain.setValueAtTime(0, ctx.currentTime);
+    underGain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.3);
+    underGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.8);
+    under.connect(underGain); underGain.connect(masterGain);
+
+    // Wire panic tone
+    panic.connect(panicGain); panicGain.connect(masterGain);
+    panicHarm.connect(panicHarmGain); panicHarmGain.connect(masterGain);
+
+    // Start all
+    panic.start(); panic.stop(ctx.currentTime + 1.5);
+    panicHarm.start(); panicHarm.stop(ctx.currentTime + 1.4);
+    noiseA.start(); noiseA.stop(ctx.currentTime + 2.5);
+    noiseB.start(); noiseB.stop(ctx.currentTime + 3.5);
+    pressure.start(); pressure.stop(ctx.currentTime + 3.0);
+    under.start(); underLFO.start();
+    under.stop(ctx.currentTime + 2.8); underLFO.stop(ctx.currentTime + 2.8);
   }
 
   // ============================================================
