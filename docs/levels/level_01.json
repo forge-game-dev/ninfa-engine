@@ -1,22 +1,30 @@
 {
   "id": "level_01",
   "name": "Awakening",
-  "description": "Tutorial level - learn basic movement and jumping",
+  "description": "Tutorial level — learn basic movement and jumping. 8 crystals hidden across 4 platforms. 6 required to open the gate.",
   "tileSize": 32,
   "canvasWidth": 512,
   "canvasHeight": 288,
   "background": "#1a1a2e",
   "spawn": { "x": 32, "y": 192 },
   "exit": { "x": 460, "y": 192, "w": 40, "h": 40 },
+  "crystalGate": 6,
+  "totalCrystals": 8,
   "platforms": [
-    { "id": "ground",    "type": "solid",      "x": 0,    "y": 256, "w": 512, "h": 32 },
-    { "id": "plat_a",    "type": "solid",      "x": 64,   "y": 224, "w": 128, "h": 32 },
+    { "id": "ground",    "type": "solid",       "x": 0,    "y": 256, "w": 512, "h": 32 },
+    { "id": "plat_a",    "type": "solid",       "x": 64,   "y": 224, "w": 128, "h": 32 },
     { "id": "plat_b",    "type": "passthrough", "x": 256,  "y": 192, "w": 128, "h": 32 },
-    { "id": "plat_c",    "type": "solid",      "x": 400,  "y": 192, "w": 96,  "h": 32 }
+    { "id": "plat_c",    "type": "solid",       "x": 400,  "y": 192, "w": 96,  "h": 32 }
   ],
-  "torches": [],
   "crystals": [
-    { "id": "crystal_01", "x": 320, "y": 160 }
+    { "id": "c01", "x": 80,  "y": 232 },
+    { "id": "c02", "x": 160, "y": 232 },
+    { "id": "c03", "x": 240, "y": 232 },
+    { "id": "c04", "x": 90,  "y": 200 },
+    { "id": "c05", "x": 160, "y": 200 },
+    { "id": "c06", "x": 288, "y": 168 },
+    { "id": "c07", "x": 420, "y": 168 },
+    { "id": "c08", "x": 468, "y": 168 }
   ],
   "hazards": [],
   "checkpoints": [],
