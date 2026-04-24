@@ -59,7 +59,7 @@ var checkpoints=[
 ];
 var lastCheckpoint={x:64,y:96};
 
-var TILE_BASE='https://raw.githubusercontent.com/forge-game-dev/ninfa-engine/main/docs/art/tilesets/level_4/';
+var TILE_BASE='art/tilesets/level_4/';
 var tileImages={},tileLoadCount=0,tileTotal=0;
 var TILE_MAP={
   'platform_static_00.png':['platform','static'],
@@ -68,23 +68,23 @@ var TILE_MAP={
   'platform_timed_00.png':['platform','timed'],
   'platform_timed_warning_00.png':['platform','timed_warn'],
   'platform_timed_gone_00.png':['platform','timed_gone'],
-  'spike_floor_00.png':['hazard','spike_floor'],
-  'spike_ceiling_00.png':['hazard','spike_ceiling'],
-  'spike_wall_left_00.png':['hazard','spike_wall_left'],
-  'spike_wall_right_00.png':['hazard','spike_wall_right'],
-  'crystal_00.png':['collectible','crystal'],
-  'checkpoint_00.png':['prop','checkpoint'],
-  'checkpoint_active_00.png':['prop','checkpoint_active'],
-  'portal_exit_00.png':['prop','portal']
+  'hazards/spike_floor_00.png':['hazard','spike_floor'],
+  'hazards/spike_ceiling_00.png':['hazard','spike_ceiling'],
+  'hazards/spike_wall_left_00.png':['hazard','spike_wall_left'],
+  'hazards/spike_wall_right_00.png':['hazard','spike_wall_right'],
+  'level_1/collectibles/crystal.png':['collectible','crystal'],
+  'level_1/collectibles/checkpoint_inactive.png':['prop','checkpoint'],
+  'level_1/collectibles/checkpoint_active.png':['prop','checkpoint_active'],
+  'portal/portal_exit_00.png':['prop','portal']
 };
 var TILE_DIMS={
-  'platform_static_00.png':{w:32,h:32},'platform_mp_h_00.png':{w:64,h:16},
-  'platform_mp_v_00.png':{w:64,h:16},'platform_timed_00.png':{w:96,h:16},
+  'platform_static_00.png':{w:64,h:32},'platform_mp_h_00.png':{w:64,h:32},
+  'platform_mp_v_00.png':{w:64,h:32},'platform_timed_00.png':{w:96,h:16},
   'platform_timed_warning_00.png':{w:96,h:16},'platform_timed_gone_00.png':{w:96,h:16},
-  'spike_floor_00.png':{w:32,h:32},'spike_ceiling_00.png':{w:32,h:32},
-  'spike_wall_left_00.png':{w:32,h:32},'spike_wall_right_00.png':{w:32,h:32},
-  'crystal_00.png':{w:16,h:16},'checkpoint_00.png':{w:16,h:32},
-  'checkpoint_active_00.png':{w:16,h:32},'portal_exit_00.png':{w:48,h:64}
+  'hazards/spike_floor_00.png':{w:32,h:32},'hazards/spike_ceiling_00.png':{w:32,h:32},
+  'hazards/spike_wall_left_00.png':{w:32,h:32},'hazards/spike_wall_right_00.png':{w:32,h:32},
+  'level_1/collectibles/crystal.png':{w:32,h:32},'level_1/collectibles/checkpoint_inactive.png':{w:32,h:32},
+  'level_1/collectibles/checkpoint_active.png':{w:32,h:32},'portal/portal_exit_00.png':{w:48,h:64}
 };
 
 function preloadTiles(){
@@ -314,7 +314,7 @@ function drawTimedPlatform(){
 function drawSpikes(){
   for(var i=0;i<spikes.length;i++){
     var s=spikes[i];
-    var key=s.type==='wall'?'spike_wall_left_00.png':'spike_floor_00.png';
+    var key=s.type==='wall'?'hazards/spike_wall_left_00.png':'hazards/spike_floor_00.png';
     drawTile(key,s.x,s.y,s.w,s.h);
   }}
 function drawCrystals(){
@@ -340,7 +340,7 @@ function drawCheckpoints(){
 function drawExitPortal(){
   if(collected>=crystalGate){
     ctx.fillStyle='rgba(0,255,204,0.2)';ctx.fillRect(736,544,48,64);
-    drawTile('portal_exit_00.png',736,544);
+    drawTile('portal/portal_exit_00.png',736,544);
   }}
 function drawPlayer(){
   if(deathTimer>0){
