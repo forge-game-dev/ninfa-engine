@@ -3,7 +3,7 @@
 // Audio: Cadenza AudioEngine v0.5 with triggerMovingPlatformWarning, triggerTimedPlatformWarning, triggerTimedPlatformDisappear, setProximityTarget
 const W=800,H=640;
 var player,platforms,crystals,checkpoints,movingPlatforms,spikes,levelComplete;
-var timedPlatform=null,lastCheckpoint=null,deathTimer=0,crystalGate=12;
+var timedPlatform=null,lastCheckpoint=null,deathTimer=0,deaths=0,crystalGate=12;
 var keys={},audioReady=false;
 var canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d');
 canvas.width=W; canvas.height=H;
@@ -98,7 +98,7 @@ function initLevel(){
   ];
   crystalGate=12;
   player=createPlayer(32,64);
-  lastCheckpoint=null; deathTimer=0; currentAnim='idle'; animTime=0;
+  lastCheckpoint=null; deathTimer=0; deaths=0; currentAnim='idle'; animTime=0;
   if(window.audioEngine&&audioReady)audioEngine.setProximityTarget(player,crystals);
 }
 
@@ -190,7 +190,7 @@ function gameLoop(timestamp){
     updatePlayer(dt);
     if(window.audioEngine&&audioReady)audioEngine.updateProximity();
     if(checkSpikeCollision()&&deathTimer===0){
-      deathTimer=1.5;
+      deathTimer=1.5;deaths++;
       if(window.audioEngine&&audioReady)audioEngine.triggerSpikeDeath();
     }
     var collected=crystals?crystals.filter(function(c){return c.collected;}).length:0;
@@ -208,6 +208,7 @@ function gameLoop(timestamp){
   if(el('fps'))el('fps').textContent=fps;
   if(el('px'))el('px').textContent=Math.round(player?player.x:0);
   if(el('cr'))el('cr').textContent=crystals?crystals.filter(function(c){return c.collected;}).length:0;
+  if(el('de'))el('de').textContent=deaths;
   requestAnimationFrame(gameLoop);
 }
 
@@ -259,7 +260,7 @@ function updatePlayer(dt){
     }
   }
   if(player.x<0)player.x=0;
-  if(player.y>H+100){deathTimer=1.5;if(window.audioEngine&&audioReady)audioEngine.triggerSpikeDeath();}
+  if(player.y>H+100){deathTimer=1.5;deaths++;if(window.audioEngine&&audioReady)audioEngine.triggerSpikeDeath();}
   for(var i=0;i<checkpoints.length;i++){
     var cp=checkpoints[i];
     if(!cp.activated&&overlaps(player.x,player.y,player.w,player.h,cp.x,cp.y,cp.w,cp.h)){
