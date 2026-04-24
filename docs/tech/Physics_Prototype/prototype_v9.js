@@ -5,7 +5,7 @@
 
 (function(){
 'use strict';
-var W=800,H=640,c=document.getElementById('gameCanvas'),ctx=c.getContext('2d');
+var W=800,H=640,c=document.getElementById('c'),ctx=c.getContext('2d');
 c.width=W;c.height=H;
 var GRAVITY=10,MAX_FALL=8,SPEED=5,COYOTE=0.1,JUMP=-7,JUMP_BUFFER=0.15;
 var keys={},animTime=0,lastTime=0,deaths=0,deathTimer=0,levelComplete=false;
@@ -57,45 +57,33 @@ var checkpoints=[
 ];
 var lastCheckpoint={x:64,y:96};
 
-var TILE_BASE='https://raw.githubusercontent.com/forge-game-dev/ninfa-engine/main/docs/art/tilesets/';
+var TILE_BASE='https://raw.githubusercontent.com/forge-game-dev/ninfa-engine/main/docs/art/tilesets/level_4/';
+var tileImages={},tileLoadCount=0,tileTotal=0;
 var TILE_MAP={
-  'level_4/platforms/platform_static.png':['platform','static'],
-  'level_4/platforms/platform_mp_h1.png':['platform','moving_h'],
-  'level_4/platforms/platform_mp_h2.png':['platform','moving_h'],
-  'level_4/platforms/platform_mp_v1.png':['platform','moving_v'],
-  'level_4/platforms/platform_mp_v2.png':['platform','moving_v'],
-  'level_4/platforms/platform_timed.png':['platform','timed'],
-  'level_4/platforms/platform_timed_warning_00.png':['platform','timed_warn'],
-  'level_4/platforms/platform_timed_gone_00.png':['platform','timed_gone'],
-  'level_4/hazards/spike_floor_00.png':['hazard','spike_floor'],
-  'level_4/hazards/spike_ceiling_00.png':['hazard','spike_ceiling'],
-  'level_4/hazards/spike_wall_left_00.png':['hazard','spike_wall_left'],
-  'level_4/hazards/spike_wall_right_00.png':['hazard','spike_wall_right'],
-  'level_1/collectibles/crystal.png':['collectible','crystal'],
-  'level_1/collectibles/checkpoint_inactive.png':['prop','checkpoint'],
-  'level_1/collectibles/checkpoint_active.png':['prop','checkpoint_active'],
-  'level_4/portal/portal_exit_00.png':['prop','portal']
+  'platform_static_00.png':['platform','static'],
+  'platform_mp_h_00.png':['platform','moving_h'],
+  'platform_mp_v_00.png':['platform','moving_v'],
+  'platform_timed_00.png':['platform','timed'],
+  'platform_timed_warning_00.png':['platform','timed_warn'],
+  'platform_timed_gone_00.png':['platform','timed_gone'],
+  'spike_floor_00.png':['hazard','spike_floor'],
+  'spike_ceiling_00.png':['hazard','spike_ceiling'],
+  'spike_wall_left_00.png':['hazard','spike_wall_left'],
+  'spike_wall_right_00.png':['hazard','spike_wall_right'],
+  'crystal_00.png':['collectible','crystal'],
+  'checkpoint_00.png':['prop','checkpoint'],
+  'checkpoint_active_00.png':['prop','checkpoint_active'],
+  'portal_exit_00.png':['prop','portal']
 };
 var TILE_DIMS={
-  'level_4/platforms/platform_static.png':{w:32,h:32},
-  'level_4/platforms/platform_mp_h1.png':{w:96,h:16},
-  'level_4/platforms/platform_mp_h2.png':{w:96,h:16},
-  'level_4/platforms/platform_mp_v1.png':{w:16,h:64},
-  'level_4/platforms/platform_mp_v2.png':{w:16,h:64},
-  'level_4/platforms/platform_timed.png':{w:96,h:16},
-  'level_4/platforms/platform_timed_warning_00.png':{w:96,h:16},
-  'level_4/platforms/platform_timed_gone_00.png':{w:96,h:16},
-  'level_4/hazards/spike_floor_00.png':{w:32,h:32},
-  'level_4/hazards/spike_ceiling_00.png':{w:32,h:32},
-  'level_4/hazards/spike_wall_left_00.png':{w:32,h:32},
-  'level_4/hazards/spike_wall_right_00.png':{w:32,h:32},
-  'level_1/collectibles/crystal.png':{w:32,h:32},
-  'level_1/collectibles/checkpoint_inactive.png':{w:32,h:48},
-  'level_1/collectibles/checkpoint_active.png':{w:32,h:48},
-  'level_4/portal/portal_exit_00.png':{w:48,h:64}
+  'platform_static_00.png':{w:32,h:32},'platform_mp_h_00.png':{w:64,h:16},
+  'platform_mp_v_00.png':{w:64,h:16},'platform_timed_00.png':{w:96,h:16},
+  'platform_timed_warning_00.png':{w:96,h:16},'platform_timed_gone_00.png':{w:96,h:16},
+  'spike_floor_00.png':{w:32,h:32},'spike_ceiling_00.png':{w:32,h:32},
+  'spike_wall_left_00.png':{w:32,h:32},'spike_wall_right_00.png':{w:32,h:32},
+  'crystal_00.png':{w:16,h:16},'checkpoint_00.png':{w:16,h:32},
+  'checkpoint_active_00.png':{w:16,h:32},'portal_exit_00.png':{w:48,h:64}
 };
-var tileImages={},tileLoadCount=0,tileTotal=0;
-undefined
 
 function preloadTiles(){
   var ks=Object.keys(TILE_MAP);tileTotal=ks.length;
@@ -271,12 +259,12 @@ function drawBackground(){
   for(var y=0;y<H;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
 }
 function drawPlatforms(){
-  for(var i=0;i<platforms.length;i++){var p=platforms[i];drawTile('level_4/platforms/platform_static.png',p.x,p.y,p.w,p.h);}
+  for(var i=0;i<platforms.length;i++){var p=platforms[i];drawTile('platform_static_00.png',p.x,p.y,p.w,p.h);}
 }
 function drawMovingPlatforms(){
   for(var i=0;i<movingPlatforms.length;i++){
     var mp=movingPlatforms[i];
-    var tileKey=mp.type==='movingH'?'level_4/platforms/platform_mp_h1.png':'level_4/platforms/platform_mp_v1.png';
+    var tileKey=mp.type==='movingH'?'platform_mp_h_00.png':'platform_mp_v_00.png';
     ctx.globalAlpha=mp.warned?0.6:1.0;
     drawTile(tileKey,mp.x,mp.y,mp.w,mp.h);
     var cx=mp.x+mp.w/2,cy=mp.y+mp.h/2;
@@ -294,9 +282,9 @@ function drawMovingPlatforms(){
 function drawTimedPlatform(){
   if(!timedPlatform)return;
   var tp=timedPlatform;
-  var tileKey='level_4/platforms/platform_timed.png';
-  if(tp.state==='warning')tileKey='level_4/platforms/platform_timed_warning_00.png';
-  else if(tp.state==='disappeared')tileKey='level_4/platforms/platform_timed_gone_00.png';
+  var tileKey='platform_timed_00.png';
+  if(tp.state==='warning')tileKey='platform_timed_warning_00.png';
+  else if(tp.state==='disappeared')tileKey='platform_timed_gone_00.png';
   ctx.globalAlpha=tp.state==='disappeared'?0.2:1.0;
   drawTile(tileKey,tp.x,tp.y,tp.w,tp.h);
   if(tp.state!=='disappeared'){
@@ -308,7 +296,7 @@ function drawTimedPlatform(){
 function drawSpikes(){
   for(var i=0;i<spikes.length;i++){
     var s=spikes[i];
-    var key=s.type==='wall'?'level_4/hazards/spike_wall_left_00.png':'level_4/hazards/spike_floor_00.png';
+    var key=s.type==='wall'?'spike_wall_left_00.png':'spike_floor_00.png';
     drawTile(key,s.x,s.y,s.w,s.h);
   }
 }
@@ -337,44 +325,21 @@ function drawCheckpoints(){
 function drawExitPortal(){
   if(collected>=crystalGate){
     ctx.fillStyle='rgba(0,255,204,0.2)';ctx.fillRect(736,544,48,64);
-    drawTile('level_4/portal/portal_exit_00.png',736,544,48,64);
+    drawTile('portal_exit_00.png',736,544);
   }
 }
-// === SPRITE ANIMATION SYSTEM ===
-var SPRITE_BASE="https://raw.githubusercontent.com/forge-game-dev/ninfa-engine/main/docs/art/sprites/";
-var ANIM_CONFIG={idle:{prefix:"player_idle",frames:2,duration:0.5},run:{prefix:"player_run",frames:4,duration:0.1},jump:{prefix:"player_jump",frames:4,duration:0.15},fall:{prefix:"player_fall",frames:3,duration:0.15},death:{prefix:"player_death",frames:4,duration:0.15},victory:{prefix:"player_victory",frames:6,duration:0.2}};
-var SQUASH_MAP={idle:{sx:1,sy:1},run:{sx:0.95,sy:1.05},jump:{sx:0.85,sy:1.15},fall:{sx:0.9,sy:1.1},death:{sx:1.2,sy:0.8},victory:{sx:1.1,sy:0.9}};
-var GLOW_ALPHA={idle:0.05,run:0.05,jump:0.15,fall:0.05,death:0.05,victory:0.15};
-var spriteImages={},spriteLoadCount=0,spriteTotal=0;
-var playerAnim="idle",playerFrame=0,frameTimer=0;
-function preloadSprites(){var prefixes=["player_idle","player_run","player_jump","player_fall","player_death","player_victory"];var maxFrames={player_idle:2,player_run:4,player_jump:4,player_fall:3,player_death:4,player_victory:6};var toLoad=[];Object.keys(maxFrames).forEach(function(p){for(var f=1;f<=maxFrames[p];f++)toLoad.push(p+"_"+f+".png");});spriteTotal=toLoad.length;toLoad.forEach(function(name){var img=new Image();img.onload=img.onerror=function(){spriteLoadCount++;};img.src=SPRITE_BASE+name;spriteImages[name]=img;});}
-function getPlayerAnimState(){if(deathTimer>0)return"death";if(levelComplete)return"victory";if(!player.grounded)return player.vy<0?"jump":"fall";if(player.vx!==0)return"run";return"idle";}
-function updateSpriteAnim(dt){var newAnim=getPlayerAnimState();if(newAnim!==playerAnim){playerAnim=newAnim;playerFrame=0;frameTimer=0;}var cfg=ANIM_CONFIG[playerAnim];frameTimer+=dt;if(frameTimer>=cfg.duration){frameTimer-=cfg.duration;playerFrame++;if(playerFrame>=cfg.frames)playerFrame=0;}}
-
 function drawPlayer(){
-  var cx=player.x+player.w/2,cy=player.y+player.h/2;
-  ctx.save();
-  var sq=SQUASH_MAP[playerAnim]||{sx:1,sy:1};
-  ctx.translate(cx,cy);
-  if(!player.facingRight)ctx.scale(-1,1);
-  ctx.scale(sq.sx,sq.sy);
-  ctx.translate(-player.w/2,-player.h/2);
-  var cfg=ANIM_CONFIG[playerAnim];
-  var name=cfg.prefix+"_"+(playerFrame+1)+".png";
-  var img=spriteImages[name];
-  if(img&&img.complete&&img.naturalWidth>0){
-    ctx.drawImage(img,0,0,player.w,player.h);
-  }else{
-    ctx.fillStyle="#00d4ff";ctx.fillRect(0,0,player.w,player.h);
-    ctx.fillStyle="#fff";ctx.font="10px monospace";ctx.textAlign="center";
-    ctx.fillText("●",player.w/2,player.h/2+3);
+  if(deathTimer>0){
+    var alpha=Math.max(0,deathTimer/1.5);
+    ctx.globalAlpha=alpha;
+    ctx.fillStyle='#ff4757';
+    ctx.fillRect(player.x,player.y,player.w,player.h);
+    ctx.globalAlpha=1;return;
   }
-  ctx.restore();
-  ctx.save();
-  ctx.globalAlpha=GLOW_ALPHA[playerAnim]||0.05;
-  ctx.shadowColor="#00d4ff";ctx.shadowBlur=12;
-  ctx.fillStyle="#00d4ff";ctx.fillRect(player.x-2,player.y-2,player.w+4,player.h+4);
-  ctx.restore();
+  ctx.fillStyle='#00d4ff';
+  ctx.fillRect(player.x,player.y,player.w,player.h);
+  ctx.fillStyle='#fff';ctx.font='10px monospace';ctx.textAlign='center';
+  ctx.fillText('●',player.x+player.w/2,player.y+player.h/2+3);
 }
 function drawHUD(){
   ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(5,5,200,100);
@@ -415,13 +380,13 @@ var prevTime=0;
 function gameLoop(ts){
   var dt=Math.min((ts-prevTime)/1000,0.05);prevTime=ts;
   animTime+=dt;lastTime=dt;
-  updatePlayer(dt);updateSpriteAnim(dt);updateMovingPlatforms(dt);updateTimedPlatform(dt);
+  updatePlayer(dt);updateMovingPlatforms(dt);updateTimedPlatform(dt);
   render();
   requestAnimationFrame(gameLoop);
 }
 
 function init(){
-  preloadTiles();preloadSprites();initAudio();updateDOM();
+  preloadTiles();initAudio();updateDOM();
   requestAnimationFrame(function(ts){prevTime=ts;requestAnimationFrame(gameLoop);});
 }
 
