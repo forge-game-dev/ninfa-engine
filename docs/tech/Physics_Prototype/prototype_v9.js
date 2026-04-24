@@ -340,18 +340,41 @@ function drawExitPortal(){
     drawTile('level_4/portal/portal_exit_00.png',736,544,48,64);
   }
 }
+// === SPRITE ANIMATION SYSTEM ===
+var SPRITE_BASE="https://raw.githubusercontent.com/forge-game-dev/ninfa-engine/main/docs/art/sprites/";
+var ANIM_CONFIG={idle:{prefix:"player_idle",frames:2,duration:0.5},run:{prefix:"player_run",frames:4,duration:0.1},jump:{prefix:"player_jump",frames:4,duration:0.15},fall:{prefix:"player_fall",frames:3,duration:0.15},death:{prefix:"player_death",frames:4,duration:0.15},victory:{prefix:"player_victory",frames:6,duration:0.2}};
+var SQUASH_MAP={idle:{sx:1,sy:1},run:{sx:0.95,sy:1.05},jump:{sx:0.85,sy:1.15},fall:{sx:0.9,sy:1.1},death:{sx:1.2,sy:0.8},victory:{sx:1.1,sy:0.9}};
+var GLOW_ALPHA={idle:0.05,run:0.05,jump:0.15,fall:0.05,death:0.05,victory:0.15};
+var spriteImages={},spriteLoadCount=0,spriteTotal=0;
+var playerAnim="idle",playerFrame=0,frameTimer=0;
+function preloadSprites(){var prefixes=["player_idle","player_run","player_jump","player_fall","player_death","player_victory"];var maxFrames={player_idle:2,player_run:4,player_jump:4,player_fall:3,player_death:4,player_victory:6};var toLoad=[];Object.keys(maxFrames).forEach(function(p){for(var f=1;f<=maxFrames[p];f++)toLoad.push(p+"_"+f+".png");});spriteTotal=toLoad.length;toLoad.forEach(function(name){var img=new Image();img.onload=img.onerror=function(){spriteLoadCount++;};img.src=SPRITE_BASE+name;spriteImages[name]=img;});}
+function getPlayerAnimState(){if(deathTimer>0)return"death";if(levelComplete)return"victory";if(!player.grounded)return player.vy<0?"jump":"fall";if(player.vx!==0)return"run";return"idle";}
+function updateSpriteAnim(dt){var newAnim=getPlayerAnimState();if(newAnim!==playerAnim){playerAnim=newAnim;playerFrame=0;frameTimer=0;}var cfg=ANIM_CONFIG[playerAnim];frameTimer+=dt;if(frameTimer>=cfg.duration){frameTimer-=cfg.duration;playerFrame++;if(playerFrame>=cfg.frames)playerFrame=0;}}
+
 function drawPlayer(){
-  if(deathTimer>0){
-    var alpha=Math.max(0,deathTimer/1.5);
-    ctx.globalAlpha=alpha;
-    ctx.fillStyle='#ff4757';
-    ctx.fillRect(player.x,player.y,player.w,player.h);
-    ctx.globalAlpha=1;return;
+  var cx=player.x+player.w/2,cy=player.y+player.h/2;
+  ctx.save();
+  var sq=SQUASH_MAP[playerAnim]||{sx:1,sy:1};
+  ctx.translate(cx,cy);
+  if(!player.facingRight)ctx.scale(-1,1);
+  ctx.scale(sq.sx,sq.sy);
+  ctx.translate(-player.w/2,-player.h/2);
+  var cfg=ANIM_CONFIG[playerAnim];
+  var name=cfg.prefix+"_"+(playerFrame+1)+".png";
+  var img=spriteImages[name];
+  if(img&&img.complete&&img.naturalWidth>0){
+    ctx.drawImage(img,0,0,player.w,player.h);
+  }else{
+    ctx.fillStyle="#00d4ff";ctx.fillRect(0,0,player.w,player.h);
+    ctx.fillStyle="#fff";ctx.font="10px monospace";ctx.textAlign="center";
+    ctx.fillText("●",player.w/2,player.h/2+3);
   }
-  ctx.fillStyle='#00d4ff';
-  ctx.fillRect(player.x,player.y,player.w,player.h);
-  ctx.fillStyle='#fff';ctx.font='10px monospace';ctx.textAlign='center';
-  ctx.fillText('●',player.x+player.w/2,player.y+player.h/2+3);
+  ctx.restore();
+  ctx.save();
+  ctx.globalAlpha=GLOW_ALPHA[playerAnim]||0.05;
+  ctx.shadowColor="#00d4ff";ctx.shadowBlur=12;
+  ctx.fillStyle="#00d4ff";ctx.fillRect(player.x-2,player.y-2,player.w+4,player.h+4);
+  ctx.restore();
 }
 function drawHUD(){
   ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(5,5,200,100);
@@ -392,13 +415,13 @@ var prevTime=0;
 function gameLoop(ts){
   var dt=Math.min((ts-prevTime)/1000,0.05);prevTime=ts;
   animTime+=dt;lastTime=dt;
-  updatePlayer(dt);updateMovingPlatforms(dt);updateTimedPlatform(dt);
+  updatePlayer(dt);updateSpriteAnim(dt);updateMovingPlatforms(dt);updateTimedPlatform(dt);
   render();
   requestAnimationFrame(gameLoop);
 }
 
 function init(){
-  preloadTiles();initAudio();updateDOM();
+  preloadTiles();preloadSprites();initAudio();updateDOM();
   requestAnimationFrame(function(ts){prevTime=ts;requestAnimationFrame(gameLoop);});
 }
 
