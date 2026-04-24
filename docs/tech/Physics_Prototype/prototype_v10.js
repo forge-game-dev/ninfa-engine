@@ -62,12 +62,12 @@ var lastCheckpoint={x:64,y:96};
 var TILE_BASE='https://forge-game-dev.github.io/ninfa-engine/art/tilesets/level_4/';
 var tileImages={},tileLoadCount=0,tileTotal=0;
 var TILE_MAP={
-  'platform_static_00.png':['platform','static'],
-  'platform_mp_h_00.png':['platform','moving_h'],
-  'platform_mp_v_00.png':['platform','moving_v'],
-  'platform_timed_00.png':['platform','timed'],
-  'platform_timed_warning_00.png':['platform','timed_warn'],
-  'platform_timed_gone_00.png':['platform','timed_gone'],
+  'platforms/platform_static_00.png':['platform','static'],
+  'platforms/platform_mp_h_00.png':['platform','moving_h'],
+  'platforms/platform_mp_v_00.png':['platform','moving_v'],
+  'platforms/platform_timed_00.png':['platform','timed'],
+  'platforms/platform_timed_warning_00.png':['platform','timed_warn'],
+  'platforms/platform_timed_gone_00.png':['platform','timed_gone'],
   'hazards/spike_floor_00.png':['hazard','spike_floor'],
   'hazards/spike_ceiling_00.png':['hazard','spike_ceiling'],
   'hazards/spike_wall_left_00.png':['hazard','spike_wall_left'],
@@ -78,9 +78,9 @@ var TILE_MAP={
   'portal/portal_exit_00.png':['prop','portal']
 };
 var TILE_DIMS={
-  'platform_static_00.png':{w:64,h:16},'platform_mp_h_00.png':{w:64,h:16},
-  'platform_mp_v_00.png':{w:64,h:16},'platform_timed_00.png':{w:96,h:16},
-  'platform_timed_warning_00.png':{w:96,h:16},'platform_timed_gone_00.png':{w:96,h:16},
+  'platforms/platform_static_00.png':{w:64,h:16},'platforms/platform_mp_h_00.png':{w:64,h:16},
+  'platforms/platform_mp_v_00.png':{w:64,h:16},'platforms/platform_timed_00.png':{w:96,h:16},
+  'platforms/platform_timed_warning_00.png':{w:96,h:16},'platforms/platform_timed_gone_00.png':{w:96,h:16},
   'hazards/spike_floor_00.png':{w:32,h:32},'hazards/spike_ceiling_00.png':{w:32,h:32},
   'hazards/spike_wall_left_00.png':{w:32,h:32},'hazards/spike_wall_right_00.png':{w:32,h:32},
   'level_1/collectibles/crystal.png':{w:16,h:16},'level_1/collectibles/checkpoint_inactive.png':{w:32,h:16},
@@ -287,11 +287,11 @@ function drawBackground(){
   for(var y=0;y<H;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
 }
 function drawPlatforms(){
-  for(var i=0;i<platforms.length;i++){var p=platforms[i];drawTile('platform_static_00.png',p.x,p.y,p.w,p.h);}}
+  for(var i=0;i<platforms.length;i++){var p=platforms[i];drawTile('platforms/platform_static_00.png',p.x,p.y,p.w,p.h);}}
 function drawMovingPlatforms(){
   for(var i=0;i<movingPlatforms.length;i++){
     var mp=movingPlatforms[i];
-    var tileKey=mp.type==='movingH'?'platform_mp_h_00.png':'platform_mp_v_00.png';
+    var tileKey=mp.type==='movingH'?'platforms/platform_mp_h_00.png':'platforms/platform_mp_v_00.png';
     ctx.globalAlpha=mp.warned?0.6:1.0;
     drawTile(tileKey,mp.x,mp.y,mp.w,mp.h);
     var cx=mp.x+mp.w/2,cy=mp.y+mp.h/2;
@@ -303,7 +303,7 @@ function drawMovingPlatforms(){
 function drawTimedPlatform(){
   if(!timedPlatform)return;
   var tp=timedPlatform;
-  var tileKey='platform_timed_00.png';
+  var tileKey='platforms/platform_timed_00.png';
   if(tp.state==='warning')tileKey='platform_timed_warning_00.png';
   else if(tp.state==='disappeared')tileKey='platform_timed_gone_00.png';
   ctx.globalAlpha=tp.state==='disappeared'?0.2:1.0;
