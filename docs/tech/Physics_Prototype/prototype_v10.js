@@ -59,7 +59,7 @@ var checkpoints=[
 ];
 var lastCheckpoint={x:64,y:96};
 
-var TILE_BASE='art/tilesets/level_4/';
+var TILE_BASE='https://forge-game-dev.github.io/ninfa-engine/art/tilesets/level_4/';
 var tileImages={},tileLoadCount=0,tileTotal=0;
 var TILE_MAP={
   'platform_static_00.png':['platform','static'],
