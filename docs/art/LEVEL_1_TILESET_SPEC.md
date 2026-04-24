@@ -1,152 +1,85 @@
-# Level 1 Tileset Spec — "Awakening" (Tutorial)
-**Author:** Cedar | **Date:** 2026-04-23
-**Status:** DRAFT — pending Kairo sketch for scale check
+# Level 1 Tileset Specification — Dungeon Runner
+**Level Theme:** Awakening | **Version:** 0.1 | **Author:** Cedar | **Date:** 2026-04-24
 
 ---
 
-## 1. Tile Grid System
-
-| Tile Type | Size | Pixel Art Spec | Qty Needed |
-|-----------|------|----------------|------------|
-| Floor (base) | 16x16 | Flat, minimal detail, 3 variations | 4-6 |
-| Wall (solid) | 32x32 | Stone block, 3-4 corner/edge variants | 8-12 |
-| Platform (one-way) | 32x32 | Flat top, thinner visual weight | 2-3 |
-| Background stone | 16x16 | Decorative, non-interactive | 6-8 |
+## Level Overview
+- **Theme:** Awakening — tutorial/introduction zone
+- **Palette Zone:** Core palette (Zone A)
+- **Grid:** 32×32 px base
+- **Crystal Gate:** 70% of crystals required to open exit
 
 ---
 
-## 2. Floor Tiles (16x16)
+## Tile Categories & File Inventory
 
-### Floor_01 — Flat Stone
-```
-Base: #4a4a6a
-Top edge: #5a5a7a (1px highlight)
-Bottom edge: #3a3a5a (1px shadow)
-Surface: subtle texture dots
-```
-**Usage:** Ground level, tutorial simplicity
+### Platforms (6 variants)
+| Filename | Size | Color | Notes |
+|---|---|---|---|
+| `platform_left_00.png` | 32×32 | `#4a4a6a` | Left end cap |
+| `platform_mid_00.png` | 32×32 | `#4a4a6a` | Middle section, tiles horizontally |
+| `platform_right_00.png` | 32×32 | `#4a4a6a` | Right end cap |
+| `platform_single_00.png` | 32×32 | `#4a4a6a` | Isolated platform |
+| `platform_corner_00.png` | 32×32 | `#4a4a6a` | Corner variant |
+| `platform_extend_00.png` | 32×32 | `#4a4a6a` | Extension tile |
 
-### Floor_02 — Cracked Stone
-```
-Base: #4a4a6a
-Crack: #2a2a4e (center diagonal crack)
-Top edge: #5a5a7a
-```
-**Usage:** Decorative variation, adds visual interest
+### Hazards (1 variant)
+| Filename | Size | Color | Notes |
+|---|---|---|---|
+| `spike_floor_00.png` | 32×32 | `#ff4757` | Floor spike, flat top with pointing tips |
 
-### Floor_03 — Moss Stone
-```
-Base: #4a4a6a
-Moss patches: #3d6b3d (top-left, bottom-right corners)
-```
-**Usage:** Near checkpoints, organic feel
+### Collectibles (5 variants — crystal pulse animation)
+| Filename | Size | Color | Notes |
+|---|---|---|---|
+| `crystal_00.png` | 32×32 | `#ffd700` | Frame 0: dim |
+| `crystal_01.png` | 32×32 | `#ffd700` | Frame 1: medium |
+| `crystal_02.png` | 32×32 | `#ffd700` | Frame 2: bright |
+| `crystal_03.png` | 32×32 | `#ffd700` | Frame 3: medium |
+| `crystal_04.png` | 32×32 | `#ffd700` | Frame 4: dim → loop |
 
----
+### Props (6 variants)
+| Filename | Size | Color | Notes |
+|---|---|---|---|
+| `torch_00.png` | 32×32 | `#ff9f43` | Torch frame |
+| `torch_01.png` | 32×32 | `#ff9f43` | Torch frame |
+| `torch_02.png` | 32×32 | `#ff9f43` | Torch frame |
+| `torch_03.png` | 32×32 | `#ff9f43` | Torch frame |
+| `banner_00.png` | 32×32 | `#4a4a6a` | Wall banner |
+| `deco_00.png` | 32×32 | `#4a4a6a` | Decorative element |
 
-## 3. Wall Tiles (32x32)
+### Backgrounds (3 variants)
+| Filename | Size | Color | Notes |
+|---|---|---|---|
+| `bg_wall_00.png` | 32×32 | `#1a1a2e` | Main background wall tile |
+| `bg_arch_00.png` | 32×32 | `#1a1a2e` | Arched background element |
+| `bg_pillar_00.png` | 32×32 | `#1a1a2e` | Pillar background tile |
 
-### Wall_Corner_TL / TR / BL / BR
-```
-Corner stone with beveled edge
-Main: #4a4a6a
-Highlight: #6a6a8a
-Shadow: #2a2a4e
-```
-**Purpose:** Clean 90° corners
-
-### Wall_Edge_H / Wall_Edge_V
-```
-Horizontal/vertical wall face
-Main: #4a4a6a
-Texture: subtle stone pattern
-```
-**Purpose:** Long wall runs
-
-### Wall_Inner
-```
-Interior wall section
-Main: #3a3a5a (slightly darker)
-```
-**Purpose:** Fills interior space
-
----
-
-## 4. Platform Tiles (32x32)
-
-### Platform_Solid
-```
-Flat top surface
-Top: #6a6a8a (highlight line)
-Body: #4a4a6a
-Bottom: #3a3a5a
-```
-**Note:** 1-unit height, player stands on top
-
-### Platform_OneWay (passthrough)
-```
-Slimmer visual — only top edge visible
-Top: #5a5a7a
-No body visible
-```
-**Note:** Player can jump through from below
+### Parallax Layers (9 variants)
+| Filename | Size | Opacity | Layer | Notes |
+|---|---|---|---|---|
+| `parallax_layer0_00.png` | 32×32 | 40% | Far | Distant architecture `#0d0d1a` |
+| `parallax_layer0_01.png` | 32×32 | 40% | Far | Distant element |
+| `parallax_layer0_02.png` | 32×32 | 40% | Far | Distant element |
+| `parallax_layer1_00.png` | 32×32 | 60% | Mid | Mid-ground `#12122a` |
+| `parallax_layer1_01.png` | 32×32 | 60% | Mid | Mid-ground element |
+| `parallax_layer1_02.png` | 32×32 | 60% | Mid | Mid-ground element |
+| `parallax_layer2_00.png` | 32×32 | 80% | Near | Near layer `#1a1a2e` |
+| `parallax_layer2_01.png` | 32×32 | 80% | Near | Near element |
+| `parallax_layer2_02.png` | 32×32 | 80% | Near | Near element |
 
 ---
 
-## 5. Background Tiles (16x16)
-
-### BG_Stone_Dark
-```
-#2a2a4e base
-No interactive lighting
-Used for parallax far layer
-```
-
-### BG_Stone_Mid
-```
-#1a1a2e base
-Subtle texture
-Parallax mid layer
-```
+## Technical Requirements
+- Format: PNG, flat color, RGBA (no gradients, no indexed color)
+- No PLTE chunk
+- All colors from core palette only
+- Tiles must tile cleanly (edges match adjacent tiles)
+- Destination: `docs/art/tilesets/level_1/`
 
 ---
 
-## 6. Prop Reference (for tile composition)
-
-| Prop | Sprite Size | Place on | Interaction |
-|------|-------------|----------|-------------|
-| Torch | 16x16 | Wall tile | Light source (radius 2u) |
-| Chain | 16 wide | Ceiling/wall | Decorative |
-| Moss | 16x16 | Floor/wall | Color accent |
-| Crack | 16x16 | Floor/wall | Detail |
-| Crate | 32x32 | Floor | Pushable (future) |
-| Pillar | 64x64 | Floor | Overscale decoration |
-| Arch | 128x128 | Wall | Entrance/exit framing |
-
----
-
-## 7. Color Mapping
-
-```
-Floor:        #4a4a6a / #5a5a7a / #3a3a5a
-Wall:         #4a4a6a / #6a6a8a / #2a2a4e
-Platform:     #5a5a7a / #4a4a6a / #3a3a5a
-Background:   #2a2a4e / #1a1a2e / #0d0d1a
-Torch light:  #ff9f43 (warm spill on adjacent tiles)
-Player glow:  #00d4ff (visual only, no collision)
-```
-
----
-
-## 8. Player Scale Reference
-
-```
-Player: 32x32 sprite / ~40px visual w/ glow
-Floor: 16x16 → player is 2x floor height
-Wall: 32x32 → player is 1x wall height
-Platform: 32x32 → player fits exactly
-Overscale props: 64x64 → player is 0.5x prop
-```
-
----
-
-**Pending:** Kairo sketch to verify proportions before production.
+## Integration Notes
+- Crystals use 5-frame pulse (frames 0–4), loop continuously
+- Torches use 4-frame animation, 0.8s per frame = 3.2s loop
+- Parallax layers scroll at different rates: layer0 slowest, layer2 fastest
+- Exit portal locked until 70% crystal gate cleared

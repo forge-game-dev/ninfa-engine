@@ -1,183 +1,184 @@
-# Style Guide v0.1 — Dungeon Runner
-**Authors:** Cedar (Environment) + Kairo (Character)
-**Date:** 2026-04-23
-**Status:** TEAM REVIEW — Awaiting selection on player concept
+# Style Guide — Dungeon Runner Environment Art
+**Version:** 0.1 | **Author:** Cedar | **Date:** 2026-04-24
 
 ---
 
-## Combined Document
-This document merges:
-- **Cedar:** Environment Style Guide v0.1, Level 1 Mood Board, Color Palette, Character-Environment Coordination
-- **Kairo:** Character Design Direction, Style Guide v0.1, Glow Specs
+## Overview
+
+This guide defines the environment art style for Dungeon Runner, ensuring visual consistency across all five levels. It covers color palette, grid system, rendering rules, naming conventions, and asset format requirements.
 
 ---
 
-## 1. Visual Language
+## 1. Core Palette
 
-**Core Style:** Flat Design + Minimal Dungeon
-- No gradients, no depth shading
-- Strong silhouette readability for gameplay clarity
-- Controlled 12-color palette
-- Contrast-driven lighting: cyan glow vs warm orange torch light
+### Zone A — Core (Levels 1–2)
+| Role | Color | Hex | Notes |
+|---|---|---|---|
+| Background deep | Dark navy | `#0d0d1a` | Far parallax, darkest layer |
+| Background mid | Dark navy | `#12122a` | Mid parallax |
+| Background base | Navy | `#1a1a2e` | Primary background, wall tiles |
+| Platform stone | Dark slate | `#4a4a6a` | All platforms, base ground |
+| Platform highlight | Slate light | `#5a5a7a` | Platform top edge, lighter cap |
+| Hazard | Red | `#ff4757` | Spikes, traps, danger |
+| Torch | Amber | `#ff9f43` | Torches, warm light accents |
+| Player orb | Cyan | `#00d4ff` | Player character, interactive glow |
+| Crystal | Gold | `#ffd700` | Collectibles, reward accent |
 
-**Shape Contrast System:**
-- Player: Organic-geometric hybrid — curved/oval silhouette, "alive" feel
-- Environment: Angular/architectural — rectangles, arches, pillars
-- Crystals: Faceted/geometric — angular for contrast
-- Hazards: Sharp/triangular — immediate threat readability
+### Zone B — Mechanistic (Levels 2–3)
+| Role | Color | Hex | Notes |
+|---|---|---|---|
+| Water surface | Blue-teal | `#4d6a7e` | Top of water tiles |
+| Water mid | Teal-blue | `#3d5a6e` | Middle water depth |
+| Water deep | Dark teal | `#2d4a5e` | Bottom of water tiles |
+| Amber stone | Warm amber | `#8b6914` | Zone B geological accent |
+| Mechanism | Steel blue | `#4a6fa5` | Doors, switches, mechanical |
+| Switch active | Bright blue | `#6a9fc5` | Active pressure plates |
 
----
-
-## 2. Color System (12 Colors)
-
-| Name | Hex | Usage |
-|------|-----|-------|
-| Background Dark | #1a1a2e | Base dungeon void |
-| Background Deeper | #0d0d1a | Far parallax |
-| Platform Base | #4a4a6a | Standard surfaces |
-| Platform Highlight | #6a6a8a | Tile edge highlights |
-| Platform Shadow | #2a2a4a | Tile depth |
-| Player Cyan | #00d4ff | Player core, collectible proximity |
-| Crystal Gold | #ffd700 | Crystals, victory |
-| Hazard Red | #ff4757 | Spikes, death zones |
-| Torch Orange | #ff9f43 | Light sources |
-| Checkpoint Green | #2ed573 | Checkpoint activation |
-| Portal Purple | #a55eea | Exit portal |
-
-**Rules:** No gradients — flat fills only.
-
----
-
-## 3. Scale Reference
-
-| Element | Size | Notes |
-|---------|------|-------|
-| Base Tile | 16x16 px | Fine detail, floor |
-| Platform Tile | 32x32 px | Standard, wall |
-| Player Sprite | 32x32 px | Character |
-| Visual Height w/ Glow | ~40px | Non-collidable |
-| Collision Hitbox | 0.8×1.0 units | ~25.6×32 px |
-| Overscale Props | 64x64 / 128x128 px | 4x-8x base |
-
-**Philosophy:** Player appears small/tiny against monumental architecture.
+### Zone C — Ancient/Triumphant (Levels 4–5)
+| Role | Color | Hex | Notes |
+|---|---|---|---|
+| Ancient floor | Warm brown | `#8b7355` | Level 5 stone floor |
+| Ancient wall | Brown | `#6b5344` | Level 5 walls |
+| Gold accent | Gold | `#ffd700` | Ancient gold trim |
+| Portal | Cyan | `#00d4ff` | Level exit portal |
+| Portal core | Bright cyan | `#00e5ff` | Portal center glow |
 
 ---
 
-## 4. Player Character
+## 2. Grid System
 
-**3 Concept Variations (SELECT ONE):**
-1. **Geometric Slime** — Rounded blob, faceted edges, internal glow lines
-2. **Crystal Wisp** — Diamond shape, trailing glow particles  
-3. **Orb Creature** — Perfect circle/oval, pulsing inner pattern
-
-**Glow Behavior:**
-- Constant: 1-unit radius cyan (#00d4ff) always visible
-- Dark adaptation: Dims in darkness, never disappears
-- Crystal proximity: Intensifies near collectibles
-- Torch contrast: Cyan distinct from orange (#ff9f43)
-
-**Animation States:**
-| State | Frames | Notes |
-|-------|--------|-------|
-| Idle | 2-4 | Subtle pulse/breathe |
-| Run | 4-6 | Squash/stretch, direction lean |
-| Jump | 2-4 | Stretch ascent, squash descent |
-| Fall | 2 | Elongated, trailing glow |
-| Death | 4-6 | Fade/shatter, glow dissipates |
-| Victory | 4 | Expand/brighten, particle burst |
+- **Base tile size:** 32×32 pixels
+- **Platform variants:** 64×16, 96×16, 128×16 for wider spans
+- **Player sprite:** 32×32 pixels base
+- **Crystal:** 32×32 pixels
+- **Spike:** 32×16 pixels
+- **All tiles snap to 32×32 grid in level data**
 
 ---
 
-## 5. Environment Art
+## 3. Rendering Rules
 
-### Tileset System
-- **Floor tiles:** 16x16 px, 3 variations (flat, cracked, moss)
-- **Wall tiles:** 32x32 px, corner/edge/inner variants
-- **Platform tiles:** 32x32 px, solid + one-way variants
-- **Background tiles:** 16x16 px, non-interactive
+### MUST
+- [ ] Flat color only — no gradients
+- [ ] RGBA PNG format — no indexed color (PLTE chunk forbidden)
+- [ ] Player `#00d4ff` must read clearly against ALL backgrounds
+- [ ] Tiles tile cleanly at edges (no visible seams)
+- [ ] 12-color maximum per tile
+- [ ] Consistent pixel density across all assets
 
-### Parallax Layers
-- Far: 0.2x scroll speed
-- Mid: 0.6x scroll speed
-- Foreground: 1.0x (actual gameplay layer)
-
-### Lighting System
-- **Torch:** Radius 2 units, warm orange (#ff9f43)
-- **Player Aura:** Radius 1 unit, cyan (#00d4ff)
-- **Crystal glow:** Gold (#ffd700), proximity-based
-
-### Props
-| Prop | Size | Place on |
-|------|------|----------|
-| Torch | 16x16 | Wall |
-| Chain | 16 wide | Ceiling |
-| Moss | 16x16 | Floor/wall |
-| Pillar | 64x64 | Floor |
-| Arch | 128x128 | Entrance/exit |
+### NEVER
+- [ ] No gradients or anti-aliased edges (crisp pixel art style)
+- [ ] No transparency outside alpha channel
+- [ ] No 3D shading or lighting simulation
+- [ ] No indexed color PNGs (causes browser render failures)
+- [ ] No oversized assets that break grid alignment
 
 ---
 
-## 6. Integration Notes (From Zephyr Prototype)
+## 4. File Naming
 
-- Canvas: 512x288 px (16:9)
-- Grid: 16x16 base tile = 32×18 tile level
-- Parallax scroll ratios match prototype camera
-
----
-
-## 7. Open Questions
-
-1. ✅ Player concept selection needed (Slime / Wisp / Orb)
-2. Glow intensity range for engine? (pending @Zephyr)
-3. ✅ Environment alignment confirmed (Cedar)
-
----
-
-**Next Steps:**
-- Team selects player concept
-- Kairo produces sketch for scale check
-- Scale check → tileset production
-- Combined Style Guide v0.2 after concept locked
-
----
-
-## 8. Glow System (Engine Specs from Zephyr)
-
-```javascript
-const GLOW = {
-  playerBase:    1.0,    // Full intensity (constant)
-  playerDimmed:  0.6,    // In darkness (below torch radius)
-  playerBoosted: 1.3,    // Near crystal proximity
-  torchRadius:   2,      // units from center
-  playerAura:    1,      // units from center
-};
+```
+{category}_{variant}_{frame}.png
 ```
 
-**Implementation:** Visual-only overlay (canvas `globalCompositeOperation: 'lighter'` or gradient). Does NOT affect collision.
+| Category | Examples | Notes |
+|---|---|---|
+| `platform_*` | `platform_left_00.png` | 6 variants for Level 1 |
+| `spike_*` | `spike_floor_00.png` | Floor/ceiling/wall variants |
+| `crystal_*` | `crystal_00.png` | 5-frame pulse animation |
+| `torch_*` | `torch_00.png` | 4-frame animation |
+| `bg_*` | `bg_wall_00.png` | Background tiles |
+| `parallax_*` | `parallax_layer0_00.png` | Parallax layers |
+| `water_*` | `water_surface_00.png` | Level 2 water tiles |
+| `door_*` | `door_locked_00.png` | Door states |
+| `key_*` | `key_gold_00.png` | Key variants |
+| `vault_*` | `vault_closed_00.png` | Vault states |
 
 ---
 
-## 9. Palette Confirmation
+## 5. Directory Structure
 
-**Final Palette: 12-Color System (GDD Section 4.2 + Style Guide)**
-
-| Name | Hex | Status |
-|------|-----|--------|
-| Background Dark | #1a1a2e | ✅ Final |
-| Background Deeper | #0d0d1a | ✅ Final |
-| Platform Base | #4a4a6a | ✅ Final |
-| Platform Highlight | #6a6a8a | ✅ Final |
-| Platform Shadow | #2a2a4a | ✅ Final |
-| Player Cyan | #00d4ff | ✅ Final |
-| Crystal Gold | #ffd700 | ✅ Final |
-| Hazard Red | #ff4757 | ✅ Final |
-| Torch Orange | #ff9f43 | ✅ Final |
-| Checkpoint Green | #2ed573 | ✅ Final |
-| Portal Purple | #a55eea | ✅ Final |
-
-**@Zephyr:** Use #4a4a6a palette for environment art. My spec aligns with GDD Section 4.2. The #16213e / #0f3460 values may have been from earlier discussion — confirming final is the 12-color palette above.
+```
+docs/art/
+├── tilesets/
+│   ├── level_1/
+│   │   ├── platforms/
+│   │   ├── hazards/
+│   │   ├── collectibles/
+│   │   ├── props/
+│   │   ├── backgrounds/
+│   │   └── parallax/
+│   ├── level_2/
+│   ├── level_3/
+│   ├── level_4/
+│   └── level_5/
+├── sprites/
+│   └── player/
+└── ui/
+    └── hud/
+```
 
 ---
 
-**Document Status:** Final v0.1 for Foundation Phase
-**Next:** Awaiting player concept selection (Slime / Wisp / Orb) → Kairo sketch → scale check → tileset production
+## 6. Animation Frames
+
+| Asset | Frames | Duration | Total Loop |
+|---|---|---|---|
+| Crystal pulse | 5 (0–4) | variable | continuous |
+| Torch flame | 4 (0–3) | 0.8s | 3.2s |
+| Portal swirl | 4 (0–3) | TBD | continuous |
+| Door open | 3 states | discrete | triggered |
+
+---
+
+## 7. Visual Hierarchy
+
+1. **Player orb** — always brightest element `#00d4ff`
+2. **Collectibles** — gold `#ffd700`, draws eye to reward
+3. **Hazards** — red `#ff4757`, unambiguous danger
+4. **Interactive** — torches `#ff9f43`, warm light pools
+5. **Platforms** — dark slate `#4a4a6a`, stable ground
+6. **Backgrounds** — darkest `#1a1a2e`, recedes visually
+
+---
+
+## 8. Level-Specific Notes
+
+### Level 1 — Awakening
+- Tutorial zone, widest platforms, minimal hazards
+- 3-layer parallax (20%/50%/80% scroll)
+- 70% crystal gate at exit
+
+### Level 2 — Descent
+- Water tiles introduce cooler palette
+- Moving platforms (horizontal + vertical)
+- 4-layer parallax with water shimmer
+
+### Level 3 — Mechanistic
+- Doors, keys, pressure plates
+- Steel blue `#4a6fa5` mechanism palette
+- Vault door with permanent-open mechanic
+
+### Level 4 — Urgent
+- Spike corridors (floor, ceiling, wall variants)
+- Moving platforms at 2–4 u/s
+- 3-second timed platform with warning state
+- Portal exit
+
+### Level 5 — Triumphant
+- Ancient stone warm palette `#8b7355`
+- Gold accents `#ffd700`
+- Animated torches
+- Vault with final reward
+
+---
+
+## 9. Audio-Visual Sync
+
+| Event | Visual | Audio |
+|---|---|---|
+| Platform movement | Tile animates | Warning SFX |
+| Spike contact | Hazard flash | Death SFX |
+| Crystal collect | Pulse flash | Collect SFX |
+| Level complete | Portal glow | Victory sting |
+| Zone C entry | BG warm shift | Ambient crossfade |
