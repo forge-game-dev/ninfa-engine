@@ -1,0 +1,502 @@
+{
+  "id": "level_05",
+  "name": "The Sanctum",
+  "description": "The final level. Not the hardest — The Gauntlet holds that title. The Sanctum tests mastery of all mechanics combined, rewards with visual spectacle, and delivers emotional payoff. Zone A offers a calm reprieve. Zone B is the greatest-hits convergence. Zone C is single-path precision to the vault.",
+  "theme": "Ancient Sanctum",
+  "challengeFocus": "Convergence of all mechanics — keys, platforms, timed sequences, spikes — in one climactic run",
+  "totalCrystals": 14,
+  "crystalGate": 10,
+  "tileSize": 32,
+  "background": "#1a0f1e",
+  "palette": {
+    "platformDark": "#4a3a6a",
+    "platformLight": "#7a6a9a",
+    "player": "#00d4ff",
+    "crystal": "#ffd700",
+    "exit": "#2a9d8f",
+    "spike": "#ff4757",
+    "spikeShadow": "#cc3344",
+    "movingPlatform": "#4a3a6a",
+    "movingPlatformChevron": "#ff9f43",
+    "movingPlatformWarning": "#ff4757",
+    "timedPlatform": "#ff9f43",
+    "timedPlatformWarning": "#ff4757",
+    "keyGold": "#ffd700",
+    "keyRed": "#ff4757",
+    "keyBlue": "#4a9fff",
+    "vaultDoor": "#c9a227",
+    "vaultFrame": "#8a7010"
+  },
+  "spawn": {
+    "x": 32,
+    "y": 64
+  },
+  "exit": {
+    "x": 736,
+    "y": 544,
+    "w": 48,
+    "h": 64
+  },
+  "platforms": [
+    {
+      "x": 0,
+      "y": 96,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 160,
+      "y": 128,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 0,
+      "y": 192,
+      "w": 160,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 80,
+      "y": 256,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 0,
+      "y": 320,
+      "w": 192,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 256,
+      "y": 128,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 352,
+      "y": 96,
+      "w": 64,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 416,
+      "y": 160,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 320,
+      "y": 224,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 288,
+      "y": 320,
+      "w": 160,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 448,
+      "y": 256,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 480,
+      "y": 160,
+      "w": 64,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 352,
+      "y": 288,
+      "w": 64,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 192,
+      "y": 320,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 560,
+      "y": 192,
+      "w": 64,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 624,
+      "y": 256,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 576,
+      "y": 320,
+      "w": 64,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 688,
+      "y": 384,
+      "w": 128,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 656,
+      "y": 448,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    }
+  ],
+  "movingPlatforms": [
+    {
+      "x": 224,
+      "y": 192,
+      "w": 64,
+      "h": 16,
+      "type": "movingH",
+      "velocityX": 2.5,
+      "minX": 224,
+      "maxX": 320,
+      "name": "MP-H1",
+      "warned": false
+    },
+    {
+      "x": 416,
+      "y": 256,
+      "w": 64,
+      "h": 16,
+      "type": "movingV",
+      "velocityY": 2,
+      "minY": 192,
+      "maxY": 320,
+      "name": "MP-V1",
+      "warned": false
+    },
+    {
+      "x": 512,
+      "y": 256,
+      "w": 64,
+      "h": 16,
+      "type": "movingH",
+      "velocityX": -2.5,
+      "minX": 448,
+      "maxX": 544,
+      "name": "MP-H2",
+      "warned": false
+    },
+    {
+      "x": 576,
+      "y": 256,
+      "w": 64,
+      "h": 16,
+      "type": "movingV",
+      "velocityY": -2,
+      "minY": 192,
+      "maxY": 320,
+      "name": "MP-V2",
+      "warned": false
+    }
+  ],
+  "keys": [
+    {
+      "id": "KEY_GOLD",
+      "x": 496,
+      "y": 120,
+      "zone": "B",
+      "color": "gold",
+      "collectible": false
+    },
+    {
+      "id": "KEY_RED",
+      "x": 368,
+      "y": 248,
+      "zone": "B",
+      "color": "red",
+      "collectible": false
+    },
+    {
+      "id": "KEY_BLUE",
+      "x": 216,
+      "y": 280,
+      "zone": "B",
+      "color": "blue",
+      "collectible": false
+    }
+  ],
+  "doors": [
+    {
+      "id": "VAULT_DOOR",
+      "x": 720,
+      "y": 320,
+      "w": 64,
+      "h": 128,
+      "requiredKeys": 3,
+      "zone": "C",
+      "vaultMode": true,
+      "color": "#c9a227"
+    }
+  ],
+  "checkpoints": [
+    {
+      "x": 16,
+      "y": 96,
+      "triggerX": 16,
+      "triggerY": 96,
+      "index": 1,
+      "zone": "A"
+    },
+    {
+      "x": 416,
+      "y": 160,
+      "triggerX": 416,
+      "triggerY": 160,
+      "index": 2,
+      "zone": "B"
+    }
+  ],
+  "crystals": [
+    {
+      "id": "C-01",
+      "x": 192,
+      "y": 160,
+      "collected": false,
+      "zone": "A"
+    },
+    {
+      "id": "C-02",
+      "x": 96,
+      "y": 224,
+      "collected": false,
+      "zone": "A"
+    },
+    {
+      "id": "C-03",
+      "x": 48,
+      "y": 288,
+      "collected": false,
+      "zone": "A"
+    },
+    {
+      "id": "C-04",
+      "x": 128,
+      "y": 352,
+      "collected": false,
+      "zone": "A"
+    },
+    {
+      "id": "C-05",
+      "x": 288,
+      "y": 160,
+      "collected": false,
+      "zone": "B"
+    },
+    {
+      "id": "C-06",
+      "x": 448,
+      "y": 128,
+      "collected": false,
+      "zone": "B"
+    },
+    {
+      "id": "C-07",
+      "x": 352,
+      "y": 256,
+      "collected": false,
+      "zone": "B"
+    },
+    {
+      "id": "C-08",
+      "x": 480,
+      "y": 288,
+      "collected": false,
+      "zone": "B"
+    },
+    {
+      "id": "C-09",
+      "x": 320,
+      "y": 352,
+      "collected": false,
+      "zone": "B"
+    },
+    {
+      "id": "C-10",
+      "x": 224,
+      "y": 352,
+      "collected": false,
+      "zone": "B"
+    },
+    {
+      "id": "C-11",
+      "x": 576,
+      "y": 224,
+      "collected": false,
+      "zone": "C"
+    },
+    {
+      "id": "C-12",
+      "x": 656,
+      "y": 288,
+      "collected": false,
+      "zone": "C"
+    },
+    {
+      "id": "C-13",
+      "x": 592,
+      "y": 352,
+      "collected": false,
+      "zone": "C"
+    },
+    {
+      "id": "C-14",
+      "x": 720,
+      "y": 416,
+      "collected": false,
+      "zone": "C"
+    }
+  ],
+  "spikes": [
+    {
+      "x": 256,
+      "y": 576,
+      "w": 96,
+      "h": 16,
+      "type": "floor",
+      "zone": "B"
+    },
+    {
+      "x": 352,
+      "y": 576,
+      "w": 64,
+      "h": 16,
+      "type": "floor",
+      "zone": "B"
+    },
+    {
+      "x": 480,
+      "y": 576,
+      "w": 96,
+      "h": 16,
+      "type": "floor",
+      "zone": "B"
+    },
+    {
+      "x": 288,
+      "y": 352,
+      "w": 16,
+      "h": 48,
+      "type": "wall",
+      "zone": "B"
+    },
+    {
+      "x": 560,
+      "y": 576,
+      "w": 64,
+      "h": 16,
+      "type": "floor",
+      "zone": "C"
+    },
+    {
+      "x": 624,
+      "y": 576,
+      "w": 64,
+      "h": 16,
+      "type": "floor",
+      "zone": "C"
+    },
+    {
+      "x": 688,
+      "y": 576,
+      "w": 112,
+      "h": 16,
+      "type": "floor",
+      "zone": "C"
+    },
+    {
+      "x": 736,
+      "y": 576,
+      "w": 16,
+      "h": 64,
+      "type": "wall",
+      "zone": "C"
+    },
+    {
+      "x": 544,
+      "y": 576,
+      "w": 16,
+      "h": 32,
+      "type": "wall",
+      "zone": "C"
+    },
+    {
+      "x": 624,
+      "y": 224,
+      "w": 16,
+      "h": 32,
+      "type": "wall",
+      "zone": "C"
+    },
+    {
+      "x": 688,
+      "y": 256,
+      "w": 16,
+      "h": 64,
+      "type": "wall",
+      "zone": "C"
+    },
+    {
+      "x": 736,
+      "y": 320,
+      "w": 16,
+      "h": 64,
+      "type": "wall",
+      "zone": "C"
+    }
+  ],
+  "zones": {
+    "A": {
+      "name": "The Approach",
+      "crystals": 4,
+      "checkpoints": 1,
+      "description": "Calm reprieve after The Gauntlet. Basic platforming with L1/L2 mechanics. Entry checkpoint only. Wide platforms, low hazard density — player catches breath."
+    },
+    "B": {
+      "name": "The Convergence",
+      "crystals": 6,
+      "checkpoints": 1,
+      "description": "Greatest-hits zone. Moving platforms (L2/L4) + key locks (L3) + spike corridors (L4). Checkpoint earned at midpoint after navigating the combined gauntlet. 3 keys (gold/red/blue) on detour platforms — all 3 required to open the vault."
+    },
+    "C": {
+      "name": "The Sanctum Chamber",
+      "crystals": 4,
+      "checkpoints": 0,
+      "description": "Single-path precision sequence. No checkpoint — this is the final run. Timed platform (MP-T1, 3s timer). 3-key vault at the end. Ambient lighting shifts to warm gold as player approaches the vault. Victory screen triggers on exit portal entry."
+    }
+  },
+  "levelComplete": false,
+  "notes": "Zone A: 4 crystals, entry checkpoint. Zone B: 6 crystals, midpoint checkpoint, 3 keys on detours. Zone C: 4 crystals, no checkpoint, 1 timed platform (MP-T1, 3s), 3-key vault. 70% gate (10/14). Timed platform disappears 3s after player first stands on it; respawn at last safe position. All 3 keys required to open vault. Ambient warm lighting shift in Zone C — visual payoff. Music: L4→L5 minor-to-major shift is the signature moment. L4→L5 transition should feel like earned relief."
+}
