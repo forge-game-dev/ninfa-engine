@@ -57,33 +57,45 @@ var checkpoints=[
 ];
 var lastCheckpoint={x:64,y:96};
 
-var TILE_BASE='https://raw.githubusercontent.com/forge-game-dev/ninfa-engine/main/docs/art/tilesets/level_4/';
-var tileImages={},tileLoadCount=0,tileTotal=0;
+var TILE_BASE='https://raw.githubusercontent.com/forge-game-dev/ninfa-engine/main/docs/art/tilesets/';
 var TILE_MAP={
-  'platform_static_00.png':['platform','static'],
-  'platform_mp_h_00.png':['platform','moving_h'],
-  'platform_mp_v_00.png':['platform','moving_v'],
-  'platform_timed_00.png':['platform','timed'],
-  'platform_timed_warning_00.png':['platform','timed_warn'],
-  'platform_timed_gone_00.png':['platform','timed_gone'],
-  'spike_floor_00.png':['hazard','spike_floor'],
-  'spike_ceiling_00.png':['hazard','spike_ceiling'],
-  'spike_wall_left_00.png':['hazard','spike_wall_left'],
-  'spike_wall_right_00.png':['hazard','spike_wall_right'],
-  'crystal_00.png':['collectible','crystal'],
-  'checkpoint_00.png':['prop','checkpoint'],
-  'checkpoint_active_00.png':['prop','checkpoint_active'],
-  'portal_exit_00.png':['prop','portal']
+  'level_4/platforms/platform_static.png':['platform','static'],
+  'level_4/platforms/platform_mp_h1.png':['platform','moving_h'],
+  'level_4/platforms/platform_mp_h2.png':['platform','moving_h'],
+  'level_4/platforms/platform_mp_v1.png':['platform','moving_v'],
+  'level_4/platforms/platform_mp_v2.png':['platform','moving_v'],
+  'level_4/platforms/platform_timed.png':['platform','timed'],
+  'level_4/platforms/platform_timed_warning_00.png':['platform','timed_warn'],
+  'level_4/platforms/platform_timed_gone_00.png':['platform','timed_gone'],
+  'level_4/hazards/spike_floor_00.png':['hazard','spike_floor'],
+  'level_4/hazards/spike_ceiling_00.png':['hazard','spike_ceiling'],
+  'level_4/hazards/spike_wall_left_00.png':['hazard','spike_wall_left'],
+  'level_4/hazards/spike_wall_right_00.png':['hazard','spike_wall_right'],
+  'level_1/collectibles/crystal.png':['collectible','crystal'],
+  'level_1/collectibles/checkpoint_inactive.png':['prop','checkpoint'],
+  'level_1/collectibles/checkpoint_active.png':['prop','checkpoint_active'],
+  'level_4/portal/portal_exit_00.png':['prop','portal']
 };
 var TILE_DIMS={
-  'platform_static_00.png':{w:32,h:32},'platform_mp_h_00.png':{w:64,h:16},
-  'platform_mp_v_00.png':{w:64,h:16},'platform_timed_00.png':{w:96,h:16},
-  'platform_timed_warning_00.png':{w:96,h:16},'platform_timed_gone_00.png':{w:96,h:16},
-  'spike_floor_00.png':{w:32,h:32},'spike_ceiling_00.png':{w:32,h:32},
-  'spike_wall_left_00.png':{w:32,h:32},'spike_wall_right_00.png':{w:32,h:32},
-  'crystal_00.png':{w:16,h:16},'checkpoint_00.png':{w:16,h:32},
-  'checkpoint_active_00.png':{w:16,h:32},'portal_exit_00.png':{w:48,h:64}
+  'level_4/platforms/platform_static.png':{w:32,h:32},
+  'level_4/platforms/platform_mp_h1.png':{w:96,h:16},
+  'level_4/platforms/platform_mp_h2.png':{w:96,h:16},
+  'level_4/platforms/platform_mp_v1.png':{w:16,h:64},
+  'level_4/platforms/platform_mp_v2.png':{w:16,h:64},
+  'level_4/platforms/platform_timed.png':{w:96,h:16},
+  'level_4/platforms/platform_timed_warning_00.png':{w:96,h:16},
+  'level_4/platforms/platform_timed_gone_00.png':{w:96,h:16},
+  'level_4/hazards/spike_floor_00.png':{w:32,h:32},
+  'level_4/hazards/spike_ceiling_00.png':{w:32,h:32},
+  'level_4/hazards/spike_wall_left_00.png':{w:32,h:32},
+  'level_4/hazards/spike_wall_right_00.png':{w:32,h:32},
+  'level_1/collectibles/crystal.png':{w:32,h:32},
+  'level_1/collectibles/checkpoint_inactive.png':{w:32,h:48},
+  'level_1/collectibles/checkpoint_active.png':{w:32,h:48},
+  'level_4/portal/portal_exit_00.png':{w:48,h:64}
 };
+var tileImages={},tileLoadCount=0,tileTotal=0;
+undefined
 
 function preloadTiles(){
   var ks=Object.keys(TILE_MAP);tileTotal=ks.length;
@@ -259,12 +271,12 @@ function drawBackground(){
   for(var y=0;y<H;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
 }
 function drawPlatforms(){
-  for(var i=0;i<platforms.length;i++){var p=platforms[i];drawTile('platform_static_00.png',p.x,p.y,p.w,p.h);}
+  for(var i=0;i<platforms.length;i++){var p=platforms[i];drawTile('level_4/platforms/platform_static.png',p.x,p.y,p.w,p.h);}
 }
 function drawMovingPlatforms(){
   for(var i=0;i<movingPlatforms.length;i++){
     var mp=movingPlatforms[i];
-    var tileKey=mp.type==='movingH'?'platform_mp_h_00.png':'platform_mp_v_00.png';
+    var tileKey=mp.type==='movingH'?'level_4/platforms/platform_mp_h1.png':'level_4/platforms/platform_mp_v1.png';
     ctx.globalAlpha=mp.warned?0.6:1.0;
     drawTile(tileKey,mp.x,mp.y,mp.w,mp.h);
     var cx=mp.x+mp.w/2,cy=mp.y+mp.h/2;
@@ -282,9 +294,9 @@ function drawMovingPlatforms(){
 function drawTimedPlatform(){
   if(!timedPlatform)return;
   var tp=timedPlatform;
-  var tileKey='platform_timed_00.png';
-  if(tp.state==='warning')tileKey='platform_timed_warning_00.png';
-  else if(tp.state==='disappeared')tileKey='platform_timed_gone_00.png';
+  var tileKey='level_4/platforms/platform_timed.png';
+  if(tp.state==='warning')tileKey='level_4/platforms/platform_timed_warning_00.png';
+  else if(tp.state==='disappeared')tileKey='level_4/platforms/platform_timed_gone_00.png';
   ctx.globalAlpha=tp.state==='disappeared'?0.2:1.0;
   drawTile(tileKey,tp.x,tp.y,tp.w,tp.h);
   if(tp.state!=='disappeared'){
@@ -296,7 +308,7 @@ function drawTimedPlatform(){
 function drawSpikes(){
   for(var i=0;i<spikes.length;i++){
     var s=spikes[i];
-    var key=s.type==='wall'?'spike_wall_left_00.png':'spike_floor_00.png';
+    var key=s.type==='wall'?'level_4/hazards/spike_wall_left_00.png':'level_4/hazards/spike_floor_00.png';
     drawTile(key,s.x,s.y,s.w,s.h);
   }
 }
@@ -325,7 +337,7 @@ function drawCheckpoints(){
 function drawExitPortal(){
   if(collected>=crystalGate){
     ctx.fillStyle='rgba(0,255,204,0.2)';ctx.fillRect(736,544,48,64);
-    drawTile('portal_exit_00.png',736,544);
+    drawTile('level_4/portal/portal_exit_00.png',736,544,48,64);
   }
 }
 function drawPlayer(){
