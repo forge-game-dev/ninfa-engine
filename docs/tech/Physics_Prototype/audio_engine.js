@@ -607,15 +607,6 @@ function _makeDistortionCurve(amount) {
     proximityCrystals = crystals;
   }
 
-
-  function triggerSpatialWarning(panValue) {
-    init(); resume();
-    _playMovingPlatformWarning(panValue);
-  }
-  function triggerSpatialTimedWarning(panValue) {
-    init(); resume();
-    _playTimedPlatformWarning(panValue);
-  }
   // ============================================================
   // PUBLIC API
   // ============================================================
