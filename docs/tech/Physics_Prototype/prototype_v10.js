@@ -78,13 +78,13 @@ var TILE_MAP={
   'portal/portal_exit_00.png':['prop','portal']
 };
 var TILE_DIMS={
-  'platform_static_00.png':{w:64,h:32},'platform_mp_h_00.png':{w:64,h:32},
-  'platform_mp_v_00.png':{w:64,h:32},'platform_timed_00.png':{w:96,h:16},
+  'platform_static_00.png':{w:64,h:16},'platform_mp_h_00.png':{w:64,h:16},
+  'platform_mp_v_00.png':{w:64,h:16},'platform_timed_00.png':{w:96,h:16},
   'platform_timed_warning_00.png':{w:96,h:16},'platform_timed_gone_00.png':{w:96,h:16},
   'hazards/spike_floor_00.png':{w:32,h:32},'hazards/spike_ceiling_00.png':{w:32,h:32},
   'hazards/spike_wall_left_00.png':{w:32,h:32},'hazards/spike_wall_right_00.png':{w:32,h:32},
-  'level_1/collectibles/crystal.png':{w:32,h:32},'level_1/collectibles/checkpoint_inactive.png':{w:32,h:32},
-  'level_1/collectibles/checkpoint_active.png':{w:32,h:32},'portal/portal_exit_00.png':{w:48,h:64}
+  'level_1/collectibles/crystal.png':{w:16,h:16},'level_1/collectibles/checkpoint_inactive.png':{w:32,h:16},
+  'level_1/collectibles/checkpoint_active.png':{w:32,h:16},'portal/portal_exit_00.png':{w:32,h:32}
 };
 
 function preloadTiles(){
