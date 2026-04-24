@@ -9,7 +9,7 @@
 'use strict';
 var W=800,H=640,c=document.getElementById('c'),ctx=c.getContext('2d');
 c.width=W;c.height=H;
-var GRAVITY=10,MAX_FALL=8,SPEED=5,COYOTE=0.1,JUMP=-7,JUMP_BUFFER=0.15;
+var GRAVITY=10,MAX_FALL=8,SPEED=5,COYOTE=0.1,JUMP=-8,JUMP_BUFFER=0.2;
 var keys={},animTime=0,lastTime=0,deaths=0,deathTimer=0,levelComplete=false;
 var collected=0,crystalGate=12;
 var player={x:32,y:64,w:28,h:28,vx:0,vy:0,grounded:false,lastGrounded:0,jumpBuffer:0,facingRight:true,coyoteT:0};
