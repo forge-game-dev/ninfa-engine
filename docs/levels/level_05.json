@@ -158,15 +158,15 @@
       "type": "solid"
     },
     {
-      "x": 688,
-      "y": 384,
-      "w": 128,
+      "x": 656,
+      "y": 448,
+      "w": 96,
       "h": 32,
       "type": "solid"
     },
     {
-      "x": 656,
-      "y": 448,
+      "x": 672,
+      "y": 384,
       "w": 96,
       "h": 32,
       "type": "solid"
@@ -219,6 +219,16 @@
       "minY": 192,
       "maxY": 320,
       "name": "MP-V2",
+      "warned": false
+    },
+    {
+      "x": 720,
+      "y": 416,
+      "w": 64,
+      "h": 16,
+      "type": "timed",
+      "timerDuration": 3,
+      "name": "MP-T1",
       "warned": false
     }
   ],
