@@ -7,7 +7,7 @@
 
 (function(){
 'use strict';
-var W=800,H=640,c=document.getElementById('c'),ctx=c.getContext('2d');
+var W=800,H=640,c=document.getElementById('gameCanvas'),ctx=c.getContext('2d');
 c.width=W;c.height=H;
 var GRAVITY=10,MAX_FALL=8,SPEED=5,COYOTE=0.1,JUMP=-8,JUMP_BUFFER=0.2;
 var keys={},animTime=0,lastTime=0,deaths=0,deathTimer=0,levelComplete=false;
