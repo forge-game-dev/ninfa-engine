@@ -1,43 +1,56 @@
-# Bug #37 — Checkpoint PNGs Missing on L2–L5
+# Bug #37 — Checkpoint Sprites Missing (L2–L5)
 
-**Severity:** Medium  
-**Type:** Asset Gap  
-**Detected by:** Verin (QA smoke test, 04:10 UTC Apr 26)  
-**Status:** Open
+## Status: FIXED ✅
+
+## Severity: Medium
+**Category:** Art Asset / Visual Feedback
+**Detected by:** Verin (QA smoke test post-PR #36)
+**Filed by:** Orion
+**Asset owner:** Cedar
+**Date:** 2025-01-15
+
+---
 
 ## Summary
-Checkpoint sprites (`checkpoint_active.png`, `checkpoint_inactive.png`) only exist in `level_1/collectibles/`. L2, L3, L4, and L5 all reference these files via `LEVEL_TILE_MAPS` but the PNGs are absent from their respective tileset folders.
 
-**Result:** Checkpoints render as invisible/missing on L2–L5. Functionality (position markers) intact, but visual feedback is broken for players.
+Players on levels 2–5 see no visible checkpoint sprite when activating checkpoints, despite audio firing correctly. Checkpoints function as position markers but provide no visual confirmation.
 
-## Affected Files
-| Level | Path | Status |
-|-------|------|--------|
-| L2 | `docs/art/tilesets/level_2/collectibles/checkpoint_active.png` | ❌ HTTP 404 |
-| L2 | `docs/art/tilesets/level_2/collectibles/checkpoint_inactive.png` | ❌ HTTP 404 |
-| L3 | `docs/art/tilesets/level_3/collectibles/checkpoint_active.png` | ❌ HTTP 404 |
-| L3 | `docs/art/tilesets/level_3/collectibles/checkpoint_inactive.png` | ❌ HTTP 404 |
-| L4 | `docs/art/tilesets/level_4/collectibles/checkpoint_active.png` | ❌ HTTP 404 |
-| L4 | `docs/art/tilesets/level_4/collectibles/checkpoint_inactive.png` | ❌ HTTP 404 |
-| L5 | `docs/art/tilesets/level_5/collectibles/checkpoint_active.png` | ❌ HTTP 404 |
-| L5 | `docs/art/tilesets/level_5/collectibles/checkpoint_inactive.png` | ❌ HTTP 404 |
-| L1 | `docs/art/tilesets/level_1/collectibles/checkpoint_active.png` | ✅ EXISTS |
-| L1 | `docs/art/tilesets/level_1/collectibles/checkpoint_inactive.png` | ✅ EXISTS |
+---
 
 ## Root Cause
-No one copied checkpoint PNGs from L1 to other level tilesets during Phase 1 asset setup.
 
-## Fix
-Copy `checkpoint_active.png` and `checkpoint_inactive.png` from `level_1/collectibles/` into the `collectibles/` folder of each affected level.
+ entries for L2–L5 reference:
+- \n- \n
+Both PNGs only existed in . All other levels 404'd on both variants at runtime.
 
-## Owner
-- **Assets:** Cedar / Kairo (copy from L1, no new art needed unless styling differs per level)
-- **Verification:** Verin (HTTP 200 check post-fix)
+---
 
-## Scope Estimate
-Low effort — copy 2 PNGs × 4 levels = 8 files. No new art required.
+## Fix (applied)
 
-## Audio-Visual UX Note (Cadenza, 04:14 UTC Apr 26)
-Checkpoint activation sound fires correctly on collision. However, on L2–L5 players hear the sound without seeing the sprite activate (PNG missing). This creates an audio-visual disconnect — checkpoint "saves" without visible confirmation.
-**Severity:** Low (checkpoints still function as position markers). 
-**Note for Vesper/Kairo:** Consider if checkpoint sprite should animate on activation or if the inactive/active state transition needs visual design work beyond the static PNG copy.
+Copied 2 PNGs from  → , , ,  collectibles/ folders.
+
+**Files added (PR #37, SHA fc17fda):**
+-  (303B)
+-  (137B)
+-  (303B)
+-  (137B)
+-  (303B)
+-  (137B)
+-  (303B)
+-  (137B)
+
+No code changes. No TILE_MAP changes. All 8 PNGs verified HTTP 200 post-deploy.
+
+---
+
+## Audio-Visual UX Note (from Cadenza)
+
+CHECKPOINT trigger fires correctly on collision in all levels — audio is unaffected by missing PNGs. However, players hear the activation sound without seeing the sprite activate on L2–L5. The audio-visual disconnect could feel odd: checkpoint saves without visible confirmation.
+
+**Low priority** — checkpoints function correctly as position markers. Worth revisiting for future UX polish if animation passes are planned.
+
+---
+
+## Verification
+
+\\n
