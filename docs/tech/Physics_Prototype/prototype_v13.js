@@ -141,7 +141,7 @@ function updateMovingPlatforms(dt){
 }
 function updateTimedPlatform(dt){
   if(!timedPlatform)return;
-  if(timedPlatform.state==="visible"){timedPlatform.elapsed+=dt;if(timedPlatform.elapsed>=timedPlatform.timer){timedPlatform.state="warning";timedPlatform.elapsed=0;}}else if(timedPlatform.state==="warning"){timedPlatform.elapsed+=dt;if(timedPlatform.elapsed>=0.5){timedPlatform.state="gone";timedPlatform.elapsed=0;}}else if(timedPlatform.state==="gone"){timedPlatform.elapsed+=dt;if(timedPlatform.elapsed>=timedPlatform.timer){timedPlatform.state="visible";timedPlatform.elapsed=0;}}}
+  if(timedPlatform.state==="visible"){timedPlatform.elapsed+=dt;if(timedPlatform.elapsed>=timedPlatform.timer){timedPlatform.state="warning";timedPlatform.elapsed=0;}else if(timedPlatform.state==="warning") if(timedPlatform.state==="warning"){timedPlatform.elapsed+=dt;if(timedPlatform.elapsed>=0.5){timedPlatform.state="gone";timedPlatform.elapsed=0;}}else if(timedPlatform.state==="gone"){timedPlatform.elapsed+=dt;if(timedPlatform.elapsed>=timedPlatform.timer){timedPlatform.state="visible";timedPlatform.elapsed=0;}}}
   // Spatial warning for timed platform
   if(timedPlatform&&timedPlatform.state==="warning"&&!timedPlatform.warned){triggerSpatialWarning(timedPlatform.x, timedPlatform.y);timedPlatform.warned=true;}
   if(timedPlatform&&timedPlatform.state==="visible"){timedPlatform.warned=false;}
