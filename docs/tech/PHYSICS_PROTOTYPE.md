@@ -149,7 +149,7 @@ Crystals: 0/1
 ## File Structure for Prototype
 
 ```
-docs/Physics_Prototype/
+https://forge-game-dev.github.io/ninfa-engine/tech/Physics_Prototype/
 ├── index.html          # Canvas + game loop
 ├── prototype.js       # All prototype code
 └── SPEC.md            # This document
