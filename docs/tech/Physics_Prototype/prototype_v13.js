@@ -172,7 +172,7 @@ function render(){
   if(levelComplete){ctx.fillStyle="rgba(0,0,0,0.7)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.font="36px monospace";ctx.fillText("LEVEL COMPLETE!",W/2-150,H/2);ctx.font="18px monospace";ctx.fillText("Crystals: "+collected+"/"+crystalGate,W/2-60,H/2+40);}
 }
 var lastTime=0;var animTime=0;
-function restartFromCheckpoint(){if(lastCheckpoint){player.x=lastCheckpoint.x;player.y=lastCheckpoint.y;player.vx=0;player.vy=0;player.grounded=false;}deathTimer=0;levelComplete=false;if(audioEngine&&audioEngine.setProximityTarget){audioEngine.setProximityTarget(player,crystals);}}
+function restartFromCheckpoint(){if(lastCheckpoint){player.x=lastCheckpoint.x;player.y=lastCheckpoint.y;player.vx=0;player.vy=0;player.grounded=false;}deathTimer=0;levelComplete=false;if(audioEngine&&audioEngine.setProximityTarget){audioEngine.setProximityTarget(player,crystals);}if(ambientEngine&&ambientEngine.resumeAmbient){ambientEngine.resumeAmbient();}}
   function loop(ts){
   var dt=Math.min((ts-lastTime)/1000,0.1);lastTime=ts;animTime+=dt;
   if(deathTimer>0){deathTimer-=dt;if(deathTimer<=0){deathTimer=0;restartFromCheckpoint();}}

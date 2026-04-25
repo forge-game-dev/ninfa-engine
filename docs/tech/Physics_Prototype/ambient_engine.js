@@ -67,6 +67,17 @@
     }
   }
 
+  // ── Resume ambient from checkpoint ────
+  function resumeAmbient() {
+    if (!initialized || !ctx) return;
+    resume();
+    if (masterGain) {
+      masterGain.gain.cancelScheduledValues(ctx.currentTime);
+      masterGain.gain.setValueAtTime(masterGain.gain.value, ctx.currentTime);
+      masterGain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.3);
+    }
+  }
+
   // ── Stop (for death / level exit) ─────
   function stop() {
     stopAll();
@@ -242,6 +253,7 @@
   window.ambientEngine = {
     init: init,
     resume: resume,
+    resumeAmbient: resumeAmbient,
     setVolume: setVolume,
     startLevel: startLevel,
     stop: stop
