@@ -152,7 +152,6 @@ function render(){
 }
 var lastTime=0;var animTime=0;
 function restartFromCheckpoint(){if(lastCheckpoint){player.x=lastCheckpoint.x;player.y=lastCheckpoint.y;player.vx=0;player.vy=0;player.grounded=false;}deathTimer=0;levelComplete=false;if(audioEngine&&audioEngine.setProximityTarget){audioEngine.setProximityTarget(player,crystals);}}
-};
   function loop(ts){
   var dt=Math.min((ts-lastTime)/1000,0.1);lastTime=ts;animTime+=dt;
   if(deathTimer>0){deathTimer-=dt;if(deathTimer<=0){deathTimer=0;restartFromCheckpoint();}}
