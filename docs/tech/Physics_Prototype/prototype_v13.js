@@ -17,7 +17,7 @@ var GRAVITY=10,MAX_FALL=8,SPEED=5,COYOTE=0.1,JUMP=-8,JUMP_BUFFER=0.2;
 var TILE_BASE="https://forge-game-dev.github.io/ninfa-engine/art/tilesets/";
 var TILE_MAP={"platforms/platform_static_00.png":["p","s"],"platforms/platform_mp_h_00.png":["p","mh"],"platforms/platform_mp_v_00.png":["p","mv"],"platforms/platform_timed_00.png":["p","t"],"platforms/platform_timed_warning_00.png":["p","tw"],"platforms/platform_timed_gone_00.png":["p","tg"],"hazards/spike_floor_00.png":["h","f"],"hazards/spike_ceiling_00.png":["h","c"],"hazards/spike_wall_left_00.png":["h","wl"],"hazards/spike_wall_right_00.png":["h","wr"],"portal/portal_exit_00.png":["x","e"],"hazards/spike_corridor_01.png":["h","sc01"],"hazards/spike_corridor_02.png":["h","sc02"],"hazards/spike_corridor_03.png":["h","sc03"],"hazards/spike_corridor_04.png":["h","sc04"],"hazards/spike_corridor_05.png":["h","sc05"],"hazards/spike_corridor_06.png":["h","sc06"],"platforms/platform_mp_h_01.png":["p","mh01"],"platforms/platform_mp_h_02.png":["p","mh02"],"platforms/platform_mp_h_03.png":["p","mh03"],"platforms/platform_mp_h_04.png":["p","mh04"],"platforms/platform_mp_h_05.png":["p","mh05"],"platforms/platform_mp_v_01.png":["p","mv01"],"collectibles/crystal_00.png":["c","cr00"],"collectibles/crystal_01.png":["c","cr01"],"collectibles/crystal_02.png":["c","cr02"]};
 var TDIMS={"platforms/platform_static_00.png":{w:64,h:16},"platforms/platform_mp_h_00.png":{w:64,h:16},"platforms/platform_mp_v_00.png":{w:64,h:16},"platforms/platform_timed_00.png":{w:96,h:16},"platforms/platform_timed_warning_00.png":{w:96,h:16},"platforms/platform_timed_gone_00.png":{w:96,h:16},"hazards/spike_floor_00.png":{w:32,h:32},"hazards/spike_ceiling_00.png":{w:32,h:32},"hazards/spike_wall_left_00.png":{w:32,h:32},"hazards/spike_wall_right_00.png":{w:32,h:32},"portal/portal_exit_00.png":{w:32,h:32}};
-var keys={},animTime=0,lastTime=0,deaths=0,deathTimer=0,levelComplete=false;
+var keys={},animTime=0,lastTime=0,deaths=0,deathTimer=0,levelComplete=false,runStepTimer=0,jumping=false,lastVy=0,lastDeathFi=-1,lastVictoryFi=-1;
 var collected=0,crystalGate=12,inZoneC=false,currentLevel="04";
 var player={x:32,y:64,w:28,h:28,vx:0,vy:0,grounded:false,lastGrounded:0,jumpBuffer:0,facingRight:true,coyoteT:0};
 var platforms=[],movingPlatforms=[],timedPlatform=null,spikes=[],crystals=[],checkpoints=[],lastCheckpoint={x:64,y:96},collectedKeys={};
@@ -89,12 +89,12 @@ function updatePlayer(dt){
   for(var i=0;i<platforms.length;i++){var col=collidePlatform(platforms[i]);if(col==="top"){player.grounded=true;player.y=platforms[i].y-player.h;player.vy=0;onPlatform=platforms[i];break;}}
   if(!onPlatform){for(var i=0;i<movingPlatforms.length;i++){var col=collidePlatform(movingPlatforms[i]);if(col==="top"){player.grounded=true;player.y=movingPlatforms[i].y-player.h;player.vy=0;onPlatform=movingPlatforms[i];break;}}}
   if(!onPlatform&&timedPlatform&&timedPlatform.state==="visible"){var col=collidePlatform(timedPlatform);if(col==="top"){player.grounded=true;player.y=timedPlatform.y-player.h;player.vy=0;onPlatform=timedPlatform;}}
-  if(player.grounded&&!wasGrounded)triggerLand();
+  if(player.grounded&&!wasGrounded){if(onPlatform&&onPlatform.tileKey&&audioEngine){var tk=onPlatform.tileKey;if(TILE_MAP[tk]&&TILE_MAP[tk][0]==='h')audioEngine.trigger("LAND_SPIKE");else audioEngine.trigger("LAND_STONE");}else if(audioEngine){audioEngine.trigger("LAND_STONE");}triggerLand();}
   if(player.grounded)player.coyoteT=now+COYOTE;else if(now>player.coyoteT)player.coyoteT=0;
   var wantsJump=(keys.Space||keys.ArrowUp||keys.KeyW);if(wantsJump)player.jumpBuffer=now+JUMP_BUFFER;else player.jumpBuffer=0;
   var canJump=(player.grounded||player.coyoteT>0)&&player.jumpBuffer>0;
-  if(canJump){player.vy=JUMP;player.grounded=false;player.coyoteT=0;player.jumpBuffer=0;if(audioEngine)audioEngine.trigger("JUMP");}
-  // Spikes
+  if(canJump){player.vy=JUMP;player.grounded=false;player.coyoteT=0;player.jumpBuffer=0;if(audioEngine)audioEngine.trigger("JUMP");}player.jumping=true;if(player.vy>=0&&lastVy<0&&audioEngine)audioEngine.trigger("JUMP_APEX");lastVy=player.vy;
+  // RUN_STEP: 0.125s interval while running on ground  if(state==="run"&&player.grounded){    runStepTimer-=dt;    if(runStepTimer<=0){runStepTimer=0.125;      if(audioEngine)audioEngine.trigger("RUN_STEP");    }  }else{runStepTimer=0;}  if(!player.grounded)player.jumping=true;  // Spikes
   for(var i=0;i<spikes.length;i++){var s=spikes[i];var inset=6;if(aabb(player.x+inset,player.y+inset,player.w-inset*2,player.h-inset*2,s.x,s.y,s.w,s.h)){triggerDeath();return;}}
   // Crystals
   for(var i=0;i<crystals.length;i++){var cr=crystals[i];if(!cr.collected&&aabb(player.x,player.y,player.w,player.h,cr.x,cr.y,cr.w,cr.h)){cr.collected=true;collected++;if(audioEngine)audioEngine.trigger("CRYSTAL");updateDOM();}}
@@ -169,11 +169,11 @@ function drawPlayer(){
   var fps={idle:4,run:8,jump:4,fall:4,death:6,victory:6}[state]||4;
   var frames={idle:3,run:4,jump:4,fall:3,death:4,victory:6}[state]||1;
   var fi=Math.floor((animTime*fps)%frames);
-  if(!img.complete||!img.naturalWidth){ctx.fillStyle="#00d4ff";ctx.fillRect(player.x,player.y,player.w,player.h);return;}
+  if(!img.complete||!img.naturalWidth){ctx.fillStyle="#00d4ff";ctx.fillRect(player.x,player.y,player.w,player.h);return;}if(state==="victory"&&fi===3&&lastVictoryFi!==3&&audioEngine){audioEngine.trigger("VICTORY_KEY_FRAME");lastVictoryFi=3;}if(state!=="victory")lastVictoryFi=-1;
   var fw=img.naturalWidth/frames,fh=img.naturalHeight||32;
   var sx=fi*fw,sy=0,sw=fw,sh=fh;
   var dw=player.w,dh=player.h,dx=player.x,dy=player.y;
-  if(!player.facingRight){ctx.save();ctx.translate(player.x+player.w,0);ctx.scale(-1,1);ctx.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh);ctx.restore();}else{ctx.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh);}
+  if(!player.facingRight){ctx.save();ctx.translate(player.x+player.w,0);ctx.scale(-1,1);ctx.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh);ctx.restore();}else{ctx.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh);}if(state==="death"&&fi===2&&lastDeathFi!==2&&audioEngine){audioEngine.trigger("DEATH_KEY_FRAME");lastDeathFi=2;}if(state!=="death")lastDeathFi=-1;
 }
 function render(){
   ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);
