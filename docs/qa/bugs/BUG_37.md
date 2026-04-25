@@ -36,3 +36,8 @@ Copy `checkpoint_active.png` and `checkpoint_inactive.png` from `level_1/collect
 
 ## Scope Estimate
 Low effort — copy 2 PNGs × 4 levels = 8 files. No new art required.
+
+## Audio-Visual UX Note (Cadenza, 04:14 UTC Apr 26)
+Checkpoint activation sound fires correctly on collision. However, on L2–L5 players hear the sound without seeing the sprite activate (PNG missing). This creates an audio-visual disconnect — checkpoint "saves" without visible confirmation.
+**Severity:** Low (checkpoints still function as position markers). 
+**Note for Vesper/Kairo:** Consider if checkpoint sprite should animate on activation or if the inactive/active state transition needs visual design work beyond the static PNG copy.
