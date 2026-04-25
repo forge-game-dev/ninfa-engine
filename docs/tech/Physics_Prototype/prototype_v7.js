@@ -1,4 +1,4 @@
-// === PROTOTYPE v7 — Level 4: The Gauntlet ===
+// Audio: Cadenza AudioEngine v0.6 - all triggers use unified trigger() API
 // Moving platforms 2–4 u/s, 3s timed platform, spike hazards, spatial audio
 // Audio: Cadenza AudioEngine v0.5 with triggerMovingPlatformWarning, triggerTimedPlatformWarning, triggerTimedPlatformDisappear, setProximityTarget
 const W=800,H=640;
@@ -147,7 +147,7 @@ function updateMovingPlatforms(dt){
 function triggerMPWarning(mp){
   if(!window.audioEngine||!audioReady)return;
   if(mp.warned)return;
-  audioEngine.triggerMovingPlatformWarning(mp.currentVx||mp.currentVy||0);
+  audioEngine.trigger('MOVING_PLATFORM_WARNING');
   mp.warned=true;
   setTimeout(function(){mp.warned=false;},300);
 }
@@ -159,14 +159,14 @@ function updateTimedPlatform(dt){
     tp.timerOffset+=dt; tp.timer-=dt;
     if(tp.timer<=0.5&&!tp.warningFired){
       tp.warningFired=true;
-      if(window.audioEngine&&audioReady)audioEngine.triggerTimedPlatformWarning();
+      if(window.audioEngine&&audioReady)audioEngine.trigger('TIMED_PLATFORM_WARNING');
     }
     if(tp.timer<=0){tp.state='warning'; tp.timer=0.5;}
   } else if(tp.state==='warning'){
     tp.timer-=dt;
     if(tp.timer<=0){
       tp.state='disappeared'; tp.timer=1.5;
-      if(window.audioEngine&&audioReady)audioEngine.triggerTimedPlatformDisappear();
+      if(window.audioEngine&&audioReady)audioEngine.trigger('TIMED_PLATFORM_DISAPPEAR');
     }
   } else if(tp.state==='disappeared'){
     tp.timer-=dt;
@@ -191,14 +191,14 @@ function gameLoop(timestamp){
     if(window.audioEngine&&audioReady)audioEngine.updateProximity();
     if(checkSpikeCollision()&&deathTimer===0){
       deathTimer=1.5;deaths++;
-      if(window.audioEngine&&audioReady)audioEngine.triggerSpikeDeath();
+      if(window.audioEngine&&audioReady)audioEngine.trigger('SPIKE_DEATH');
     }
     var collected=crystals?crystals.filter(function(c){return c.collected;}).length:0;
     if(collected>=crystalGate){
       var exit={x:736,y:544,w:48,h:64};
       if(player&&overlaps(player.x,player.y,player.w,player.h,exit.x,exit.y,exit.w,exit.h)){
         levelComplete=true; setPlayerAnimation('victory');
-        if(window.audioEngine&&audioReady)audioEngine.triggerVictory();
+        if(window.audioEngine&&audioReady){audioEngine.trigger('COMPLETE');audioEngine.trigger('VICTORY_STING');}
       }
     }
   }
@@ -238,7 +238,7 @@ function updatePlayer(dt){
   else player.coyote-=dt;
   if((player.grounded||player.coyote>0)&&player.jumpBuffer>0){
     player.vy=JUMP; player.jumpBuffer=0; player.coyote=0; player.grounded=false;
-    if(window.audioEngine&&audioReady)audioEngine.triggerJump();
+    if(window.audioEngine&&audioReady)audioEngine.trigger('JUMP');
   }
   player.x+=player.vx*dt*60;
   player.y+=player.vy*dt*60;
@@ -260,19 +260,19 @@ function updatePlayer(dt){
     }
   }
   if(player.x<0)player.x=0;
-  if(player.y>H+100){deathTimer=1.5;deaths++;if(window.audioEngine&&audioReady)audioEngine.triggerSpikeDeath();}
+  if(player.y>H+100){deathTimer=1.5;deaths++;if(window.audioEngine&&audioReady)audioEngine.trigger('SPIKE_DEATH');}
   for(var i=0;i<checkpoints.length;i++){
     var cp=checkpoints[i];
     if(!cp.activated&&overlaps(player.x,player.y,player.w,player.h,cp.x,cp.y,cp.w,cp.h)){
       cp.activated=true; lastCheckpoint={x:cp.x,y:cp.y};
-      if(window.audioEngine&&audioReady)audioEngine.triggerCheckpoint();
+      if(window.audioEngine&&audioReady)audioEngine.trigger('CHECKPOINT');
     }
   }
   for(var i=0;i<crystals.length;i++){
     var cr=crystals[i];
     if(!cr.collected&&overlaps(player.x,player.y,player.w,player.h,cr.x-10,cr.y-16,20,32)){
       cr.collected=true;
-      if(window.audioEngine&&audioReady)audioEngine.triggerCrystal();
+      if(window.audioEngine&&audioReady)audioEngine.trigger('CRYSTAL');
     }
   }
   if(player.grounded){
