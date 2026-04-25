@@ -4,7 +4,7 @@ var c=document.getElementById("gameCanvas");
 var ctx=c.getContext("2d");
 c.width=W;c.height=H;
 var GRAVITY=10,MAX_FALL=8,SPEED=5,COYOTE=0.1,JUMP=-8,JUMP_BUFFER=0.2;
-var TILE_BASE="https://forge-game-dev.github.io/ninfa-engine/art/tilesets/level_4/";
+var TILE_BASE="https://forge-game-dev.github.io/ninfa-engine/docs/art/tilesets/level_4/";
 var TILE_MAP={"platforms/platform_static_00.png":["p","s"],"platforms/platform_mp_h_00.png":["p","mh"],"platforms/platform_mp_v_00.png":["p","mv"],"platforms/platform_timed_00.png":["p","t"],"platforms/platform_timed_warning_00.png":["p","tw"],"platforms/platform_timed_gone_00.png":["p","tg"],"hazards/spike_floor_00.png":["h","f"],"hazards/spike_ceiling_00.png":["h","c"],"hazards/spike_wall_left_00.png":["h","wl"],"hazards/spike_wall_right_00.png":["h","wr"],"portal/portal_exit_00.png":["x","e"],"hazards/spike_corridor_01.png":["h","sc01"],"hazards/spike_corridor_02.png":["h","sc02"],"hazards/spike_corridor_03.png":["h","sc03"],"hazards/spike_corridor_04.png":["h","sc04"],"hazards/spike_corridor_05.png":["h","sc05"],"hazards/spike_corridor_06.png":["h","sc06"],"platforms/platform_mp_h_01.png":["p","mh01"],"platforms/platform_mp_h_02.png":["p","mh02"],"platforms/platform_mp_h_03.png":["p","mh03"],"platforms/platform_mp_h_04.png":["p","mh04"],"platforms/platform_mp_h_05.png":["p","mh05"],"platforms/platform_mp_v_01.png":["p","mv01"],"collectibles/crystal_00.png":["c","cr00"],"collectibles/crystal_01.png":["c","cr01"],"collectibles/crystal_02.png":["c","cr02"]};
 var TDIMS={"platforms/platform_static_00.png":{w:64,h:16},"platforms/platform_mp_h_00.png":{w:64,h:16},"platforms/platform_mp_v_00.png":{w:64,h:16},"platforms/platform_timed_00.png":{w:96,h:16},"platforms/platform_timed_warning_00.png":{w:96,h:16},"platforms/platform_timed_gone_00.png":{w:96,h:16},"hazards/spike_floor_00.png":{w:32,h:32},"hazards/spike_ceiling_00.png":{w:32,h:32},"hazards/spike_wall_left_00.png":{w:32,h:32},"hazards/spike_wall_right_00.png":{w:32,h:32},"portal/portal_exit_00.png":{w:32,h:32}};
 var keys={},animTime=0,lastTime=0,deaths=0,deathTimer=0,levelComplete=false;
@@ -86,7 +86,7 @@ function updatePlayer(dt){
   // Spikes
   for(var i=0;i<spikes.length;i++){var s=spikes[i];var inset=6;if(aabb(player.x+inset,player.y+inset,player.w-inset*2,player.h-inset*2,s.x,s.y,s.w,s.h)){triggerDeath();return;}}
   // Crystals
-  for(var i=0;i<crystals.length;i++){var cr=crystals[i];if(!cr.collected&&aabb(player.x,player.y,player.w,player.h,cr.x,cr.y,cr.w,cr.h)){cr.collected=true;collected++;if(audioEngine)audioEngine.trigger("CRYSTAL");}}
+  for(var i=0;i<crystals.length;i++){var cr=crystals[i];if(!cr.collected&&aabb(player.x,player.y,player.w,player.h,cr.x,cr.y,cr.w,cr.h)){cr.collected=true;collected++;if(audioEngine)audioEngine.trigger("CRYSTAL");updateDOM();}}
   // Keys
   for(var i=0;i<keys_items.length;i++){var k=keys_items[i];if(!k.collected&&aabb(player.x,player.y,player.w,player.h,k.x,k.y,k.w,k.h)){k.collected=true;collectedKeys[k.id]=(collectedKeys[k.id]||0)+1;if(audioEngine)audioEngine.trigger("KEY_PICKUP");}}
   // Doors
@@ -141,7 +141,8 @@ function render(){
   if(levelComplete){ctx.fillStyle="rgba(0,0,0,0.7)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.font="36px monospace";ctx.fillText("LEVEL COMPLETE!",W/2-150,H/2);ctx.font="18px monospace";ctx.fillText("Crystals: "+collected+"/"+crystalGate,W/2-60,H/2+40);}
 }
 var lastTime=0;var animTime=0;
-function loop(ts){
+function restartFromCheckpoint(){if(lastCheckpoint){player.x=lastCheckpoint.x;player.y=lastCheckpoint.y;player.vx=0;player.vy=0;player.grounded=false;}deathTimer=0;levelComplete=false;if(audioEngine&&audioEngine.setProximityTarget){audioEngine.setProximityTarget(player,crystals);}}
+  function loop(ts){
   var dt=Math.min((ts-lastTime)/1000,0.1);lastTime=ts;animTime+=dt;
   if(deathTimer>0){deathTimer-=dt;if(deathTimer<=0){deathTimer=0;restartFromCheckpoint();}}
   updatePlayer(dt);updateMovingPlatforms(dt);updateTimedPlatform(dt);
