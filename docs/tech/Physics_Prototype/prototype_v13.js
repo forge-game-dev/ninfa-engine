@@ -172,7 +172,7 @@ function restartFromCheckpoint(){if(lastCheckpoint){player.x=lastCheckpoint.x;pl
 function init(){
   var p=window.location.search.match(/[?&]level=([^&]+)/);
   var lvl=p?p[1]:"04";if(lvl.length===1)lvl="0"+lvl;
-  preloadTiles();initAudio();loadLevel(lvl);
+  preloadTiles();loadLevel(lvl);initAudio();
   requestAnimationFrame(function(ts){lastTime=ts;loop(ts);});
 }
 window.addEventListener("keydown",function(e){keys[e.code]=true;});
