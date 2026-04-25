@@ -22,77 +22,483 @@
     "timedPlatform": "#ff9f43",
     "timedPlatformWarning": "#ff4757"
   },
-  "spawn": { "x": 32, "y": 64 },
-  "exit": { "x": 736, "y": 544, "w": 48, "h": 64 },
+  "spawn": {
+    "x": 32,
+    "y": 64
+  },
+  "exit": {
+    "x": 736,
+    "y": 544,
+    "w": 48,
+    "h": 64
+  },
   "platforms": [
-    { "x": 0, "y": 96, "w": 128, "h": 32, "type": "solid" },
-    { "x": 192, "y": 128, "w": 96, "h": 32, "type": "solid" },
-    { "x": 352, "y": 96, "w": 128, "h": 32, "type": "solid" },
-    { "x": 544, "y": 96, "w": 96, "h": 32, "type": "solid" },
-    { "x": 704, "y": 96, "w": 64, "h": 32, "type": "solid" },
-    { "x": 64, "y": 192, "w": 96, "h": 32, "type": "solid" },
-    { "x": 224, "y": 224, "w": 96, "h": 32, "type": "solid" },
-    { "x": 384, "y": 192, "w": 128, "h": 32, "type": "solid" },
-    { "x": 576, "y": 192, "w": 128, "h": 32, "type": "solid" },
-    { "x": 96, "y": 320, "w": 96, "h": 32, "type": "solid" },
-    { "x": 256, "y": 352, "w": 128, "h": 32, "type": "solid" },
-    { "x": 448, "y": 320, "w": 128, "h": 32, "type": "solid" },
-    { "x": 640, "y": 352, "w": 96, "h": 32, "type": "solid" },
-    { "x": 32, "y": 480, "w": 128, "h": 32, "type": "solid" },
-    { "x": 224, "y": 512, "w": 160, "h": 32, "type": "solid" },
-    { "x": 448, "y": 480, "w": 96, "h": 32, "type": "solid" },
-    { "x": 608, "y": 512, "w": 96, "h": 32, "type": "solid" },
-    { "x": 768, "y": 608, "w": 32, "h": 32, "type": "solid" },
-    { "x": 448, "y": 608, "w": 256, "h": 32, "type": "solid" }
+    {
+      "x": 0,
+      "y": 96,
+      "w": 128,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 192,
+      "y": 128,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 352,
+      "y": 96,
+      "w": 128,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 544,
+      "y": 96,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 704,
+      "y": 96,
+      "w": 64,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 64,
+      "y": 192,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 224,
+      "y": 224,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 384,
+      "y": 192,
+      "w": 128,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 576,
+      "y": 192,
+      "w": 128,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 96,
+      "y": 320,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 256,
+      "y": 352,
+      "w": 128,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 448,
+      "y": 320,
+      "w": 128,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 640,
+      "y": 352,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 32,
+      "y": 480,
+      "w": 128,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 224,
+      "y": 512,
+      "w": 160,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 448,
+      "y": 480,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 608,
+      "y": 512,
+      "w": 96,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 768,
+      "y": 608,
+      "w": 32,
+      "h": 32,
+      "type": "solid"
+    },
+    {
+      "x": 448,
+      "y": 608,
+      "w": 256,
+      "h": 32,
+      "type": "solid"
+    }
   ],
   "movingPlatforms": [
-    { "x": 128, "y": 160, "w": 64, "h": 16, "type": "movingH", "velocityX": 3, "minX": 128, "maxX": 192, "name": "MP-H1", "warned": false },
-    { "x": 544, "y": 160, "w": 64, "h": 16, "type": "movingH", "velocityX": -3, "minX": 544, "maxX": 640, "name": "MP-H2", "warned": false },
-    { "x": 704, "y": 160, "w": 64, "h": 16, "type": "movingH", "velocityX": -3, "minX": 704, "maxX": 768, "name": "MP-H3", "warned": false },
-    { "x": 320, "y": 256, "w": 64, "h": 16, "type": "movingV", "velocityY": 2, "minY": 192, "maxY": 352, "name": "MP-V1", "warned": false },
-    { "x": 512, "y": 256, "w": 64, "h": 16, "type": "movingV", "velocityY": -2, "minY": 192, "maxY": 352, "name": "MP-V2", "warned": false },
-    { "x": 160, "y": 384, "w": 64, "h": 16, "type": "movingH", "velocityX": 4, "minX": 160, "maxX": 256, "name": "MP-H4", "warned": false },
-    { "x": 576, "y": 384, "w": 64, "h": 16, "type": "movingH", "velocityX": -4, "minX": 576, "maxX": 640, "name": "MP-H5", "warned": false },
-    { "x": 320, "y": 448, "w": 96, "h": 16, "type": "timed", "name": "MP-T1", "timer": 3.0, "state": "active", "warningFired": false, "disappearFired": false, "warned": false }
+    {
+      "x": 128,
+      "y": 160,
+      "w": 64,
+      "h": 16,
+      "type": "movingH",
+      "velocityX": 3,
+      "minX": 128,
+      "maxX": 192,
+      "name": "MP-H1",
+      "warned": false
+    },
+    {
+      "x": 544,
+      "y": 160,
+      "w": 64,
+      "h": 16,
+      "type": "movingH",
+      "velocityX": -3,
+      "minX": 544,
+      "maxX": 640,
+      "name": "MP-H2",
+      "warned": false
+    },
+    {
+      "x": 704,
+      "y": 160,
+      "w": 64,
+      "h": 16,
+      "type": "movingH",
+      "velocityX": -3,
+      "minX": 704,
+      "maxX": 768,
+      "name": "MP-H3",
+      "warned": false
+    },
+    {
+      "x": 320,
+      "y": 256,
+      "w": 64,
+      "h": 16,
+      "type": "movingV",
+      "velocityY": 2,
+      "minY": 192,
+      "maxY": 352,
+      "name": "MP-V1",
+      "warned": false
+    },
+    {
+      "x": 512,
+      "y": 256,
+      "w": 64,
+      "h": 16,
+      "type": "movingV",
+      "velocityY": -2,
+      "minY": 192,
+      "maxY": 352,
+      "name": "MP-V2",
+      "warned": false
+    },
+    {
+      "x": 160,
+      "y": 384,
+      "w": 64,
+      "h": 16,
+      "type": "movingH",
+      "velocityX": 4,
+      "minX": 160,
+      "maxX": 256,
+      "name": "MP-H4",
+      "warned": false
+    },
+    {
+      "x": 576,
+      "y": 384,
+      "w": 64,
+      "h": 16,
+      "type": "movingH",
+      "velocityX": -4,
+      "minX": 576,
+      "maxX": 640,
+      "name": "MP-H5",
+      "warned": false
+    },
+    {
+      "x": 320,
+      "y": 448,
+      "w": 96,
+      "h": 16,
+      "type": "timed",
+      "name": "MP-T1",
+      "timer": 3,
+      "state": "active",
+      "warningFired": false,
+      "disappearFired": false,
+      "warned": false
+    }
   ],
   "checkpoints": [
-    { "x": 64, "y": 96, "triggerX": 64, "triggerY": 96, "index": 1, "zone": "A" },
-    { "x": 256, "y": 256, "triggerX": 256, "triggerY": 256, "index": 2, "zone": "B" }
+    {
+      "x": 64,
+      "y": 96,
+      "triggerX": 64,
+      "triggerY": 96,
+      "index": 1,
+      "zone": "A"
+    },
+    {
+      "x": 256,
+      "y": 256,
+      "triggerX": 256,
+      "triggerY": 256,
+      "index": 2,
+      "zone": "B"
+    }
   ],
   "crystals": [
-    { "id": "C-01", "x": 224, "y": 160, "collected": false, "zone": "A" },
-    { "id": "C-02", "x": 384, "y": 128, "collected": false, "zone": "A" },
-    { "id": "C-03", "x": 544, "y": 128, "collected": false, "zone": "A" },
-    { "id": "C-04", "x": 704, "y": 128, "collected": false, "zone": "A" },
-    { "id": "C-05", "x": 320, "y": 256, "collected": false, "zone": "B" },
-    { "id": "C-06", "x": 448, "y": 288, "collected": false, "zone": "B" },
-    { "id": "C-07", "x": 640, "y": 288, "collected": false, "zone": "B" },
-    { "id": "C-08", "x": 320, "y": 384, "collected": false, "zone": "B" },
-    { "id": "C-09", "x": 544, "y": 384, "collected": false, "zone": "B" },
-    { "id": "C-10", "x": 64, "y": 448, "collected": false, "zone": "B" },
-    { "id": "C-11", "x": 160, "y": 544, "collected": false, "zone": "C" },
-    { "id": "C-12", "x": 448, "y": 544, "collected": false, "zone": "C" },
-    { "id": "C-13", "x": 608, "y": 576, "collected": false, "zone": "C" },
-    { "id": "C-14", "x": 736, "y": 576, "collected": false, "zone": "C" },
-    { "id": "C-15", "x": 288, "y": 352, "collected": false, "zone": "C" },
-    { "id": "C-16", "x": 480, "y": 352, "collected": false, "zone": "C" }
+    {
+      "id": "C-01",
+      "x": 224,
+      "y": 160,
+      "collected": false,
+      "zone": "A"
+    },
+    {
+      "id": "C-02",
+      "x": 384,
+      "y": 128,
+      "collected": false,
+      "zone": "A"
+    },
+    {
+      "id": "C-03",
+      "x": 544,
+      "y": 128,
+      "collected": false,
+      "zone": "A"
+    },
+    {
+      "id": "C-04",
+      "x": 704,
+      "y": 128,
+      "collected": false,
+      "zone": "A"
+    },
+    {
+      "id": "C-05",
+      "x": 320,
+      "y": 256,
+      "collected": false,
+      "zone": "B"
+    },
+    {
+      "id": "C-06",
+      "x": 448,
+      "y": 288,
+      "collected": false,
+      "zone": "B"
+    },
+    {
+      "id": "C-07",
+      "x": 640,
+      "y": 288,
+      "collected": false,
+      "zone": "B"
+    },
+    {
+      "id": "C-08",
+      "x": 320,
+      "y": 384,
+      "collected": false,
+      "zone": "B"
+    },
+    {
+      "id": "C-09",
+      "x": 544,
+      "y": 384,
+      "collected": false,
+      "zone": "B"
+    },
+    {
+      "id": "C-10",
+      "x": 64,
+      "y": 448,
+      "collected": false,
+      "zone": "B"
+    },
+    {
+      "id": "C-11",
+      "x": 160,
+      "y": 544,
+      "collected": false,
+      "zone": "C"
+    },
+    {
+      "id": "C-12",
+      "x": 448,
+      "y": 544,
+      "collected": false,
+      "zone": "C"
+    },
+    {
+      "id": "C-13",
+      "x": 608,
+      "y": 576,
+      "collected": false,
+      "zone": "C"
+    },
+    {
+      "id": "C-14",
+      "x": 736,
+      "y": 576,
+      "collected": false,
+      "zone": "C"
+    },
+    {
+      "id": "C-15",
+      "x": 288,
+      "y": 352,
+      "collected": false,
+      "zone": "C"
+    },
+    {
+      "id": "C-16",
+      "x": 480,
+      "y": 352,
+      "collected": false,
+      "zone": "C"
+    }
   ],
   "spikes": [
-    { "x": 0, "y": 576, "w": 160, "h": 16, "type": "floor", "zone": "B" },
-    { "x": 256, "y": 576, "w": 192, "h": 16, "type": "floor", "zone": "B" },
-    { "x": 608, "y": 576, "w": 160, "h": 16, "type": "floor", "zone": "C" },
-    { "x": 320, "y": 320, "w": 64, "h": 16, "type": "floor", "zone": "B" },
-    { "x": 544, "y": 320, "w": 64, "h": 16, "type": "floor", "zone": "B" },
-    { "x": 160, "y": 352, "w": 64, "h": 16, "type": "floor", "zone": "B" },
-    { "x": 384, "y": 352, "w": 64, "h": 16, "type": "floor", "zone": "B" },
-    { "x": 576, "y": 352, "w": 64, "h": 16, "type": "floor", "zone": "B" },
-    { "x": 704, "y": 352, "w": 64, "h": 16, "type": "floor", "zone": "B" },
-    { "x": 448, "y": 640, "w": 256, "h": 16, "type": "floor", "zone": "C" }
+    {
+      "x": 0,
+      "y": 576,
+      "w": 160,
+      "h": 16,
+      "type": "floor",
+      "zone": "B"
+    },
+    {
+      "x": 256,
+      "y": 576,
+      "w": 192,
+      "h": 16,
+      "type": "floor",
+      "zone": "B"
+    },
+    {
+      "x": 608,
+      "y": 576,
+      "w": 160,
+      "h": 16,
+      "type": "floor",
+      "zone": "C"
+    },
+    {
+      "x": 320,
+      "y": 320,
+      "w": 64,
+      "h": 16,
+      "type": "floor",
+      "zone": "B"
+    },
+    {
+      "x": 544,
+      "y": 320,
+      "w": 64,
+      "h": 16,
+      "type": "floor",
+      "zone": "B"
+    },
+    {
+      "x": 160,
+      "y": 352,
+      "w": 64,
+      "h": 16,
+      "type": "floor",
+      "zone": "B"
+    },
+    {
+      "x": 384,
+      "y": 352,
+      "w": 64,
+      "h": 16,
+      "type": "floor",
+      "zone": "B"
+    },
+    {
+      "x": 576,
+      "y": 352,
+      "w": 64,
+      "h": 16,
+      "type": "floor",
+      "zone": "B"
+    },
+    {
+      "x": 704,
+      "y": 352,
+      "w": 64,
+      "h": 16,
+      "type": "floor",
+      "zone": "B"
+    },
+    {
+      "x": 448,
+      "y": 640,
+      "w": 256,
+      "h": 16,
+      "type": "floor",
+      "zone": "C"
+    }
   ],
   "zones": {
-    "A": { "name": "Spike Alley", "crystals": 4, "checkpoints": 1, "description": "Forgiving teaching zone — wide platforms, spike introduction" },
-    "B": { "name": "Endurance", "crystals": 8, "checkpoints": 1, "description": "No checkpoint — 8 crystals, moving platforms 2-4 u/s, spike pits below" },
-    "C": { "name": "Final Test", "crystals": 4, "checkpoints": 0, "description": "No checkpoint — timed platform + fast moving platforms + spike corridors" }
+    "A": {
+      "name": "Spike Alley",
+      "crystals": 4,
+      "checkpoints": 1,
+      "description": "Forgiving teaching zone — wide platforms, spike introduction"
+    },
+    "B": {
+      "name": "Endurance",
+      "crystals": 6,
+      "checkpoints": 1,
+      "description": "Endurance — 6 crystals, 1 checkpoint, moving platforms 2-4 u/s, spike pits below"
+    },
+    "C": {
+      "name": "Final Test",
+      "crystals": 6,
+      "checkpoints": 0,
+      "description": "Final Test — 6 crystals, no checkpoint, timed platform + fast moving platforms + spike corridors"
+    }
   },
   "levelComplete": false,
   "notes": "Zone A: 4 crystals, 1 checkpoint (entry). Zone B: 8 crystals, 1 checkpoint (entry). Zone C: 4 crystals, no checkpoint. 75% gate (12/16). MP-H1 3 u/s, MP-H2 3 u/s, MP-H3 3 u/s, MP-V1 2 u/s, MP-V2 2 u/s, MP-H4 4 u/s, MP-H5 4 u/s. MP-T1 timed platform 3s timer with 0.5s warning state."
