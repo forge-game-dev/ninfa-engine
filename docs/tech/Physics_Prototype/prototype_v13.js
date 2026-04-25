@@ -129,7 +129,7 @@ function updatePlayer(dt){
   // Crystal Switch + Vault
   if(crystalSwitch){if(aabb(player.x,player.y,player.w,player.h,crystalSwitch.x,crystalSwitch.y,crystalSwitch.w,crystalSwitch.h)){if(!crystalSwitch.active){crystalSwitch.active=true;if(vaultDoor&&!vaultDoor.permanent){vaultDoor.open=true;vaultDoor.permanent=true;if(audioEngine){audioEngine.trigger("VAULT_ACTIVATE");audioEngine.trigger("DOOR_UNLOCK");}}}}}
   // Exit
-  if(exitDoor&&aabb(player.x,player.y,player.w,player.h,exitDoor.x,exitDoor.y,exitDoor.w,exitDoor.h)){if(collected>=crystalGate){levelComplete=true;if(audioEngine)audioEngine.trigger("VICTORY_STING");updateDOM();}}
+  if(exitDoor&&aabb(player.x,player.y,player.w,player.h,exitDoor.x,exitDoor.y,exitDoor.w,exitDoor.h)){if(collected>=crystalGate){levelComplete=true;if(audioEngine){audioEngine.trigger("COMPLETE");audioEngine.trigger("VICTORY_STING");}updateDOM();}}
   // Water / Death zones
   if(player.y>H+50)triggerDrown();
   if(player.x<-50||player.x>W+50)triggerDeath();
