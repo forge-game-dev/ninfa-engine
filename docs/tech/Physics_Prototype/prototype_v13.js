@@ -100,7 +100,7 @@ function updatePlayer(dt){
   // Keys
   for(var i=0;i<keys_items.length;i++){var k=keys_items[i];if(!k.collected&&aabb(player.x,player.y,player.w,player.h,k.x,k.y,k.w,k.h)){k.collected=true;collectedKeys[k.id]=(collectedKeys[k.id]||0)+1;if(audioEngine)audioEngine.trigger("KEY_COLLECT");}}
   // Doors
-  for(var i=0;i<doors.length;i++){var d=doors[i];if(!d.open){if(aabb(player.x,player.y,player.w,player.h,d.x,d.y,d.w,d.h)){if(d.type==="locked"&&d.keyId&&collectedKeys[d.keyId]){d.open=true;if(audioEngine)audioEngine.trigger("DOOR_UNLOCK");}else if(d.type==="pressure"&&d.linkedPlate){var plate=pressurePlates.find(function(p){return p.linkedDoor===i;});if(plate&&plate.pressed){d.open=true;if(audioEngine)audioEngine.trigger("DOOR_UNLOCK");}}}}
+  for(var i=0;i<doors.length;i++){var d=doors[i];if(!d.open){if(aabb(player.x,player.y,player.w,player.h,d.x,d.y,d.w,d.h)){if(d.type==="locked"){if(d.keyId&&collectedKeys[d.keyId]){d.open=true;if(audioEngine)audioEngine.trigger("DOOR_UNLOCK");}else{if(audioEngine&&!d.lockedFeedbackCooldown){audioEngine.trigger("DOOR_LOCKED");d.lockedFeedbackCooldown=true;setTimeout(function(){d.lockedFeedbackCooldown=false;},500);}}}else if(d.type==="pressure"&&d.linkedPlate){var plate=pressurePlates.find(function(p){return p.linkedDoor===i;});if(plate&&plate.pressed){d.open=true;if(audioEngine)audioEngine.trigger("DOOR_UNLOCK");}}}}
   // Pressure Plates
   for(var i=0;i<pressurePlates.length;i++){var pp=pressurePlates[i];var wasPressed=pp.pressed;pp.pressed=aabb(player.x,player.y,player.w,player.h,pp.x,pp.y-8,pp.w,pp.h+8);if(pp.pressed&&!wasPressed&&audioEngine)audioEngine.trigger("PRESSURE_PLATE");}
   // Checkpoints
