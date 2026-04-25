@@ -1,7 +1,7 @@
-# Audio Wiring Spec — prototype_v9.js
+# Audio Wiring Spec — prototype_v13.js
 **Author:** Cadenza (Audio Designer)
-**Date:** 2026-04-24
-**Status:** Ready for Zephyr integration
+**Date:** 2026-04-25
+**Status:** Current (SHA a94fc9e)
 
 ## Audio Engine Reference
 File: `docs/audio/audio_engine.js` (v0.7+, on origin/main)
@@ -14,99 +14,109 @@ audioEngine.trigger(name)    // Fire one-shot SFX by name string
 
 // Proximity system (per-frame calls)
 audioEngine.startProximitySound()                          // Start crystal proximity heartbeat
-audioEngine.updateProximitySound(player, crystals)        // Call every frame: update position
+audioEngine.updateProximitySound(player, crystals)        // Call every frame
 audioEngine.stopProximitySound()                          // Stop when leaving level
 
 // Spatial audio (per-platform calls)
 audioEngine.triggerSpatialWarning(panValue)               // pan: -1 (left) to +1 (right)
-audioEngine.triggerSpatialTimedWarning(panValue)          // pan: -1 (left) to +1 (right)
+audioEngine.triggerSpatialTimedWarning(panValue)           // pan: -1 (left) to +1 (right)
 
-// Ambient layers
-audioEngine.trigger('ZONE_C_AMBIENT_START')  // Level 3 Zone C warm ambient
-audioEngine.trigger('ZONE_C_AMBIENT_STOP')    // Stop Zone C ambient
+// Zone C ambient
+audioEngine.startZoneCAmbient()                           // Warm Zone C ambient
+audioEngine.stopZoneCAmbient()                             // Stop Zone C ambient
 ```
 
-## Trigger Inventory
+---
 
-### Already Wired (prototype_v9.js)
-| Trigger | Line | Status |
-|---|---|---|
-| SPIKE_DEATH | 157 | ✅ Wired |
-| JUMP | 181 | ✅ Wired |
-| CRYSTAL | 207 | ✅ Wired |
-| EXIT | 208 | ✅ Wired (on levelComplete) |
-| CHECKPOINT | 215 | ✅ Wired |
-| MOVING_PLATFORM_WARNING (×2) | 232, 240 | ✅ Wired |
-| TIMED_PLATFORM_WARNING | 251 | ✅ Wired |
-| TIMED_PLATFORM_DISAPPEAR | 255 | ✅ Wired |
+## Trigger Inventory — prototype_v13.js (SHA a94fc9e)
 
-### Missing Wiring (Action Required)
+### Player Actions
 
-#### 1. LAND — Player lands on ground
-**Where:** In `updatePlayer()` after collision resolution, when player becomes grounded
-**Trigger:** `audioEngine.trigger('LAND')`
-**Approximate location:** After ground collision in `updatePlayer()` — when `player.vy >= 0` and collision occurs, or when `grounded` transitions from false to true
-**Priority:** HIGH
+| Trigger | Function | Line | Status |
+|---|---|---|---|
+| JUMP | `audioEngine.trigger("JUMP")` | 95 | ✅ Wired |
+| LAND | `triggerLand()` → `audioEngine.trigger("LAND")` | 36, 91 | ✅ Wired |
+| SPIKE_DEATH | `triggerDeath()` → `audioEngine.trigger("SPIKE_DEATH")` | 33 | ✅ Wired |
+| DROWN | `triggerDrown()` → `audioEngine.trigger("DROWN")` | 34 | ✅ Wired |
 
-#### 2. DROWN — Player enters water zone
-**Where:** In `updatePlayer()` — water zone collision check
-**Trigger:** `audioEngine.trigger('DROWN')`
-**Where:** Prototype defines `waterZones = [{x, y, w, h}, ...]` at line ~264. Check player AABB vs each waterZone. If overlapping, trigger DROWN and reset player.
-**Priority:** HIGH — Cedar's art block
+### Collectibles & Items
 
-#### 3. Proximity System — Crystal heartbeat (per-frame)
-**Where:** In `update()` game loop, inside or after `updatePlayer()` call
-**Code:**
-```javascript
-// In game loop — call every frame after player/crystal data is updated
-if (audioEngine && !audioEngine.PROXIMITY_ACTIVE) {
-  audioEngine.startProximitySound();
-}
-if (audioEngine && audioEngine.PROXIMITY_ACTIVE) {
-  audioEngine.updateProximitySound(player, crystals);
-}
-```
-**Alternative (if preferred):** Call once in `initLevel()` after crystals array is populated, then call `updateProximitySound()` every frame in `update()`
-**Priority:** MEDIUM — affects subconscious crystal guidance
+| Trigger | Function | Line | Status |
+|---|---|---|---|
+| CRYSTAL | `triggerCrystal()` → `audioEngine.trigger("CRYSTAL")` | 35, 99 | ✅ Wired |
+| KEY_COLLECT | `audioEngine.trigger("KEY_COLLECT")` | 101 | ✅ Wired |
 
-#### 4. TIMED_PLATFORM_DISAPPEAR — Optional polish
-**Current:** Wired at line 255 as one-shot. Consider adding spatial pan if platform position known.
-**Priority:** LOW — one-shot trigger already present
+### Mechanics — Platforms
 
-## Water Zone Reference
-```javascript
-// From prototype_v6.js (Level 2 design, verify in v9)
-waterZones = [
-  {x:288, y:336, w:128, h:64},
-  {x:160, y:592, w:96, h:32}
-];
-```
-Player AABB collision check pattern:
-```javascript
-function playerInWaterZone() {
-  for (let zone of waterZones) {
-    if (player.x + player.w > zone.x && player.x < zone.x + zone.w &&
-        player.y + player.h > zone.y && player.y < zone.y + zone.h) {
-      return true;
-    }
-  }
-  return false;
-}
-```
-If `playerInWaterZone()` returns true: trigger DROWN, reset player to lastCheckpoint.
+| Trigger | Function | Line | Status |
+|---|---|---|---|
+| MOVING_PLATFORM_WARNING | `audioEngine.trigger("MOVING_PLATFORM_WARNING")` | ~220 | ✅ Wired (×2, each MP) |
+| TIMED_PLATFORM_WARNING | `audioEngine.trigger("TIMED_PLATFORM_WARNING")` | ~239 | ✅ Wired |
+| TIMED_PLATFORM_DISAPPEAR | `audioEngine.trigger("TIMED_PLATFORM_DISAPPEAR")` | ~243 | ✅ Wired |
 
-## Pan Value Calculation (for spatial audio)
-```javascript
-function computePan(sourceX, playerX) {
-  const canvasCenter = 512; // adjust to your canvas width / 2
-  const pan = (sourceX - playerX) / canvasCenter;
-  return Math.max(-1, Math.min(1, pan));
-}
-```
-Platform pan example: `audioEngine.triggerSpatialWarning(computePan(platform.x, player.x))`
+### Mechanics — Doors & Pressure
 
-## Notes for Zephyr
-- `init()` and `resume()` must be wired to first user interaction (click/keypress) due to browser AudioContext policy
-- All trigger names are uppercase strings matching the audio_engine.js switch statement
-- Proximity uses separate oscillator stack (660Hz + 663.3Hz dual-oscillator) — does not affect one-shot trigger timing
-- DROWN and SPIKE_DEATH have distinct synthesis: DROWN is liquid/fluid (sine sweeps + bandpass noise + LFO undercurrent), SPIKE_DEATH is metallic/harsh (sawtooth + distortion). Bubble particles (Cedar's art) provide visual separation.
+| Trigger | Function | Line | Status |
+|---|---|---|---|
+| DOOR_UNLOCK | `audioEngine.trigger("DOOR_UNLOCK")` | 109, 114 | ✅ Wired (vault door + pressure plate) |
+| DOOR_LOCKED | `audioEngine.trigger("DOOR_LOCKED")` | 111 | ✅ Wired (with 500ms cooldown) |
+| PRESSURE_PLATE | `audioEngine.trigger("PRESSURE_PLATE")` | 126 | ✅ Wired |
+| VAULT_ACTIVATE | `audioEngine.trigger("VAULT_ACTIVATE")` | 130 | ✅ Wired |
+| TIMED_DOOR_WARNING | `audioEngine.trigger("TIMED_DOOR_WARNING")` | 121 | ✅ Wired (inside door collision, warningFired guard) |
+
+### Level States
+
+| Trigger | Function | Line | Status |
+|---|---|---|---|
+| CHECKPOINT | `triggerCheckpoint()` → `audioEngine.trigger("CHECKPOINT")` | 37, 203 | ✅ Wired |
+| COMPLETE | `audioEngine.trigger("COMPLETE")` | 132 | ✅ Wired |
+| VICTORY_STING | `triggerVictory()` → `audioEngine.trigger("VICTORY_STING")` | 38, 132 | ✅ Wired |
+
+### Spatial Audio
+
+| Trigger | Function | Line | Status |
+|---|---|---|---|
+| Spatial warning (MP) | `triggerSpatialWarning(px, py)` — pan from platform X | 39 | ✅ Wired |
+| Spatial timed warning | `triggerSpatialTimedWarning(px, py)` | ~241 | ✅ Wired |
+
+### Ambient
+
+| Trigger | Function | Line | Status |
+|---|---|---|---|
+| Zone C ambient | `audioEngine.startZoneCAmbient()` | 137 | ✅ Wired |
+| Zone C stop | `audioEngine.stopZoneCAmbient()` | 137 | ✅ Wired |
+| Ambient resume | `ambientEngine.resumeAmbient()` | 187 | ✅ Wired (on checkpoint restart) |
+
+### Per-Frame System
+
+| Call | Location | Line | Status |
+|---|---|---|---|
+| `initAudio()` | After DOM ready, before loadLevel | 30 | ✅ Wired (SHA a94fc9e fix) |
+| `startProximitySound()` | `initAudio()` | 30 | ✅ Wired |
+| `updateProximitySound()` | In `update()` game loop | 192 | ✅ Wired |
+| `setProximityTarget()` | `restartFromCheckpoint()` | 187 | ✅ Wired |
+
+---
+
+## Audio Trigger Distinction — DROWN vs SPIKE_DEATH
+- **DROWN**: Liquid/fluid — sine sweeps + bandpass noise + LFO undercurrent. Cedar's bubble particle art provides visual separation.
+- **SPIKE_DEATH**: Metallic/harsh — sawtooth + distortion + high-frequency shimmer.
+These are distinct synthesis profiles in audio_engine.js.
+
+## initAudio() Ordering (SHA a94fc9e)
+Fixed: `initAudio()` now called BEFORE `loadLevel(lvl)` — audio engine initialized before level data loads, ensuring proximity and Zone C systems are ready.
+
+## TIMED_DOOR_WARNING — Per-Door Tracking (SHA a94fc9e)
+Pressure tracking block (`d.doorOpenTime += dt`) now inside the player-on-door collision check. Warning fires once per door per close cycle, not every frame for all doors.
+
+## CRYSTAL_SWITCH → VAULT_ACTIVATE Order (SHA a94fc9e)
+`audioEngine.trigger("VAULT_ACTIVATE")` fires BEFORE `audioEngine.trigger("DOOR_UNLOCK")` in crystal switch handler (line 130), matching intended behavior.
+
+---
+
+## Notes for Implementation
+- All trigger names are uppercase strings matching audio_engine.js switch statement
+- Proximity uses dual-oscillator stack (660Hz + 663.3Hz) — does not affect one-shot timing
+- Zone C check uses `levelData.zones.zoneC` — requires `zoneC` key in level JSON (not `C`)
+- DOOR_LOCKED has 500ms cooldown to prevent rapid repeat triggers
+- drawPlayer() in same commit uses `docs/art/sprites/strip_*.png` — 6 strips confirmed on main
