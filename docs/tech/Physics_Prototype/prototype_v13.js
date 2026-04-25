@@ -114,12 +114,11 @@ function updatePlayer(dt){
           var plate=pressurePlates.find(function(p){return p.linkedDoor===i;});if(plate&&plate.pressed){d.open=true;if(audioEngine)audioEngine.trigger("DOOR_UNLOCK");}
         }
       }
-      // P2a: track door open time for TIMED_DOOR_WARNING
-      if(d.type==="pressure"){
-        if(!d.open){d.doorOpenTime=0;d.warningFired=false;}
-        else if(d.doorOpenTime>=4){d.open=false;d.warningFired=false;d.doorOpenTime=0;}
-        else{d.doorOpenTime=(d.doorOpenTime||0)+0.016;if(d.doorOpenTime>=2.5&&!d.warningFired&&audioEngine){audioEngine.trigger("TIMED_DOOR_WARNING");d.warningFired=true;}}
-      }
+        // P2a: track door open time for TIMED_DOOR_WARNING
+        if(d.type==="pressure"){
+          if(d.doorOpenTime>=4){d.open=false;d.warningFired=false;d.doorOpenTime=0;}
+          else{d.doorOpenTime=(d.doorOpenTime||0)+0.016;if(d.doorOpenTime>=2.5&&!d.warningFired&&audioEngine){audioEngine.trigger("TIMED_DOOR_WARNING");d.warningFired=true;}}
+        }
     }
   }
   // Pressure Plates
@@ -127,7 +126,7 @@ function updatePlayer(dt){
   // Checkpoints
   for(var i=0;i<checkpoints.length;i++){var cp=checkpoints[i];if(aabb(player.x,player.y,player.w,player.h,cp.x,cp.y,cp.w,cp.h)){if(!cp.active){cp.active=true;triggerCheckpoint();}lastCheckpoint={x:cp.x,y:cp.y};}}
   // Crystal Switch + Vault
-  if(crystalSwitch){if(aabb(player.x,player.y,player.w,player.h,crystalSwitch.x,crystalSwitch.y,crystalSwitch.w,crystalSwitch.h)){if(!crystalSwitch.active){crystalSwitch.active=true;if(vaultDoor&&!vaultDoor.permanent){vaultDoor.open=true;vaultDoor.permanent=true;if(audioEngine){audioEngine.trigger("VAULT_ACTIVATE");audioEngine.trigger("DOOR_UNLOCK");}}}}}
+  if(crystalSwitch){if(aabb(player.x,player.y,player.w,player.h,crystalSwitch.x,crystalSwitch.y,crystalSwitch.w,crystalSwitch.h)){if(!crystalSwitch.active){crystalSwitch.active=true;if(vaultDoor&&!vaultDoor.permanent){vaultDoor.open=true;vaultDoor.permanent=true;if(audioEngine){audioEngine.trigger("CRYSTAL_SWITCH");audioEngine.trigger("VAULT_ACTIVATE");audioEngine.trigger("DOOR_UNLOCK");}}}}}
   // Exit
 if(exitDoor&&aabb(player.x,player.y,player.w,player.h,exitDoor.x,exitDoor.y,exitDoor.w,exitDoor.h)){if(collected>=crystalGate){if(audioEngine){audioEngine.trigger("COMPLETE");audioEngine.trigger("VICTORY_STING");}levelComplete=true;updateDOM();}}
   // Water / Death zones
@@ -205,7 +204,7 @@ function restartFromCheckpoint(){if(lastCheckpoint){player.x=lastCheckpoint.x;pl
 function init(){
   var p=window.location.search.match(/[?&]level=([^&]+)/);
   var lvl=p?p[1]:"04";if(lvl.length===1)lvl="0"+lvl;
-  preloadTiles();loadLevel(lvl);initAudio();
+  preloadTiles();initAudio();loadLevel(lvl);
   requestAnimationFrame(function(ts){lastTime=ts;loop(ts);});
 }
 window.addEventListener("keydown",function(e){keys[e.code]=true;});
