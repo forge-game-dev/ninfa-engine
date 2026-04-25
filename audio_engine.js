@@ -676,6 +676,10 @@ function _makeDistortionCurve(amount) {
     _playMovingPlatformWarning(panValue);
   }
 
+  function triggerSpikeDeath() {
+    init(); resume();
+    _playSpikeDeath();
+  }
   function triggerSpatialTimedWarning(panValue) {
     init(); resume();
     _playTimedPlatformWarning(panValue);
@@ -694,6 +698,7 @@ function _makeDistortionCurve(amount) {
     setProximityTarget,
     triggerSpatialWarning,
     triggerSpatialTimedWarning,
+    triggerSpikeDeath,
     get PROXIMITY_ACTIVE() { return proximityActive; },
     startZoneCAmbient,
     stopZoneCAmbient,
