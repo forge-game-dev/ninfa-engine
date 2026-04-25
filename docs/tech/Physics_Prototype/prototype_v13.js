@@ -22,7 +22,7 @@ var collected=0,crystalGate=12,inZoneC=false,currentLevel="04";
 var player={x:32,y:64,w:28,h:28,vx:0,vy:0,grounded:false,lastGrounded:0,jumpBuffer:0,facingRight:true,coyoteT:0};
 var platforms=[],movingPlatforms=[],timedPlatform=null,spikes=[],crystals=[],checkpoints=[],lastCheckpoint={x:64,y:96},collectedKeys={};
 var pressurePlates=[],doors=[],keys_items=[],crystalSwitch=null,vaultDoor=null,exitDoor=null;
-var levelData=null,audioEngine=null,tileImages={},tileLoadCount=0,tileTotal=0;
+var levelData=null,audioEngine=null,tileImages={},playerStripImgs={},tileLoadCount=0,tileTotal=0;
 function el(id){return document.getElementById(id);}
 function updateDOM(){var cr=el("cr");if(cr)cr.textContent="Crystals: "+collected+" / "+crystalGate;var de=el("de");if(de)de.textContent="Deaths: "+deaths;}
 function drawTile(k,x,y,w,h){if(tileImages[k]&&tileImages[k].complete){ctx.drawImage(tileImages[k],x,y,w,h);}else{ctx.fillStyle="#333";ctx.fillRect(x,y,w,h);}}
@@ -129,7 +129,7 @@ function updatePlayer(dt){
   // Crystal Switch + Vault
   if(crystalSwitch){if(aabb(player.x,player.y,player.w,player.h,crystalSwitch.x,crystalSwitch.y,crystalSwitch.w,crystalSwitch.h)){if(!crystalSwitch.active){crystalSwitch.active=true;if(vaultDoor&&!vaultDoor.permanent){vaultDoor.open=true;vaultDoor.permanent=true;if(audioEngine){audioEngine.trigger("VAULT_ACTIVATE");audioEngine.trigger("DOOR_UNLOCK");}}}}}
   // Exit
-  if(exitDoor&&aabb(player.x,player.y,player.w,player.h,exitDoor.x,exitDoor.y,exitDoor.w,exitDoor.h)){if(collected>=crystalGate){levelComplete=true;if(audioEngine)audioEngine.trigger("VICTORY_STING");updateDOM();}}
+if(exitDoor&&aabb(player.x,player.y,player.w,player.h,exitDoor.x,exitDoor.y,exitDoor.w,exitDoor.h)){if(collected>=crystalGate){if(audioEngine){audioEngine.trigger("COMPLETE");audioEngine.trigger("VICTORY_STING");}levelComplete=true;updateDOM();}}
   // Water / Death zones
   if(player.y>H+50)triggerDrown();
   if(player.x<-50||player.x>W+50)triggerDeath();
@@ -159,9 +159,21 @@ function drawCrystalSwitch(){if(!crystalSwitch)return;ctx.fillStyle=crystalSwitc
 function drawVaultDoor(){if(!vaultDoor)return;ctx.fillStyle=vaultDoor.open?"rgba(0,100,0,0.3)":"#8b0000";ctx.fillRect(vaultDoor.x,vaultDoor.y,vaultDoor.w,vaultDoor.h);ctx.strokeStyle="#ffd700";ctx.strokeRect(vaultDoor.x,vaultDoor.y,vaultDoor.w,vaultDoor.h);}
 function drawExit(){if(!exitDoor)return;ctx.fillStyle="#0f0";ctx.beginPath();ctx.arc(exitDoor.x+exitDoor.w/2,exitDoor.y+exitDoor.h/2,exitDoor.w/2,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#fff";ctx.stroke();}
 function drawPlayer(){
-  if(deathTimer>0){ctx.globalAlpha=Math.max(0,deathTimer-0.5);ctx.fillStyle="#f00";ctx.fillRect(player.x,player.y,player.w,player.h);ctx.globalAlpha=1;return;}
-  ctx.fillStyle="#08f";ctx.fillRect(player.x,player.y,player.w,player.h);
-  ctx.fillStyle="#fff";var fx=player.facingRight?player.x+player.w-8:player.x+2;ctx.fillRect(fx,player.y+6,6,6);
+  if(!player)return;
+  var state="idle";
+  if(deathTimer>0){state="death";}else if(levelComplete){state="victory";}else if(player.vy<-0.5){state="jump";}else if(player.vy>0.5){state="fall";}else if(Math.abs(player.vx)>0.1){state="run";}
+  var stripUrls={idle:"docs/art/sprites/strip_idle.png",run:"docs/art/sprites/strip_run.png",jump:"docs/art/sprites/strip_jump.png",fall:"docs/art/sprites/strip_fall.png",death:"docs/art/sprites/strip_death.png",victory:"docs/art/sprites/strip_victory.png"};
+  if(!playerStripImgs)playerStripImgs={};
+  if(!playerStripImgs[state]){playerStripImgs[state]=new Image();playerStripImgs[state].src=stripUrls[state];}
+  var img=playerStripImgs[state];
+  var fps={idle:4,run:8,jump:4,fall:4,death:6,victory:6}[state]||4;
+  var frames={idle:3,run:4,jump:4,fall:3,death:4,victory:6}[state]||1;
+  var fi=Math.floor((animTime*fps)%frames);
+  if(!img.complete||!img.naturalWidth){ctx.fillStyle="#00d4ff";ctx.fillRect(player.x,player.y,player.w,player.h);return;}
+  var fw=img.naturalWidth/frames,fh=img.naturalHeight||32;
+  var sx=fi*fw,sy=0,sw=fw,sh=fh;
+  var dw=player.w,dh=player.h,dx=player.x,dy=player.y;
+  if(!player.facingRight){ctx.save();ctx.translate(player.x+player.w,0);ctx.scale(-1,1);ctx.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh);ctx.restore();}else{ctx.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh);}
 }
 function render(){
   ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);
