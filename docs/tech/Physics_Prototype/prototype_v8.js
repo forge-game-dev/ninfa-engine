@@ -1,7 +1,7 @@
 function triggerDeath(){
   if(deathTimer>0||levelComplete)return;
   deaths++;deathTimer=1.5;
-  if(window.audioEngine)audioEngine.triggerSpikeDeath();
+  if(window.audioEngine)audioEngine.trigger('SPIKE_DEATH');
 }
 function drawBackground(){
   var g=ctx.createLinearGradient(0,0,0,H);
