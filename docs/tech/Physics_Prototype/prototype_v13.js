@@ -101,12 +101,14 @@ function updatePlayer(dt){
   for(var i=0;i<keys_items.length;i++){var k=keys_items[i];if(!k.collected&&aabb(player.x,player.y,player.w,player.h,k.x,k.y,k.w,k.h)){k.collected=true;collectedKeys[k.id]=(collectedKeys[k.id]||0)+1;if(audioEngine)audioEngine.trigger("KEY_COLLECT");}}
   // Doors
   for(var i=0;i<doors.length;i++){var d=doors[i];if(!d.open){if(aabb(player.x,player.y,player.w,player.h,d.x,d.y,d.w,d.h)){if(d.type==="locked"){if(d.keyId&&collectedKeys[d.keyId]){d.open=true;if(audioEngine)audioEngine.trigger("DOOR_UNLOCK");}else{if(audioEngine&&!d.lockedFeedbackCooldown){audioEngine.trigger("DOOR_LOCKED");d.lockedFeedbackCooldown=true;setTimeout(function(){d.lockedFeedbackCooldown=false;},500);}}}else if(d.type==="pressure"&&d.linkedPlate){var plate=pressurePlates.find(function(p){return p.linkedDoor===i;});if(plate&&plate.pressed){d.open=true;if(audioEngine)audioEngine.trigger("DOOR_UNLOCK");}}}}
+  // P2a: track door open time for TIMED_DOOR_WARNING
+  if(d.type==="pressure"){if(!d.open){d.doorOpenTime=0;d.warningFired=false;}else if(d.doorOpenTime>=4){d.open=false;d.warningFired=false;d.doorOpenTime=0;}else{d.doorOpenTime=(d.doorOpenTime||0)+0.016;if(d.doorOpenTime>=2.5&&!d.warningFired&&audioEngine){audioEngine.trigger("TIMED_DOOR_WARNING");d.warningFired=true;}}}
   // Pressure Plates
   for(var i=0;i<pressurePlates.length;i++){var pp=pressurePlates[i];var wasPressed=pp.pressed;pp.pressed=aabb(player.x,player.y,player.w,player.h,pp.x,pp.y-8,pp.w,pp.h+8);if(pp.pressed&&!wasPressed&&audioEngine)audioEngine.trigger("PRESSURE_PLATE");}
   // Checkpoints
   for(var i=0;i<checkpoints.length;i++){var cp=checkpoints[i];if(aabb(player.x,player.y,player.w,player.h,cp.x,cp.y,cp.w,cp.h)){if(!cp.active){cp.active=true;triggerCheckpoint();}lastCheckpoint={x:cp.x,y:cp.y};}}
   // Crystal Switch + Vault
-  if(crystalSwitch){if(aabb(player.x,player.y,player.w,player.h,crystalSwitch.x,crystalSwitch.y,crystalSwitch.w,crystalSwitch.h)){if(!crystalSwitch.active){crystalSwitch.active=true;if(vaultDoor&&!vaultDoor.permanent){vaultDoor.open=true;vaultDoor.permanent=true;if(audioEngine){audioEngine.trigger("VAULT_ACTIVATE");audioEngine.trigger("DOOR_UNLOCK");}}}}}
+  if(crystalSwitch){if(aabb(player.x,player.y,player.w,player.h,crystalSwitch.x,crystalSwitch.y,crystalSwitch.w,crystalSwitch.h)){if(!crystalSwitch.active){crystalSwitch.active=true;if(audioEngine)audioEngine.trigger("CRYSTAL_SWITCH");if(vaultDoor&&!vaultDoor.permanent){vaultDoor.open=true;vaultDoor.permanent=true;if(audioEngine){audioEngine.trigger("VAULT_ACTIVATE");audioEngine.trigger("DOOR_UNLOCK");}}}}}
   // Exit
   if(exitDoor&&aabb(player.x,player.y,player.w,player.h,exitDoor.x,exitDoor.y,exitDoor.w,exitDoor.h)){if(collected>=crystalGate){levelComplete=true;if(audioEngine)audioEngine.trigger("VICTORY_STING");updateDOM();}}
   // Water / Death zones
