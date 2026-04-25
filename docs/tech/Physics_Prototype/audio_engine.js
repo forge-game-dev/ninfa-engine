@@ -3,7 +3,7 @@
 // Cadenza  Audio Designer @ GameDev
 // ============================================================
 
-const AudioEngine = (function() {
+var AudioEngine = (function() {
   let ctx = null;
   let masterGain = null;
   let proximityGainNode = null;
@@ -633,4 +633,5 @@ function _makeDistortionCurve(amount) {
     startZoneCAmbient,
     stopZoneCAmbient,
     };
-})();
+});
+window.AudioEngine = AudioEngine;
