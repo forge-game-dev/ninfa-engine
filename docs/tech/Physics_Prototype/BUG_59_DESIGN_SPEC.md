@@ -1,15 +1,14 @@
 # Bug #59 — drawPlayer() Sprite Integration Design Spec
 **Author:** Vesper (Game Designer)
-**Status:** Active — awaiting Zephyr implementation
+**Status:** v2 — corrected for actual art format
 **Date:** 2026-04-25
 **File:** `docs/tech/Physics_Prototype/BUG_59_DESIGN_SPEC.md`
-**Companion:** `workspace/BUG_059_ANIMATION_SPEC.md` (workspace)
 
 ---
 
 ## Problem
 
-`prototype_v13.js` line ~161 (`drawPlayer()`) uses `fillRect` to render a cyan rectangle + white eye dot. Kairo's 24 player sprite files exist at `docs/art/sprites/` on main and are production-ready (solid cyan bodies, correct pixel density). The engine never loads or displays them.
+`prototype_v13.js` line ~161 (`drawPlayer()`) uses `fillRect` to render a cyan rectangle + white eye dot. Kairo's 24 player sprite files exist at `docs/art/sprites/` on main and are production-ready. The engine never loads or displays them.
 
 This is an **engine integration gap** — art delivery is complete.
 
@@ -17,18 +16,20 @@ This is an **engine integration gap** — art delivery is complete.
 
 ## Sprite Files (on main, `docs/art/sprites/`)
 
+24 individual 32×32 PNG files — **NOT strip files**. Each file is a single animation frame.
+
 ```
-strip_idle.png     — 3 frames (0–2), 32×96px
-strip_run.png      — 4 frames (3–6), 32×128px
-strip_jump.png     — 1 frame (7),  32×32px
-strip_fall.png     — 1 frame (8),  32×32px
-strip_death.png    — 2 frames (9–10), 32×64px
-strip_victory.png  — 4 frames (7–10), 32×128px
+player_idle_1.png    player_idle_2.png    player_idle_3.png     (idle: 3 frames)
+player_run_1.png     player_run_2.png     player_run_3.png      player_run_4.png  (run: 4 frames)
+player_jump_1.png   player_jump_2.png    player_jump_3.png     player_jump_4.png  (jump: 4 frames)
+player_fall_1.png    player_fall_2.png    player_fall_3.png                        (fall: 3 frames)
+player_death_1.png  player_death_2.png   player_death_3.png    player_death_4.png (death: 4 frames)
+player_victory_1.png player_victory_2.png player_victory_3.png ... player_victory_6.png (victory: 6 frames)
 ```
 
-All strips are 32px tall, indexed left-to-right at 32px increments.
+Naming convention: `player_{STATE}_{FRAME}.png` where frame index is 1-based.
 
-**Note:** 6 stub sprites exist at `/art/sprites/` (GitHub Pages path) — those are Bug #60 pipeline artifacts. Zephyr must use `docs/art/sprites/` (repo-relative) for Bug #59.
+**Path:** `docs/art/sprites/` — NOT `/art/sprites/` (which has Bug #60 pipeline stubs).
 
 ---
 
@@ -38,33 +39,58 @@ Derive animation state from existing v13 variables:
 
 | State | Trigger | Frames | Behavior |
 |-------|---------|--------|----------|
-| `idle` | `grounded && vx == 0` | 0–2 | Loop, 300ms/frame |
-| `run` | `grounded && vx != 0` | 3–6 | Loop, 80ms/frame |
-| `jump` | `!grounded && vy < 0` | 7 | Hold |
-| `fall` | `!grounded && vy > 0` | 8 | Hold |
-| `death` | `deathTimer > 0` | 9→10 | Play once, hold frame 10 |
-| `victory` | `levelComplete` | 7→10 | Play once, hold frame 10 |
+| `idle` | `grounded && |vx| < 0.1` | 1–3 | Loop, 300ms/frame |
+| `run` | `grounded && |vx| >= 0.1` | 1–4 | Loop, 80ms/frame |
+| `jump` | `!grounded && vy < 0` | 1–4 | Loop while rising, hold last on apex |
+| `fall` | `!grounded && vy > 0` | 1–3 | Hold while falling |
+| `death` | `deathTimer > 0` | 1→4 | Play once, hold frame 4 |
+| `victory` | `levelComplete` | 1→6 | Play once, hold frame 6 |
 
-Priority: death > victory > jump > fall > run > idle (checked top-to-bottom each frame).
+Priority (checked top-to-bottom each frame): death > victory > jump > fall > run > idle.
 
 Facing: `player.facingRight` boolean already exists in v13.
 
 ---
 
-## Preload Pattern (mirror existing tileImages)
+## Preload Pattern
 
 ```javascript
+// 24 individual sprite images — loaded once on init
 const playerSprites = {};
-const spriteManifest = [
-  'docs/art/sprites/strip_idle.png',
-  'docs/art/sprites/strip_run.png',
-  'docs/art/sprites/strip_jump.png',
-  'docs/art/sprites/strip_fall.png',
-  'docs/art/sprites/strip_death.png',
-  'docs/art/sprites/strip_victory.png',
+const spriteFiles = [
+  // idle
+  'docs/art/sprites/player_idle_1.png',
+  'docs/art/sprites/player_idle_2.png',
+  'docs/art/sprites/player_idle_3.png',
+  // run
+  'docs/art/sprites/player_run_1.png',
+  'docs/art/sprites/player_run_2.png',
+  'docs/art/sprites/player_run_3.png',
+  'docs/art/sprites/player_run_4.png',
+  // jump
+  'docs/art/sprites/player_jump_1.png',
+  'docs/art/sprites/player_jump_2.png',
+  'docs/art/sprites/player_jump_3.png',
+  'docs/art/sprites/player_jump_4.png',
+  // fall
+  'docs/art/sprites/player_fall_1.png',
+  'docs/art/sprites/player_fall_2.png',
+  'docs/art/sprites/player_fall_3.png',
+  // death
+  'docs/art/sprites/player_death_1.png',
+  'docs/art/sprites/player_death_2.png',
+  'docs/art/sprites/player_death_3.png',
+  'docs/art/sprites/player_death_4.png',
+  // victory
+  'docs/art/sprites/player_victory_1.png',
+  'docs/art/sprites/player_victory_2.png',
+  'docs/art/sprites/player_victory_3.png',
+  'docs/art/sprites/player_victory_4.png',
+  'docs/art/sprites/player_victory_5.png',
+  'docs/art/sprites/player_victory_6.png',
 ];
-spriteManifest.forEach(src => {
-  const key = src.split('/').pop().replace('.png','');
+spriteFiles.forEach(src => {
+  const key = src.split('/').pop().replace('.png',''); // e.g. 'player_idle_1'
   playerSprites[key] = new Image();
   playerSprites[key].src = src;
 });
@@ -82,15 +108,46 @@ function drawPlayer() {
 
   // Determine animation state (top-priority first)
   let state = 'idle';
-  if (deathTimer > 0)        state = 'death';
-  else if (levelComplete)   state = 'victory';
+  if (deathTimer > 0)                       state = 'death';
+  else if (levelComplete)                  state = 'victory';
   else if (!player.grounded && player.vy < 0) state = 'jump';
   else if (!player.grounded && player.vy > 0) state = 'fall';
-  else if (player.grounded && Math.abs(player.vx) > 0.1) state = 'run';
-  else                       state = 'idle';
+  else if (player.grounded && Math.abs(player.vx) >= 0.1) state = 'run';
+  else                                      state = 'idle';
 
-  const strip = playerSprites['strip_' + state];
-  if (!strip || !strip.complete || !strip.naturalWidth) {
+  // Animation clock: reset on state change
+  if (!player._animState || player._animState !== state) {
+    player._animState = state;
+    player._animTime = 0;
+    player._animFrame = 1;
+  }
+  player._animTime += 16; // ~60fps delta
+
+  // Frame count and duration per state
+  const stateConfig = {
+    idle:    { frames: 3, duration: 300, oneshot: false },
+    run:     { frames: 4, duration: 80,  oneshot: false },
+    jump:    { frames: 4, duration: 150, oneshot: false },
+    fall:    { frames: 3, duration: 150, oneshot: false },
+    death:   { frames: 4, duration: 200, oneshot: true  },
+    victory: { frames: 6, duration: 200, oneshot: true  },
+  };
+  const cfg = stateConfig[state];
+
+  // Calculate frame index
+  let fi;
+  if (cfg.oneshot) {
+    fi = Math.min(Math.floor(player._animTime / cfg.duration), cfg.frames - 1);
+  } else {
+    fi = Math.floor((player._animTime % (cfg.duration * cfg.frames)) / cfg.duration);
+    fi = fi % cfg.frames; // ensure wrap
+  }
+
+  // Build sprite key: 'player_{state}_{n}' where n is 1-based
+  const spriteKey = 'player_' + state + '_' + (fi + 1);
+  const img = playerSprites[spriteKey];
+
+  if (!img || !img.complete || !img.naturalWidth) {
     // Fallback: existing fillRect
     ctx.fillStyle = '#00d4ff';
     ctx.fillRect(player.x, player.y, 28, 28);
@@ -99,62 +156,46 @@ function drawPlayer() {
     return;
   }
 
-  // Animation clock per state
-  if (!player._animState || player._animState !== state) {
-    player._animState = state;
-    player._animTime = 0;
-  }
-  player._animTime += 16; // ~60fps
-  const frameDurations = { idle:300, run:80, jump:9999, fall:9999, death:200, victory:200 };
-  const frameCount     = { idle:3,   run:4,  jump:1,     fall:1,    death:2,     victory:4 };
-  const fd = frameDurations[state];
-  const fc = frameCount[state];
-  const fi = state === 'death' || state === 'victory'
-    ? Math.min(Math.floor(player._animTime / fd), fc - 1) // play once
-    : Math.floor((player._animTime % (fd * fc)) / fd) % fc;
-
   ctx.save();
   if (!player.facingRight) {
-    ctx.translate(player.x * 2 + 32, 0); // flip around player center
+    // Flip: translate so player centerline is the mirror axis, then scale(-1,1)
+    ctx.translate(player.x * 2 + 32, 0);
     ctx.scale(-1, 1);
-    ctx.drawImage(strip, fi * 32, 0, 32, 32, player.x, player.y, 32, 32);
-  } else {
-    ctx.drawImage(strip, fi * 32, 0, 32, 32, player.x, player.y, 32, 32);
   }
+  ctx.drawImage(img, player.x, player.y, 32, 32);
   ctx.restore();
 }
 ```
 
-**Flip math note:** `ctx.scale(-1,1)` mirrors around x-axis. Adjust translate offset as needed — Zephyr to validate live. The translate `player.x * 2 + 32` flips around the player's vertical centerline (x=player.x, width=32).
+**Flip math note:** `player.x * 2 + 32` positions the mirror axis at `player.x + 16` (the player's horizontal center). Zephyr to validate live.
 
 ---
 
 ## Sign-off Criteria
 
 1. Player orb renders at correct canvas position (match current fillRect position)
-2. Idle/run/jump/fall states transition correctly based on input
-3. Facing direction flips visually (no mirrored eye, no offset jump)
-4. Death plays frames 9→10 once, holds on frame 10
-5. Victory plays frames 7→10 once, holds on frame 10
+2. Idle/run/jump/fall states transition correctly based on input physics
+3. Facing direction flips visually — no broken eye placement on left-facing frames
+4. Death plays frames 1→4 once, holds on frame 4
+5. Victory plays frames 1→6 once, holds on frame 6
 6. If sprites fail to load, fallback fillRect renders correctly
 7. No regression in physics, movement speed, or collision detection
-8. L4/L5 moving platforms do not break sprite rendering
+8. Moving platforms (L4/L5) do not break sprite rendering
 
 ---
 
 ## Dependencies
 
-- `docs/art/sprites/strip_*.png` — all 6 files on main (SHA 178bc88)
+- `docs/art/sprites/player_*.png` — 24 files on main
 - `prototype_v13.js` — `drawPlayer()` rewrite
 - `player` object with: `x`, `y`, `vx`, `vy`, `grounded`, `facingRight`
 - State vars: `deathTimer`, `levelComplete`
-- Sprite path: `docs/art/sprites/` (NOT `/art/sprites/` — Bug #60 stubs)
 
 ---
 
 ## Out of Scope
 
 - Sprite creation or revision (Bug #58, Bug #61 — art side complete)
-- Audio integration (already done by Cadenza/Cedric)
+- Audio integration (already done)
 - Physics changes
 - Level layout changes
