@@ -17,7 +17,7 @@ function el(id){return document.getElementById(id);}
 function updateDOM(){var cr=el("cr");if(cr)cr.textContent="Crystals: "+collected+" / "+crystalGate;var de=el("de");if(de)de.textContent="Deaths: "+deaths;}
 function drawTile(k,x,y,w,h){if(tileImages[k]&&tileImages[k].complete){ctx.drawImage(tileImages[k],x,y,w,h);}else{ctx.fillStyle="#333";ctx.fillRect(x,y,w,h);}}
 function preloadTiles(){var ks=Object.keys(TILE_MAP);tileTotal=ks.length;tileLoadCount=0;ks.forEach(function(k){var img=new Image();img.onload=function(){tileLoadCount++;};img.onerror=function(){tileLoadCount++;};img.src=TILE_BASE+k;tileImages[k]=img;});}
-function initAudio(){var ae=document.createElement("script");ae.src="https://forge-game-dev.github.io/ninfa-engine/docs/tech/Physics_Prototype/audio_engine.js";ae.onload=function(){audioEngine=window.audioEngine;if(audioEngine&&audioEngine.startProximitySound){audioEngine.startProximitySound();}};ae.onerror=function(){console.warn("Audio engine not loaded");};document.head.appendChild(ae);}
+function initAudio(){var ae=document.createElement("script");ae.src="https://forge-game-dev.github.io/ninfa-engine/tech/Physics_Prototype/audio_engine.js";ae.onload=function(){audioEngine=window.audioEngine;if(audioEngine&&audioEngine.startProximitySound){audioEngine.startProximitySound();}};ae.onerror=function(){console.warn("Audio engine not loaded");};document.head.appendChild(ae);}
 function aabb(ax,ay,aw,ah,bx,by,bw,bh){return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;}
 function collidePlatform(p){if(!aabb(player.x,player.y,player.w,player.h,p.x,p.y,p.w,p.h))return null;var ol=player.x+player.w-p.x,or=p.x+p.w-player.x,ot=player.y+player.h-p.y,ob=p.y+p.h-player.y;var m=Math.min(ol,or,ot,ob);if(m===ot&&player.vy>=0)return"top";if(m===ob&&player.vy<0)return"bottom";if(m===ol)return"left";if(m===or)return"right";return null;}
 function triggerDeath(){if(deathTimer>0)return;deaths++;deathTimer=1.5;if(audioEngine)audioEngine.trigger("SPIKE_DEATH");updateDOM();}
@@ -86,7 +86,7 @@ function updatePlayer(dt){
   // Spikes
   for(var i=0;i<spikes.length;i++){var s=spikes[i];var inset=6;if(aabb(player.x+inset,player.y+inset,player.w-inset*2,player.h-inset*2,s.x,s.y,s.w,s.h)){triggerDeath();return;}}
   // Crystals
-  for(var i=0;i<crystals.length;i++){var cr=crystals[i];if(!cr.collected&&aabb(player.x,player.y,player.w,player.h,cr.x,cr.y,cr.w,cr.h)){cr.collected=true;collected++;if(audioEngine)audioEngine.trigger("CRYSTAL");}}
+  for(var i=0;i<crystals.length;i++){var cr=crystals[i];if(!cr.collected&&aabb(player.x,player.y,player.w,player.h,cr.x,cr.y,cr.w,cr.h)){cr.collected=true;collected++;if(audioEngine)audioEngine.trigger("CRYSTAL");updateDOM();}}
   // Keys
   for(var i=0;i<keys_items.length;i++){var k=keys_items[i];if(!k.collected&&aabb(player.x,player.y,player.w,player.h,k.x,k.y,k.w,k.h)){k.collected=true;collectedKeys[k.id]=(collectedKeys[k.id]||0)+1;if(audioEngine)audioEngine.trigger("KEY_PICKUP");}}
   // Doors
@@ -141,7 +141,8 @@ function render(){
   if(levelComplete){ctx.fillStyle="rgba(0,0,0,0.7)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.font="36px monospace";ctx.fillText("LEVEL COMPLETE!",W/2-150,H/2);ctx.font="18px monospace";ctx.fillText("Crystals: "+collected+"/"+crystalGate,W/2-60,H/2+40);}
 }
 var lastTime=0;var animTime=0;
-function loop(ts){
+function restartFromCheckpoint(){if(lastCheckpoint){player.x=lastCheckpoint.x;player.y=lastCheckpoint.y;player.vx=0;player.vy=0;player.grounded=false;}deathTimer=0;levelComplete=false;if(audioEngine&&audioEngine.setProximityTarget){audioEngine.setProximityTarget(player,crystals);}}
+  function loop(ts){
   var dt=Math.min((ts-lastTime)/1000,0.1);lastTime=ts;animTime+=dt;
   if(deathTimer>0){deathTimer-=dt;if(deathTimer<=0){deathTimer=0;restartFromCheckpoint();}}
   updatePlayer(dt);updateMovingPlatforms(dt);updateTimedPlatform(dt);
