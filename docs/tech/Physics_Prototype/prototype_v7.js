@@ -198,7 +198,7 @@ function gameLoop(timestamp){
       var exit={x:736,y:544,w:48,h:64};
       if(player&&overlaps(player.x,player.y,player.w,player.h,exit.x,exit.y,exit.w,exit.h)){
         levelComplete=true; setPlayerAnimation('victory');
-        if(window.audioEngine&&audioReady)audioEngine.triggerVictory();
+        if(window.audioEngine&&audioReady){audioEngine.trigger("COMPLETE");audioEngine.trigger("VICTORY_STING");}
       }
     }
   }
