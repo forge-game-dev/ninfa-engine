@@ -27,10 +27,10 @@ function el(id){return document.getElementById(id);}
 function updateDOM(){var cr=el("cr");if(cr)cr.textContent="Crystals: "+collected+" / "+crystalGate;var de=el("de");if(de)de.textContent="Deaths: "+deaths;}
 function drawTile(k,x,y,w,h){if(tileImages[k]&&tileImages[k].complete){ctx.drawImage(tileImages[k],x,y,w,h);}else{ctx.fillStyle="#333";ctx.fillRect(x,y,w,h);}}
 function preloadTiles(){tileImages={};tileLoadCount=0;var ks=Object.keys(TILE_MAP);tileTotal=ks.length;ks.forEach(function(k){var img=new Image();img.onload=function(){tileLoadCount++;};img.onerror=function(){tileLoadCount++;};img.src=TILE_BASE+k;tileImages[k]=img;});}
-function initAudio(){audioEngine=window.AudioEngine;if(audioEngine){if(audioEngine.startProximitySound){audioEngine.startProximitySound();}}else{console.warn("AudioEngine not found on window");}}
+function initAudio(){audioEngine=window.AudioEngine;if(audioEngine){if(audioEngine.startProximitySound){audioEngine.startProximitySound();}}else{console.warn("AudioEngine not found on window");}if(window.ambientEngine){window.ambientEngine.init();}else{console.warn("AmbientEngine not found on window");}}
 function aabb(ax,ay,aw,ah,bx,by,bw,bh){return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;}
 function collidePlatform(p){if(!aabb(player.x,player.y,player.w,player.h,p.x,p.y,p.w,p.h))return null;var ol=player.x+player.w-p.x,or=p.x+p.w-player.x,ot=player.y+player.h-p.y,ob=p.y+p.h-player.y;var m=Math.min(ol,or,ot,ob);if(m===ot&&player.vy>=0)return"top";if(m===ob&&player.vy<0)return"bottom";if(m===ol)return"left";if(m===or)return"right";return null;}
-function triggerDeath(){if(deathTimer>0)return;deaths++;deathTimer=1.5;if(audioEngine)audioEngine.trigger("SPIKE_DEATH");updateDOM();}
+function triggerDeath(){if(deathTimer>0)return;deaths++;deathTimer=1.5;if(audioEngine)audioEngine.trigger("SPIKE_DEATH");updateDOM();if(window.ambientEngine)window.ambientEngine.stop();}
 function triggerDrown(){if(deathTimer>0)return;deaths++;deathTimer=1.5;if(audioEngine)audioEngine.trigger("DROWN");updateDOM();}
 function triggerCrystal(){if(audioEngine)audioEngine.trigger("CRYSTAL");}
 function triggerLand(){if(audioEngine)audioEngine.trigger("LAND");}
@@ -69,6 +69,7 @@ function initLevelFromJSON(data){var lvl=(data.id||"").replace("level_","");var 
   if(data.vaultDoor){var vd=data.vaultDoor;var vdx=isTile?vd.tileX*T:vd.x||0,vdy=isTile?vd.tileY*T:vd.y||0;vaultDoor={x:vdx,y:vdy,w:32,h:48,open:false,permanent:false};}
   if(data.exit){var ex=data.exit;var exx=isTile?ex.tileX*T:ex.x||0,exy=isTile?ex.tileY*T:ex.y||0;exitDoor={x:exx,y:exy,w:32,h:32};}
   updateDOM();
+  if(window.ambientEngine){var lvlNum=parseInt(currentLevel.replace(/[^0-9]/g,""),10)||1;window.ambientEngine.startLevel(lvlNum);}
 }
 function loadLevel(id){
   var lvl=id||"04";var url="https://raw.githubusercontent.com/forge-game-dev/ninfa-engine/main/docs/levels/level_"+lvl+".json";
@@ -172,7 +173,7 @@ function render(){
   if(levelComplete){ctx.fillStyle="rgba(0,0,0,0.7)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.font="36px monospace";ctx.fillText("LEVEL COMPLETE!",W/2-150,H/2);ctx.font="18px monospace";ctx.fillText("Crystals: "+collected+"/"+crystalGate,W/2-60,H/2+40);}
 }
 var lastTime=0;var animTime=0;
-function restartFromCheckpoint(){if(lastCheckpoint){player.x=lastCheckpoint.x;player.y=lastCheckpoint.y;player.vx=0;player.vy=0;player.grounded=false;}deathTimer=0;levelComplete=false;if(audioEngine&&audioEngine.setProximityTarget){audioEngine.setProximityTarget(player,crystals);}}
+function restartFromCheckpoint(){if(lastCheckpoint){player.x=lastCheckpoint.x;player.y=lastCheckpoint.y;player.vx=0;player.vy=0;player.grounded=false;}deathTimer=0;levelComplete=false;if(audioEngine&&audioEngine.setProximityTarget){audioEngine.setProximityTarget(player,crystals);}if(window.ambientEngine){var lvlNum=parseInt(currentLevel.replace(/[^0-9]/g,""),10)||1;window.ambientEngine.startLevel(lvlNum);}}
   function loop(ts){
   var dt=Math.min((ts-lastTime)/1000,0.1);lastTime=ts;animTime+=dt;
   if(deathTimer>0){deathTimer-=dt;if(deathTimer<=0){deathTimer=0;restartFromCheckpoint();}}
