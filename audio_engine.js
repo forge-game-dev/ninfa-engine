@@ -814,6 +814,13 @@ function _makeDistortionCurve(amount) {
   function triggerVictory()       { trigger('VICTORY_STING'); }
   function triggerSpikeDeath()    { trigger('SPIKE_DEATH'); }
   function triggerMovingPlatformWarning(panValue) { triggerSpatialWarning(panValue); }
+  function triggerRunStep(panValue)              { trigger('RUN_STEP', panValue); }
+  function triggerJumpLiftoff()                 { trigger('JUMP_LIFTOFF'); }
+  function triggerJumpApex()                    { trigger('JUMP_APEX'); }
+  function triggerLandStone()                   { trigger('LAND_STONE'); }
+  function triggerLandSpike()                   { trigger('LAND_SPIKE'); }
+  function triggerDeathKeyFrame()               { trigger('DEATH_KEY_FRAME'); }
+  function triggerVictoryKeyFrame()              { trigger('VICTORY_KEY_FRAME'); }
 
   // ============================================================
   // PUBLIC API
@@ -830,6 +837,13 @@ function _makeDistortionCurve(amount) {
     startProximitySound,
     updateProximitySound,
     stopProximitySound,
+    triggerRunStep,
+    triggerJumpLiftoff,
+    triggerJumpApex,
+    triggerLandStone,
+    triggerLandSpike,
+    triggerDeathKeyFrame,
+    triggerVictoryKeyFrame,
     setProximityTarget,
     triggerSpatialWarning,
     triggerSpatialTimedWarning,
