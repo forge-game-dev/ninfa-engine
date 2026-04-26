@@ -36,6 +36,14 @@ var AudioEngine = (function() {
     resume();
     switch (name) {
       case 'JUMP':         _playJump();       break;
+      case 'RUN_STEP':         _playRunStep(param);      break;
+      case 'JUMP_LIFTOFF':     _playJumpLiftoff();        break;
+      case 'JUMP_APEX':        _playJumpApex();           break;
+      case 'LAND_STONE':       _playLandStone();         break;
+      case 'LAND_SPIKE':       _playLandSpike();         break;
+      case 'DEATH_KEY_FRAME':  _playDeathKeyFrame();      break;
+      case 'VICTORY_KEY_FRAME': _playVictoryKeyFrame();    break;
+
       case 'LAND':          _playLand();       break;
       case 'CRYSTAL':       _playCrystal();    break;
       case 'EXIT':          _playExit();       break;
@@ -56,10 +64,125 @@ var AudioEngine = (function() {
       case 'SPIKE_DEATH':          _playSpikeDeath();          break;
       case 'TIMED_PLATFORM_DISAPPEAR': _playTimedPlatformDisappear(); break;
       default: console.warn('[AudioEngine] Unknown trigger:', name);
+      case 'TIMED_PLATFORM_WARNING': _playTimedPlatformWarning(); break;
     }
   }
 
-  // ---- EXISTING SFX ----
+  
+  // ============================================================
+  // ANIMATION-PHASE HANDLERS (Cadenza · 2026-04-26)
+  // Frame index formula: fi = Math.floor((animTime * fps) % frames)
+  // State table: idle(4fps/3fr), run(8fps/4fr), jump(4fps/4fr),
+  //              fall(4fps/3fr), death(6fps/4fr), victory(6fps/6fr)
+  // ============================================================
+
+  function _playRunStep(panValue) {
+    // Two clicks per run stride (fi transitions 0→1 and 2→3)
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(90, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+    osc.connect(gain); gain.connect(masterGain);
+    osc.start(); osc.stop(ctx.currentTime + 0.12);
+    // Soft reverb tail
+    const delay = ctx.createDelay();
+    const delayGain = ctx.createGain();
+    delay.delayTime.value = 0.06;
+    delayGain.gain.value = 0.15;
+    gain.connect(delay); delay.connect(delayGain); delayGain.connect(masterGain);
+  }
+
+  function _playJumpLiftoff() {
+    // Soft puff on leaving the ground (vy < 0, grounded → !grounded)
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(360, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(420, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.14);
+    osc.connect(gain); gain.connect(masterGain);
+    osc.start(); osc.stop(ctx.currentTime + 0.14);
+  }
+
+  function _playJumpApex() {
+    // Subtle sense of weightlessness at jump apex (fi===1, state==="jump")
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc1.type = 'sine'; osc1.frequency.value = 520;
+    osc2.type = 'sine'; osc2.frequency.value = 523.25; // slight beat
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+    osc1.connect(gain); osc2.connect(gain); gain.connect(masterGain);
+    osc1.start(); osc2.start();
+    osc1.stop(ctx.currentTime + 0.25); osc2.stop(ctx.currentTime + 0.25);
+  }
+
+  function _playLandStone() {
+    // Hard surface impact (solid platform tiles, grounded+wasAirborne)
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(500, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.06);
+    gain.gain.setValueAtTime(0.38, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
+    osc.connect(gain); gain.connect(masterGain);
+    osc.start(); osc.stop(ctx.currentTime + 0.09);
+  }
+
+  function _playLandSpike() {
+    // Sharp metallic tap on spike platform landing
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const dist = ctx.createWaveShaper();
+    dist.curve = _makeDistortionCurve(80);
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.22, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    osc.connect(dist); dist.connect(gain); gain.connect(masterGain);
+    osc.start(); osc.stop(ctx.currentTime + 0.08);
+  }
+
+  function _playDeathKeyFrame() {
+    // Hollow descending tone at death key pose (fi===2, state==="death")
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const dist = ctx.createWaveShaper();
+    dist.curve = _makeDistortionCurve(40);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(400, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.5);
+    gain.gain.setValueAtTime(0.28, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
+    osc.connect(dist); dist.connect(gain); gain.connect(masterGain);
+    osc.start(); osc.stop(ctx.currentTime + 0.55);
+  }
+
+  function _playVictoryKeyFrame() {
+    // Bright ascending flourish at arms-up key pose (fi===3, state==="victory")
+    [523.25, 659.25, 783.99].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.07;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.22, t + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(t); osc.stop(t + 0.45);
+    });
+  }
+
+// ---- EXISTING SFX ----
   function _playJump() {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -680,6 +803,28 @@ function _makeDistortionCurve(amount) {
     init(); resume();
     _playTimedPlatformWarning(panValue);
   }
+  // ============================================================
+  // FACADE WRAPPER METHODS (Cadenza · 2026-04-26)
+  // Thin wrappers mapping legacy caller names → trigger() calls.
+  // Keeps prototype_v13.js wiring backward-compatible with audio_engine.js.
+  // ============================================================
+
+  function triggerJump()         { trigger('JUMP'); }
+  function triggerCrystal()       { trigger('CRYSTAL'); }
+  function triggerCheckpoint()    { trigger('CHECKPOINT'); }
+  function triggerVictory()       { trigger('VICTORY_STING'); }
+  function triggerSpikeDeath()    { trigger('SPIKE_DEATH'); }
+  function triggerMovingPlatformWarning(panValue) { triggerSpatialWarning(panValue); }
+  function triggerRunStep(panValue)              { trigger('RUN_STEP', panValue); }
+  function triggerJumpLiftoff()                 { trigger('JUMP_LIFTOFF'); }
+  function triggerJumpApex()                    { trigger('JUMP_APEX'); }
+  function triggerLandStone()                   { trigger('LAND_STONE'); }
+  function triggerLandSpike()                   { trigger('LAND_SPIKE'); }
+  function updateProximity()                 { updateProximitySound(); }
+  function triggerTimedPlatformWarning()          { triggerSpatialTimedWarning(0); }
+  function triggerTimedPlatformDisappear()        { trigger('TIMED_PLATFORM_DISAPPEAR'); }
+  function triggerDeathKeyFrame()               { trigger('DEATH_KEY_FRAME'); }
+  function triggerVictoryKeyFrame()              { trigger('VICTORY_KEY_FRAME'); }
 
   // ============================================================
   // PUBLIC API
@@ -688,16 +833,33 @@ function _makeDistortionCurve(amount) {
     init,
     resume,
     trigger,
+    triggerJump,
+    triggerCrystal,
+    triggerCheckpoint,
+    triggerVictory,
+    triggerSpikeDeath,
+    triggerTimedPlatformWarning,
+    triggerTimedPlatformDisappear,
     startProximitySound,
+    updateProximity,
     updateProximitySound,
     stopProximitySound,
+    triggerRunStep,
+    triggerJumpLiftoff,
+    triggerJumpApex,
+    triggerLandStone,
+    triggerLandSpike,
+    triggerDeathKeyFrame,
+    triggerVictoryKeyFrame,
     setProximityTarget,
     triggerSpatialWarning,
     triggerSpatialTimedWarning,
+    triggerMovingPlatformWarning,
     get PROXIMITY_ACTIVE() { return proximityActive; },
     startZoneCAmbient,
     stopZoneCAmbient,
-    };
+  };
+
 })();
 
 window.AudioEngine = AudioEngine;
