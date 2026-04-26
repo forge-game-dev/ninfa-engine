@@ -680,6 +680,18 @@ function _makeDistortionCurve(amount) {
     init(); resume();
     _playTimedPlatformWarning(panValue);
   }
+  // ============================================================
+  // FACADE WRAPPER METHODS (Cadenza · 2026-04-26)
+  // Thin wrappers mapping legacy caller names → trigger() calls.
+  // Keeps prototype_v13.js wiring backward-compatible with audio_engine.js.
+  // ============================================================
+
+  function triggerJump()         { trigger('JUMP'); }
+  function triggerCrystal()       { trigger('CRYSTAL'); }
+  function triggerCheckpoint()    { trigger('CHECKPOINT'); }
+  function triggerVictory()       { trigger('VICTORY_STING'); }
+  function triggerSpikeDeath()    { trigger('SPIKE_DEATH'); }
+  function triggerMovingPlatformWarning(panValue) { triggerSpatialWarning(panValue); }
 
   // ============================================================
   // PUBLIC API
@@ -688,16 +700,23 @@ function _makeDistortionCurve(amount) {
     init,
     resume,
     trigger,
+    triggerJump,
+    triggerCrystal,
+    triggerCheckpoint,
+    triggerVictory,
+    triggerSpikeDeath,
     startProximitySound,
     updateProximitySound,
     stopProximitySound,
     setProximityTarget,
     triggerSpatialWarning,
     triggerSpatialTimedWarning,
+    triggerMovingPlatformWarning,
     get PROXIMITY_ACTIVE() { return proximityActive; },
     startZoneCAmbient,
     stopZoneCAmbient,
-    };
+  };
+
 })();
 
 window.AudioEngine = AudioEngine;
