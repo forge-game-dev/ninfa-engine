@@ -5,7 +5,7 @@ var LEVEL_TDIMS={"01":{"platforms/tile_32_corner_l.png":{"w":32,"h":32},"platfor
 var LEVEL_TILESET={"01":"level_1","02":"level_2","03":"level_3","04":"level_4","05":"level_4"};
 
 var CRYSTAL_TILE_KEYS={"01":"collectibles/crystal.png","02":"collectibles/crystal.png","03":"collectibles/crystal.png","04":"collectibles/crystal_00.png","05":"collectibles/crystal_00.png"};
-var KEY_TILE_KEYS={"gold":"collectibles/key_gold.png","silver":"collectibles/key_silver.png","copper":"collectibles/key_copper.png"};
+var KEY_TILE_KEYS={"gold":"collectibles/key_gold.png","silver":"collectibles/key_silver.png","copper":"collectibles/key_copper.png","red":"collectibles/key_red.png","blue":"collectibles/key_blue.png"};
 var DOOR_TILE_KEYS={"locked":"collectibles/door_locked.png","pressure":"collectibles/door_standard.png","none":"collectibles/door_standard.png"};
 var PLATE_TILE_KEYS={"up":"collectibles/pressure_plate_up.png","down":"collectibles/pressure_plate_down.png"};
 
