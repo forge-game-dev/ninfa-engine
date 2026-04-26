@@ -22,11 +22,11 @@ var collected=0,crystalGate=12,inZoneC=false,currentLevel="04";
 var player={x:32,y:64,w:28,h:28,vx:0,vy:0,grounded:false,lastGrounded:0,jumpBuffer:0,facingRight:true,coyoteT:0};
 var platforms=[],movingPlatforms=[],timedPlatform=null,spikes=[],crystals=[],checkpoints=[],lastCheckpoint={x:64,y:96},collectedKeys={};
 var pressurePlates=[],doors=[],keys_items=[],crystalSwitch=null,vaultDoor=null,exitDoor=null;
-var levelData=null,audioEngine=null,tileImages={},playerStripImgs={},tileLoadCount=0,tileTotal=0;
+var levelData=null,audioEngine=null,tileImages={},playerStripImgs={},backdropImages=null,tileLoadCount=0,tileTotal=0;
 function el(id){return document.getElementById(id);}
 function updateDOM(){var cr=el("cr");if(cr)cr.textContent="Crystals: "+collected+" / "+crystalGate;var de=el("de");if(de)de.textContent="Deaths: "+deaths;}
 function drawTile(k,x,y,w,h){if(tileImages[k]&&tileImages[k].complete){ctx.drawImage(tileImages[k],x,y,w,h);}else{ctx.fillStyle="#333";ctx.fillRect(x,y,w,h);}}
-function preloadTiles(){tileImages={};tileLoadCount=0;var ks=Object.keys(TILE_MAP);tileTotal=ks.length;ks.forEach(function(k){var img=new Image();img.onload=function(){tileLoadCount++;};img.onerror=function(){tileLoadCount++;};img.src=TILE_BASE+k;tileImages[k]=img;});}
+var BACKDROP_BASE="https://forge-game-dev.github.io/ninfa-engine/art/backdrops/level_5/";function preloadBackdrop(){if(!levelData||!levelData.zones||!levelData.zones.C||currentLevel!=="04")return;backdropImages={layer0:new Image(),layer1:new Image(),layer2:new Image()};backdropImages.layer0.src=BACKDROP_BASE+"zone_c_parallax_layer0.png";backdropImages.layer1.src=BACKDROP_BASE+"zone_c_parallax_layer1.png";backdropImages.layer2.src=BACKDROP_BASE+"zone_c_parallax_layer2.png";}function drawBackdrop(){var bg=(levelData&&levelData.background)||"#0a0a0f";if(currentLevel!=="04"||!backdropImages){ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);return;}var layers=[{img:backdropImages.layer0,f:0.1},{img:backdropImages.layer1,f:0.3},{img:backdropImages.layer2,f:0.5}];var px=player?player.x:0,py=player?player.y:0;ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);layers.forEach(function(l){if(l.img&&l.img.complete&&l.img.naturalWidth>0){var sw=l.img.naturalWidth,sh=l.img.naturalHeight;var sx=Math.max(0,Math.min(Math.floor(px*l.f),sw-W));ctx.drawImage(l.img,sx,0,Math.min(W,sw-sx),sh,0,0,W,H);}else{var shade=bg;if(l===layers[0])shade="#1a0a0a";else if(l===layers[1])shade="#150a05";else shade="#120805";ctx.fillStyle=shade;ctx.fillRect(0,0,W,H);}});}function preloadTiles(){tileImages={};tileLoadCount=0;var ks=Object.keys(TILE_MAP);tileTotal=ks.length;ks.forEach(function(k){var img=new Image();img.onload=function(){tileLoadCount++;};img.onerror=function(){tileLoadCount++;};img.src=TILE_BASE+k;tileImages[k]=img;});}
 function initAudio(){audioEngine=window.AudioEngine;if(audioEngine){if(audioEngine.startProximitySound){audioEngine.startProximitySound();}}else{console.warn("AudioEngine not found on window");}}
 function aabb(ax,ay,aw,ah,bx,by,bw,bh){return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;}
 function collidePlatform(p){if(!aabb(player.x,player.y,player.w,player.h,p.x,p.y,p.w,p.h))return null;var ol=player.x+player.w-p.x,or=p.x+p.w-player.x,ot=player.y+player.h-p.y,ob=p.y+p.h-player.y;var m=Math.min(ol,or,ot,ob);if(m===ot&&player.vy>=0)return"top";if(m===ob&&player.vy<0)return"bottom";if(m===ol)return"left";if(m===or)return"right";return null;}
@@ -175,7 +175,7 @@ function drawPlayer(){
   var dw=player.w,dh=player.h,dx=player.x,dy=player.y;
   if(!player.facingRight){ctx.save();ctx.translate(player.x+player.w,0);ctx.scale(-1,1);ctx.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh);ctx.restore();}else{ctx.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh);}if(state==="death"&&fi===2&&lastDeathFi!==2&&audioEngine){audioEngine.trigger("DEATH_KEY_FRAME");lastDeathFi=2;}if(state!=="death")lastDeathFi=-1;
 }
-function render(){
+function render(){drawBackdrop();
   ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);
   if(!levelData){ctx.fillStyle="#888";ctx.font="20px monospace";ctx.fillText("Loading...",W/2-50,H/2);return;}
   drawPlatforms();drawMovingPlatforms();drawTimedPlatform();drawSpikes();drawCrystals();drawKeys();drawDoors();drawPressurePlates();drawCheckpoints();drawCrystalSwitch();drawVaultDoor();drawExit();drawPlayer();
@@ -205,7 +205,7 @@ function restartFromCheckpoint(){if(lastCheckpoint){player.x=lastCheckpoint.x;pl
 function init(){
   var p=window.location.search.match(/[?&]level=([^&]+)/);
   var lvl=p?p[1]:"04";if(lvl.length===1)lvl="0"+lvl;
-  preloadTiles();initAudio();loadLevel(lvl);
+  preloadTiles();preloadBackdrop();initAudio();loadLevel(lvl);
   requestAnimationFrame(function(ts){lastTime=ts;loop(ts);});
 }
 window.addEventListener("keydown",function(e){keys[e.code]=true;});
