@@ -42,6 +42,7 @@ function initLevelFromJSON(data){var lvl=(data.id||"").replace("level_","");var 
   platforms=[];movingPlatforms=[];timedPlatform=null;spikes=[];crystals=[];checkpoints=[];
   pressurePlates=[];doors=[];keys_items=[];crystalSwitch=null;vaultDoor=null;exitDoor=null;
   levelData=data;collectedKeys={};inZoneC=false;useFallbackArt=!!data.useFallbackArt;
+  var runStepTimer=0,jumping=false,lastVy=0,lastDeathFi=-1,lastVictoryFi=-1;
   collected=data.totalCrystals?0:0;crystalGate=data.crystalGate||Math.floor((data.crystals?data.crystals.length:0)*0.7);
   currentLevel=data.id||"01";player={x:32,y:64,w:28,h:28,vx:0,vy:0,grounded:false,lastGrounded:0,jumpBuffer:0,facingRight:true,coyoteT:0};
   var isTile=data.platforms&&data.platforms[0]&&data.platforms[0].tileX!==undefined;
