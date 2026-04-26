@@ -64,6 +64,7 @@ var AudioEngine = (function() {
       case 'SPIKE_DEATH':          _playSpikeDeath();          break;
       case 'TIMED_PLATFORM_DISAPPEAR': _playTimedPlatformDisappear(); break;
       default: console.warn('[AudioEngine] Unknown trigger:', name);
+      case 'TIMED_PLATFORM_WARNING': _playTimedPlatformWarning(); break;
     }
   }
 
@@ -819,6 +820,9 @@ function _makeDistortionCurve(amount) {
   function triggerJumpApex()                    { trigger('JUMP_APEX'); }
   function triggerLandStone()                   { trigger('LAND_STONE'); }
   function triggerLandSpike()                   { trigger('LAND_SPIKE'); }
+  function updateProximity()                 { updateProximitySound(); }
+  function triggerTimedPlatformWarning()          { triggerSpatialTimedWarning(0); }
+  function triggerTimedPlatformDisappear()        { trigger('TIMED_PLATFORM_DISAPPEAR'); }
   function triggerDeathKeyFrame()               { trigger('DEATH_KEY_FRAME'); }
   function triggerVictoryKeyFrame()              { trigger('VICTORY_KEY_FRAME'); }
 
@@ -834,7 +838,10 @@ function _makeDistortionCurve(amount) {
     triggerCheckpoint,
     triggerVictory,
     triggerSpikeDeath,
+    triggerTimedPlatformWarning,
+    triggerTimedPlatformDisappear,
     startProximitySound,
+    updateProximity,
     updateProximitySound,
     stopProximitySound,
     triggerRunStep,
