@@ -162,7 +162,7 @@ function drawPlayer(){
   if(!player)return;
   var state="idle";
   if(deathTimer>0){state="death";}else if(levelComplete){state="victory";}else if(player.vy<-0.5){state="jump";}else if(player.vy>0.5){state="fall";}else if(Math.abs(player.vx)>0.1){state="run";}
-  var stripUrls={idle:"docs/art/sprites/strip_idle.png",run:"docs/art/sprites/strip_run.png",jump:"docs/art/sprites/strip_jump.png",fall:"docs/art/sprites/strip_fall.png",death:"docs/art/sprites/strip_death.png",victory:"docs/art/sprites/strip_victory.png"};
+  var stripUrls={idle:"art/sprites/strip_idle.png",run:"art/sprites/strip_run.png",jump:"art/sprites/strip_jump.png",fall:"art/sprites/strip_fall.png",death:"art/sprites/strip_death.png",victory:"art/sprites/strip_victory.png"};
   if(!playerStripImgs)playerStripImgs={};
   if(!playerStripImgs[state]){playerStripImgs[state]=new Image();playerStripImgs[state].src=stripUrls[state];}
   var img=playerStripImgs[state];
